@@ -81,5 +81,7 @@ public class RelativeWheelControls {
                 {y-x, y+x},
                 {y+x, y-x}
         });
+        op.telemetry.addData("xStick", xStick);
+        op.telemetry.addData("yStick", yStick);
     }
 }

@@ -92,6 +92,7 @@ public class Gyro2 {
             // initialize the imu with the parameters
             gyro.initialize(parameters);
 
+
             // wait for rhe calibration to complete
             while (!gyro.isGyroCalibrated()) {
                 // do noting... just wait
