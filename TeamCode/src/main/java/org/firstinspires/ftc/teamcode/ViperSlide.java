@@ -8,7 +8,7 @@ public class ViperSlide {
     }
 
     public final static int MAX_TICKS = 4300;
-    double targetTicks;
+    public double targetTicks;
 
     private void raise(int ticks) {
         op.sweeperRotator.setPosition(.5);

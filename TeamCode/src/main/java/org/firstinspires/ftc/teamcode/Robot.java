@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 // A parent class to all operation modes. Contains the Robot's Hardware but also LinearOpMode.
 public abstract class Robot extends LinearOpMode {
@@ -30,8 +31,8 @@ public abstract class Robot extends LinearOpMode {
     public ViperSlide viperSlide;
     public Intake intake;
 
-    public ColorSensor colorLeft;
-    public ColorSensor colorRight;
+    public TouchSensor touchLeft;
+    public TouchSensor touchRight;
 
     private void autoBrake(DcMotor motor) {
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -104,8 +105,8 @@ public abstract class Robot extends LinearOpMode {
 
         dumperServo = hardwareMap.get(Servo.class, "dumperServo");
 
-        colorLeft = hardwareMap.get(ColorSensor.class, "leftColor");
-        colorRight = hardwareMap.get(ColorSensor.class, "rightColor");
+        touchLeft = hardwareMap.get(TouchSensor.class, "touchLeft");
+        touchRight = hardwareMap.get(TouchSensor.class, "touchRight");
 
         clawLeft = hardwareMap.get(Servo.class, "clawLeft");
         clawRight = hardwareMap.get(Servo.class, "clawRight");
