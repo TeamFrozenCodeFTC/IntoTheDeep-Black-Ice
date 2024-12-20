@@ -58,7 +58,7 @@ For support, contact tech@gobilda.com
  */
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class OdometryTest extends LinearOpMode {
+public class GobildaOdometryTest extends LinearOpMode {
 
     org.firstinspires.ftc.teamcode.autonomous.custom.GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
 

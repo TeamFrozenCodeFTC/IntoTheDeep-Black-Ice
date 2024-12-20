@@ -21,7 +21,7 @@ public abstract class Autonomous extends Robot {
         double frontRight,
         double backRight
     ) {
-        double angleLock = (gyro.getAngle() - lockedAngle) / 360 * 17; // 1*17/360
+        double angleLock = (getHeading() - lockedAngle) / 360 * 17; // 1*17/360
 
         frontLeftWheel.setPower(frontLeft+angleLock);
         backLeftWheel.setPower(backLeft+angleLock);
@@ -92,7 +92,7 @@ public abstract class Autonomous extends Robot {
     public void turnLeft(int degrees, double power) {
         lockedAngle += degrees;
 
-        while (gyro.getAngle() < lockedAngle) {
+        while (getHeading() < lockedAngle) {
             frontLeftWheel.setPower(-power);
             backLeftWheel.setPower(-power);
             frontRightWheel.setPower(power);
@@ -105,7 +105,7 @@ public abstract class Autonomous extends Robot {
     public void turnRight(int degrees, double power) {
         lockedAngle -= degrees;
 
-        while (gyro.getAngle() > lockedAngle) {
+        while (getHeading() > lockedAngle) {
             frontLeftWheel.setPower(power);
             backLeftWheel.setPower(power);
             frontRightWheel.setPower(-power);

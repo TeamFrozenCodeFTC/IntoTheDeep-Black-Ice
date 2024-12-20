@@ -16,8 +16,6 @@ public abstract class AutoSpecimen extends Autonomous {
     public void observationZonePark() {
         goForward(22, allPower);
         slideLeft(24*2, allPower);
-
-        gyro.resetRotation(180);
     }
 
     public void hangSpecimen() {

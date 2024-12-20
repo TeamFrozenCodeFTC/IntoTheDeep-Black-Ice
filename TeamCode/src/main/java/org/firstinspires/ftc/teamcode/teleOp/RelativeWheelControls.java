@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Robot;
 
 import java.util.ArrayList;
@@ -20,12 +23,13 @@ public class RelativeWheelControls {
     }
 
     private double getRadians() {
-        return op.gyro.getAngle() * Math.PI/180;
+        op.odometry.update();
+        return op.odometry.getHeading();
     }
 
     void control() {
         if (op.gamepad1.triangle) {
-            op.gyro.reset();
+            op.resetRotation();
         }
 
         relativeSlide();

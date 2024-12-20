@@ -91,7 +91,6 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
         return "goBILDA® Pinpoint Odometry Computer";
     }
 
-
     //Register map of the i2c device
     private enum Register {
         DEVICE_ID       (1),
@@ -517,3 +516,7 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
 
 
 }
+
+
+
+

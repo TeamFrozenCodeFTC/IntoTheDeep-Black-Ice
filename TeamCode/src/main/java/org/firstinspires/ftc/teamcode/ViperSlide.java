@@ -39,6 +39,10 @@ public class ViperSlide {
         raise(171);
     }
 
+    public void maxInitRaise() {
+        raise(300);
+    }
+
     public void lower() {
         op.sweeperRotator.setPosition(.5);
         bucketDown();
@@ -49,7 +53,7 @@ public class ViperSlide {
         new Thread(() -> {
             long start = System.currentTimeMillis();
             while (op.opModeIsActive() && op.viperSlideMotor.getCurrentPosition() > 10 && (System.currentTimeMillis() - start) < 10000) {
-
+                op.idle();
             }
             op.viperSlideMotor.setPower(0);
         }).start();
@@ -58,7 +62,7 @@ public class ViperSlide {
     public void waitForExtension() {
         while (op.viperSlideMotor.isBusy()
                 || op.viperSlideMotor.getCurrentPosition() < targetTicks-10) {
-
+            op.idle();
         }
 
     }

@@ -27,13 +27,13 @@ public class Intake {
     }
 
     public void moveExtenderBack() {
-        op.intakeExtender.setTargetPosition(100);
+        op.intakeExtender.setTargetPosition(0);
         op.intakeExtender.setPower(1);
     }
 
     public void waitForExtension() {
         while (op.intakeExtender.isBusy()) {
-
+            op.idle();
         }
     }
 

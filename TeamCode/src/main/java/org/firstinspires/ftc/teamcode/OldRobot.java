@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.autonomous.custom.GoBildaPinpointDriver;
 
 // A parent class to all operation modes. Contains the Robot's Hardware but also LinearOpMode.
-public abstract class Robot extends LinearOpMode {
+public abstract class OldRobot extends LinearOpMode {
     public DcMotor frontLeftWheel;
     public DcMotor backLeftWheel;
     public DcMotor frontRightWheel;
@@ -59,7 +59,7 @@ public abstract class Robot extends LinearOpMode {
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public Odometry odometry;
+    public GoBildaPinpointDriver odometry;
 
     public void initWheels() {
         frontLeftWheel = hardwareMap.get(DcMotor.class, "frontLeft");
@@ -101,11 +101,14 @@ public abstract class Robot extends LinearOpMode {
         clawLeft = hardwareMap.get(Servo.class, "clawLeft");
         clawRight = hardwareMap.get(Servo.class, "clawRight");
 
-        initOdometry();
-    }
+        odometry = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
 
-    public void initOdometry() {
-        odometry = new Odometry(this);
+        odometry.setOffsets(-36, 0);
+        odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+
+        odometry.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED,
+                GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        odometry.resetPosAndIMU();
     }
 
     public void initRobot() {
