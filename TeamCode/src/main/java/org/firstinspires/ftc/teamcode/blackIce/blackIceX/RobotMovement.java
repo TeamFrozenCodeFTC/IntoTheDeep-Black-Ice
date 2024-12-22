@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
+
+// TODO path system, better turning
 public abstract class RobotMovement extends Robot {
     final int TILE = 24;
     final int ROBOT = 18;
@@ -23,12 +25,16 @@ public abstract class RobotMovement extends Robot {
 
     final double MAX_POWER = 1;
     final double MAX_TURN_POWER = 1;
-    final double HEADING_POWER = 0.02; // make robot turn in the length of the motion
+    final double HEADING_POWER = 0.02;
 
     final double LINEAR_INCH_SLOW_DOWN = 5;
     // if robot ever gets stuck maybe add a I in PID
 
+    final double CONTROLLABLE_VELOCITY = 15;
+
     public ErrorMargin defaultErrorMargin = new ErrorMargin(2, 0.5, 0.5);
+
+    public ErrorMargin wideErrorMargin = new ErrorMargin(5, 1.5, 1.5);
 
     /**
      * Moves the robot straight with a set power for the given seconds. (Includes turn correction).
@@ -66,7 +72,7 @@ public abstract class RobotMovement extends Robot {
 
         updatePosition();
 
-        while (opModeIsActive() && isNotWithinErrorMargin(defaultErrorMargin)) {
+        while (opModeIsActive() && isNotWithinErrorMargin(wideErrorMargin)) {
             goTowardTarget();
             updatePosition();
         }
@@ -87,7 +93,7 @@ public abstract class RobotMovement extends Robot {
     }
 
     /**
-     * Keeps the robot at the last target pose for the given seconds.
+     * Locks the robot at the last target pose for the given seconds.
      */
     public void holdFor(double seconds) {
         ElapsedTime timer = new ElapsedTime();
@@ -111,7 +117,7 @@ public abstract class RobotMovement extends Robot {
         while (opModeIsActive() && isNotWithinErrorMargin(errorMargin)) {
             double stoppingDistance = estimateStoppingDistance();
 
-            if (distanceToTarget <= stoppingDistance && odometry.velocity > 15) {
+            if (distanceToTarget <= stoppingDistance && odometry.velocity > CONTROLLABLE_VELOCITY) {
                 // try braking using negative powers
                 brake();
             } else {
@@ -146,14 +152,13 @@ public abstract class RobotMovement extends Robot {
         return headingVelocityError * 0.05;
     }
 
-    private boolean isNotWithinErrorMargin(ErrorMargin errorMargin) {
+    public boolean isNotWithinErrorMargin(ErrorMargin errorMargin) {
         return (
             Math.abs(yError) > errorMargin.y ||
             Math.abs(xError) > errorMargin.x ||
             Math.abs(headingError) > errorMargin.degrees
         );
     }
-
 
     public void updatePosition() {
         odometry.update();
@@ -177,18 +182,44 @@ public abstract class RobotMovement extends Robot {
 
     private void goTowardTarget() {
         powerWheels(applyCorrection(normalize(localToGlobal(
-                odometry.heading + 90, // +90 for starting orientation of hub
-                (targetX - odometry.x) / LINEAR_INCH_SLOW_DOWN,
+                odometry.heading - 90 ,// + 90, // +90 for starting orientation of hub
+                -(targetX - odometry.x) / LINEAR_INCH_SLOW_DOWN,
                 (targetY - odometry.y) / LINEAR_INCH_SLOW_DOWN
         ))));
     }
 
-    private double[] applyCorrection(double[] powers) {
+    public void forceTowardTarget() {
+        double rotation = odometry.heading - 90;
+        double x1 = -(targetX - odometry.x) / LINEAR_INCH_SLOW_DOWN;
+        double y1 = (targetY - odometry.y) / LINEAR_INCH_SLOW_DOWN;
+
+        double cos = Math.cos(Math.toRadians(rotation));
+        double sin = Math.sin(Math.toRadians(rotation));
+        double xx = x1 * cos - y1 * sin;
+        double yy = x1 * sin + y1 * cos;
+
+        double x;
+        double y;
+
+        if (odometry.velocity > 10 && odometry.xVelocity > odometry.yVelocity) {
+            x = xx;
+            // (totalY / totalX + ?) = (x/y)
+            y = yy + ((yy/xx) * (xx+odometry.xVelocity) - (yy+odometry.yVelocity));
+        }
+        else {
+            x = yy + ((xx/yy) * (yy+odometry.yVelocity) - (xx+odometry.xVelocity));
+            y = yy;
+        }
+
+        powerWheels(applyCorrection(normalize(new double[] {y-x, y+x,y+x, y-x})));
+    }
+
+    public double[] applyCorrection(double[] powers) {
         double turnCorrection = getTurnCorrection();
 
         for (int i = 0; i < powers.length; i++) {
             double total = powers[i];
-            if (i <= 2) {
+            if (i < 2) {
                 total -= turnCorrection;
             }
             else {
@@ -206,21 +237,20 @@ public abstract class RobotMovement extends Robot {
         powerMult = 1;
     }
 
-    private void powerWheels(double[] powers) {
+    public void powerWheels(double[] powers) {
         frontLeftWheel.setPower(powers[0]);
         backLeftWheel.setPower(powers[1]);
         frontRightWheel.setPower(powers[2]);
         backRightWheel.setPower(powers[3]);
     }
 
-    private double[] localToGlobal(double rotation, double x1, double y1) {
+    public double[] localToGlobal(double rotation, double x1, double y1) {
         // Gives the powers of wheels to go to a certain vector
-        //
 
         double cos = Math.cos(Math.toRadians(rotation));
         double sin = Math.sin(Math.toRadians(rotation));
-        double xx = x1 * cos + y1 * sin;
-        double yy = x1 * sin - y1 * cos;
+        double xx = x1 * cos - y1 * sin;
+        double yy = x1 * sin + y1 * cos;
 
         return new double[]{yy - xx, yy + xx, yy + xx, yy - xx};
     }
@@ -229,7 +259,7 @@ public abstract class RobotMovement extends Robot {
         return Math.max(-1, Math.min(x, 1));
     }
 
-    private double[] normalize(double[] a) {
+    public double[] normalize(double[] a) {
         double maxPower = 1.0;
         for (double value : a) {
             maxPower = Math.max(maxPower, Math.abs(value));

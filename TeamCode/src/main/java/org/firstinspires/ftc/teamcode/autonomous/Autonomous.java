@@ -14,6 +14,9 @@ public abstract class Autonomous extends Robot {
         super.initRobot();
         super.runToPositionMode(intakeExtender);
     }
+    public double getHeading() {
+        return 0;
+    }
 
     public void angleLock(
         double frontLeft,
@@ -21,7 +24,7 @@ public abstract class Autonomous extends Robot {
         double frontRight,
         double backRight
     ) {
-        double angleLock = (getHeading() - lockedAngle) / 360 * 17; // 1*17/360
+        double angleLock = ( lockedAngle) / 360 * 17; // 1*17/360
 
         frontLeftWheel.setPower(frontLeft+angleLock);
         backLeftWheel.setPower(backLeft+angleLock);

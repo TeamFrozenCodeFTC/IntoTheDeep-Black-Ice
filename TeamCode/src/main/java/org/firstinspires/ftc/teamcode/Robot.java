@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -35,6 +36,8 @@ public abstract class Robot extends LinearOpMode {
 
     public TouchSensor touchLeft;
     public TouchSensor touchRight;
+
+    public ElapsedTime timer;
 
     private void autoBrake(DcMotor motor) {
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

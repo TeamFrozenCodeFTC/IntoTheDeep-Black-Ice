@@ -12,6 +12,8 @@ public class Odometry {
 
     public double velocity;
     public double headingVelocity;
+    public double xVelocity;
+    public double yVelocity;
 
     public final GoBildaPinpointDriver odometry;
 
@@ -35,8 +37,9 @@ public class Odometry {
         y = pos.getY(DistanceUnit.INCH);
 
         Pose2D velocities = odometry.getVelocity();
-        velocity = Math.abs(velocities.getX(DistanceUnit.INCH))
-                + Math.abs(velocities.getY(DistanceUnit.INCH));
+        xVelocity = velocities.getX(DistanceUnit.INCH);
+        yVelocity = velocities.getY(DistanceUnit.INCH);
+        velocity = Math.abs(xVelocity) + Math.abs(yVelocity);
 
         headingVelocity = velocities.getHeading(AngleUnit.DEGREES);
     }

@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class MaxSpecimen extends RobotMovement {
+public class FifthSpecimen extends RobotMovement {
 
     public void hangSpecimen(double x) {
         viperSlide.topBarRaise();
@@ -28,7 +28,7 @@ public class MaxSpecimen extends RobotMovement {
         // Move away from submersible
         goThroughPosition(-90, 4, TILE + EDGE_OF_TILE - 1.5);
         // Turn and Go towards sample
-        brakeToPosition(-180, TILE + HALF_OF_ROBOT, TILE + EDGE_OF_TILE - 3);
+        goThroughPosition(-180, TILE + HALF_OF_ROBOT, TILE + EDGE_OF_TILE - 3);
     }
 
     public void getSpecimen() {
@@ -51,41 +51,15 @@ public class MaxSpecimen extends RobotMovement {
     @Override
     public void runOpMode() {
         initRobot();
-
-        viperSlide.clawGrab();
-        viperSlide.maxInitRaise();
-
         waitForStart();
 
-        odometry.setPosition(-90, 0, 0); // -90
+        odometry.setPosition(-90, 0, 31);
 
-        hangSpecimen(0);
-        goAroundSubmersible();
+        // Move away from submersible
+        goThroughPosition(-90, 4, TILE + EDGE_OF_TILE - 1.5);
+        // Turn and Go towards sample
+        goThroughPosition(-180, TILE, TILE + EDGE_OF_TILE - 3);
 
-        // Hook sample
-        goThroughPosition(-180, TILE * 2 - 5, TILE + EDGE_OF_TILE + HALF_OF_ROBOT);
-        // Turn and push sample to observation zone
-        brakeToPosition(90, TILE * 2 - 5, 3);
-
-        getSpecimen();
-        hangSpecimen(2);
-        goAroundSubmersible();
-
-        brakeToPosition(-180, TILE * 2 + HALF_OF_ROBOT + 2, TILE + EDGE_OF_TILE + 9);
-        // Turn and push sample to observation zone
-        goThroughPosition(90, TILE * 2 + HALF_OF_ROBOT, TILE);
-        brakeToPosition(90, TILE * 2 - 5, 3);
-
-        getSpecimen();
-        hangSpecimen(4);
-
-        brakeToPosition(90, TILE * 2 - 5, 3);
-        getSpecimen();
-        hangSpecimen(-2);
-
-        goAroundSubmersible();
-        brakeToPosition(90, TILE * 3 - HALF_OF_ROBOT, TILE * 2 + 1);
+        brakeToPosition(-180, TILE * 3 - HALF_OF_ROBOT - 1, TILE * 2 + 1);
     }
 }
-
-

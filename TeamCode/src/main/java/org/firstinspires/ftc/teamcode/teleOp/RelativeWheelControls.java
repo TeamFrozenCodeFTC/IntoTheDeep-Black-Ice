@@ -4,19 +4,21 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.blackIceX.RobotMovement;
 
 import java.util.ArrayList;
 
 public class RelativeWheelControls {
-    Robot op;
+    RobotMovement op;
+    boolean firstInput = false;
 
-    public RelativeWheelControls(Robot op) {
+    public RelativeWheelControls(RobotMovement op) {
         this.op = op;
     }
 
     ArrayList<Double[][]> controls = new ArrayList<>();
 
-    static double SPEED_FACTOR = 0.7;
+    static double SPEED_FACTOR = 1;
 
     double powerEquation(double power) {
         return Math.pow(power, 3);
@@ -24,22 +26,44 @@ public class RelativeWheelControls {
 
     private double getRadians() {
         op.odometry.update();
-        return op.odometry.getHeading();
+        return op.odometry.heading * Math.PI / 180;
     }
 
     void control() {
         if (op.gamepad1.triangle) {
-            op.resetRotation();
+            op.odometry.resetHeading();
+        }
+
+        if (op.gamepad1.dpad_up) {
+            op.viperSlide.topBarRaise();
+            op.brakeToPosition(-90, 0, 30, op.wideErrorMargin);
+
+            op.viperSlide.waitForExtension();
+
+            // While neither touch sensors are pressed...
+            do {
+                op.targetY = 24+24-(24-18);
+                op.updatePosition();
+                op.goStraight(0.4);
+            } while (!op.touchRight.isPressed() && !op.touchLeft.isPressed());
+
+            op.viperSlide.topBarPull();
+            op.odometry.setHeading(-90);
+            //odometry.setY(31);
+            op.viperSlide.waitForExtension();
+            op.viperSlide.clawOut();
+            op.viperSlide.lower();
         }
 
         relativeSlide();
         pivot();
+        slide();
 
         if (op.gamepad1.right_bumper) {
-            SPEED_FACTOR = 0.2;
+            SPEED_FACTOR = 0.3;
         }
         else {
-            SPEED_FACTOR = 0.7;
+            SPEED_FACTOR = 1;
         }
 
         double frontLeftPower  = 0;
@@ -74,12 +98,33 @@ public class RelativeWheelControls {
         double xStick = -op.gamepad1.left_stick_x;
         double yStick = -op.gamepad1.left_stick_y;
 
+        double xPower;
+        if (Math.abs(xStick) < 0.5) {
+            xPower = 0;
+        }
+        else {
+            xPower = xStick * 0.75;
+        }
+
+        double yPower;
+        if (Math.abs(yStick) < 0.5) {
+            yPower = 0;
+        }
+        else {
+            yPower = yStick * 0.75;
+        }
+
+        if (!firstInput && (xStick != 0 || yStick != 0)) {
+            firstInput = true;
+            op.timer.reset();
+        }
+
         double radians = getRadians();
 
         double cos = Math.cos(radians);
         double sin = Math.sin(radians);
-        double x = xStick * cos - yStick * sin;
-        double y = xStick * sin + yStick * cos;
+        double x = xPower * cos - yPower * sin;
+        double y = xPower * sin + yPower * cos;
 
         controls.add(new Double[][] {
                 {y-x, y+x},
@@ -87,5 +132,14 @@ public class RelativeWheelControls {
         });
         op.telemetry.addData("xStick", xStick);
         op.telemetry.addData("yStick", yStick);
+    }
+
+    void slide() {
+        double x = (-op.gamepad1.right_trigger + op.gamepad1.left_trigger) * 0.7;
+
+        controls.add(new Double[][] {
+                {-x, +x},
+                {+x, -x}
+        });
     }
 }

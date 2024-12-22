@@ -40,7 +40,7 @@ public class ViperSlide {
     }
 
     public void maxInitRaise() {
-        raise(300);
+        raise(200);
     }
 
     public void lower() {

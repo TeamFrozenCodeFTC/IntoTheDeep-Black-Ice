@@ -11,5 +11,14 @@ public class DiagonalTest extends RobotMovement {
         odometry.setPosition(90, 0, 0);
 
         brakeToPosition(0, 10, 10);
+
+        brake();
+
+        while (opModeIsActive()) {
+            telemetry.addData("X", odometry.x);
+            telemetry.addData("y", odometry.y);
+            telemetry.addData("heading", odometry.heading);
+            telemetry.update();
+        }
     }
 }
