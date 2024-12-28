@@ -15,6 +15,26 @@ public class Odometry {
     public double xVelocity;
     public double yVelocity;
 
+    public double xBrakingDistance;
+    public double yBrakingDistance;
+
+    public double brakingDistance;
+
+    private double estimateXStoppingDistance() {
+        return 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
+        // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
+    }
+
+    private double estimateYStoppingDistance() {
+        return 0.00130445 * Math.pow(yVelocity, 2) + 0.0644448 * yVelocity + 0.0179835;
+        // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
+    }
+
+    private double estimateStoppingDistance() {
+        return 0.00130445 * Math.pow(velocity, 2) + 0.0644448 * velocity + 0.0179835;
+        // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
+    }
+
     public final GoBildaPinpointDriver odometry;
 
     public Odometry(Robot op) {
@@ -42,6 +62,10 @@ public class Odometry {
         velocity = Math.abs(xVelocity) + Math.abs(yVelocity);
 
         headingVelocity = velocities.getHeading(AngleUnit.DEGREES);
+
+        xBrakingDistance = estimateXStoppingDistance();
+        yBrakingDistance = estimateYStoppingDistance();
+        brakingDistance = estimateStoppingDistance();
     }
 
     public void setPosition(double startingHeading, double startingX, double startingY) {

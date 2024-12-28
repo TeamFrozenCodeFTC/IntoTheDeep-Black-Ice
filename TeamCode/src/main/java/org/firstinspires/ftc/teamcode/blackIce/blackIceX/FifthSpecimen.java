@@ -59,6 +59,7 @@ public class FifthSpecimen extends RobotMovement {
         goThroughPosition(-90, 4, TILE + EDGE_OF_TILE - 1.5);
         // Turn and Go towards sample
         goThroughPosition(-180, TILE, TILE + EDGE_OF_TILE - 3);
+        goThroughPosition(-180, TILE * 2, TILE * 2 - 2);
 
         brakeToPosition(-180, TILE * 3 - HALF_OF_ROBOT - 1, TILE * 2 + 1);
     }

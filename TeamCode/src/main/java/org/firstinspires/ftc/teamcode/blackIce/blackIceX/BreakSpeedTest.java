@@ -6,7 +6,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class BreakSpeedTest extends RobotMovement {
     public double[] getStoppingDistance(double power) {
 
-        goStraightForSeconds(1, power);
+        goStraightForSeconds(0.7, power);
 
         double startingX = odometry.x;
         double xVelocity = Math.abs(odometry.odometry.getVelocity().getX(DistanceUnit.INCH));
@@ -30,12 +30,12 @@ public class BreakSpeedTest extends RobotMovement {
         initWheels();
         waitForStart();
 
-        double points = 10;
+        double points = 19;
 
         for (int i = 0; i <= points; i++) {
             double direction = i % 2 == 0 ? 1 : -1;
 
-            double[] point = getStoppingDistance(direction * (1-1*(i/points)));
+            double[] point = getStoppingDistance(direction * (1-1*(i/points))+0.2);
             telemetry.addData(Integer.toString(i), stringify(point));
         }
 

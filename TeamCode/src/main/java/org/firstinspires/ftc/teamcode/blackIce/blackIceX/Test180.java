@@ -8,7 +8,8 @@ public class Test180 extends RobotMovement {
         initWheels();
         waitForStart();
 
-        brakeToPosition(0, -20, 0);
-        brakeToPosition(180, 20, 0);
+        quickBrakeTo2(0, -20, 0);
+        quickBrakeTo2(180, 20, 0);
+        holdFor(5);
     }
 }

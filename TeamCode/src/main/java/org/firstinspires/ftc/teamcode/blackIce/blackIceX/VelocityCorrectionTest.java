@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
 import org.firstinspires.ftc.teamcode.Robot;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class OdometryTest extends RobotMovement {
+public class VelocityCorrectionTest extends RobotMovement {
     @Override
     public void runOpMode() {
         initOdometry();
@@ -17,25 +17,32 @@ public class OdometryTest extends RobotMovement {
         while (opModeIsActive()) {
             updatePosition();
 
-            double distanceTraveled = totalDistanceToTarget - distanceToTarget;
-            double percentageTraveled = Math.max(0, distanceTraveled / totalDistanceToTarget);
+            double rotation = -odometry.heading;
 
-            double degreesToTurn = targetHeading - previousHeading;
-            double targetTurn = percentageTraveled * degreesToTurn + previousHeading;
+            double currentXVel = Math.signum(odometry.xVelocity) * (
+                    0.00130445 * Math.pow(odometry.xVelocity, 2)
+                            + 0.0644448 * Math.abs(odometry.xVelocity) + 0.0179835);
+            double currentYVel = Math.signum(odometry.yVelocity) * (
+                    0.00130445 * Math.pow(odometry.yVelocity, 2)
+                            + 0.0644448 * Math.abs(odometry.yVelocity) + 0.0179835);
 
-            double power = (targetTurn - odometry.heading) * 0.02;
+            double x1 = (targetX - odometry.x);
+            double y1 = (targetY - odometry.y);
 
+            double cos = Math.cos(Math.toRadians(rotation));
+            double sin = Math.sin(Math.toRadians(rotation));
+            double x = (x1 * cos - y1 * sin) / 5 + currentXVel;
+            double y = (x1 * sin + y1 * cos) / 5 + currentYVel;
 
-            telemetry.addData("totalDistanceToTarget", totalDistanceToTarget);
-            telemetry.addData("distanceToTarget", distanceToTarget);
-            telemetry.addData("distanceTraveled", distanceTraveled);
-            telemetry.addData("percent", percentageTraveled);
-            telemetry.addData("degrees To turn", degreesToTurn);
-            telemetry.addData("targetTurn", targetTurn);
-            telemetry.addData("power", power);
+            telemetry.addData("x", x);
+            telemetry.addData("y", y);
+            telemetry.addData("x1", x1);
+            telemetry.addData("y1", y1);
+            telemetry.addData("xVel", currentXVel);
+            telemetry.addData("yVel", currentYVel);
 
-            telemetry.addData("x", odometry.x);
-            telemetry.addData("y", odometry.y);
+            telemetry.addData("odo x", odometry.x);
+            telemetry.addData("odo y", odometry.y);
             telemetry.addData("heading", odometry.heading);
 //
 //            telemetry.addData("frontLeft", powers[0]);

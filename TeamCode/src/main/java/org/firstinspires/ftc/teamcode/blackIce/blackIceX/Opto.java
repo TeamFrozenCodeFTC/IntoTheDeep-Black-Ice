@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class MaxSpecimen extends RobotMovement {
+public class Opto extends RobotMovement {
     public void hangSpecimen(double x) {
         viperSlide.topBarRaise();
         brakeToPosition(-90, x, 30, wideErrorMargin);
@@ -70,7 +70,8 @@ public class MaxSpecimen extends RobotMovement {
         hangSpecimen(2);
         goAroundSubmersible();
 
-        brakeToPosition(-180, TILE * 2 + HALF_OF_ROBOT + 2, TILE + EDGE_OF_TILE + 9);
+        //brakeToPosition(-180, TILE * 2 + HALF_OF_ROBOT + 2, TILE + EDGE_OF_TILE + 9);
+        goThroughPosition(-180, TILE * 2 + HALF_OF_ROBOT + 2, TILE + EDGE_OF_TILE + 9);
         // Turn and push sample to observation zone
         goThroughPosition(90, TILE * 2 + HALF_OF_ROBOT, TILE);
         brakeToPosition(90, TILE * 2 - 5, 3);

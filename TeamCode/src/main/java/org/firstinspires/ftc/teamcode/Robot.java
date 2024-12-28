@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.autonomous.custom.GoBildaPinpointDriver;
 
 // A parent class to all operation modes. Contains the Robot's Hardware but also LinearOpMode.
 public abstract class Robot extends LinearOpMode {
+    // 7 Motors
     public DcMotor frontLeftWheel;
     public DcMotor backLeftWheel;
     public DcMotor frontRightWheel;
@@ -24,18 +25,21 @@ public abstract class Robot extends LinearOpMode {
     public DcMotor viperSlideMotor;
 
     public DcMotor intakeExtender;
-    public CRServo sweeper;
+    public DcMotor sweeper;
+
+    // 4 Servos
     public Servo sweeperRotator;
 
     public Servo dumperServo;
     public Servo clawLeft;
     public Servo clawRight;
 
-    public ViperSlide viperSlide;
-    public Intake intake;
-
     public TouchSensor touchLeft;
     public TouchSensor touchRight;
+
+    public ViperSlide viperSlide;
+    public Intake intake;
+    public Odometry odometry;
 
     public ElapsedTime timer;
 
@@ -61,8 +65,6 @@ public abstract class Robot extends LinearOpMode {
         motor.setTargetPosition(0);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
-
-    public Odometry odometry;
 
     public void initWheels() {
         frontLeftWheel = hardwareMap.get(DcMotor.class, "frontLeft");
@@ -91,7 +93,7 @@ public abstract class Robot extends LinearOpMode {
         reverse(viperSlideMotor);
         runToPositionMode(viperSlideMotor);
 
-        sweeper = hardwareMap.get(CRServo.class, "sweeper");
+        sweeper = hardwareMap.get(DcMotor.class, "sweeper");
         sweeper.setDirection(DcMotorSimple.Direction.REVERSE);
 
         sweeperRotator = hardwareMap.get(Servo.class, "sweeperRotator");
