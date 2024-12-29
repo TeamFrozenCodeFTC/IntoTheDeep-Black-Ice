@@ -123,4 +123,22 @@ public abstract class Robot extends LinearOpMode {
         viperSlide.bucketDown();
         viperSlide.clawOut();
     }
+
+    public void powerWheels(double[] powers) {
+        frontLeftWheel.setPower(powers[0]);
+        backLeftWheel.setPower(powers[1]);
+        frontRightWheel.setPower(powers[2]);
+        backRightWheel.setPower(powers[3]);
+    }
+
+    public void brake() {
+        setAllWheelPowersTo(0);
+    }
+
+    public void setAllWheelPowersTo(double power) {
+        frontLeftWheel.setPower(power);
+        backLeftWheel.setPower(power);
+        backRightWheel.setPower(power);
+        frontRightWheel.setPower(power);
+    }
 }

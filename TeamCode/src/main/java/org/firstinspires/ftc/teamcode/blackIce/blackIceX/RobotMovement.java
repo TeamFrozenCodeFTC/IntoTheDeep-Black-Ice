@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
+package org.firstinspires.ftc.teamcode.blackIce.blackIceX;////package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -170,6 +170,21 @@ public abstract class RobotMovement extends Robot {
         }
     }
 
+    public void moveTo(double heading, double x, double y) {
+        setTarget(heading, x, y);
+
+        while (opModeIsActive() && isNotWithinErrorMargin(defaultErrorMargin)) {
+            double stoppingDistance = odometry.brakingDistance;
+
+            if (distanceToTarget <= stoppingDistance) {
+                break;
+            }
+            powerWheels(applyCorrection(vectorToLocalWheelPowers(xError, yError)));
+
+            updatePosition();
+        }
+    }
+
     public void quickBrakeTo2(double heading, double x, double y) {
         setTarget(heading, x, y);
 
@@ -275,47 +290,45 @@ public abstract class RobotMovement extends Robot {
         powerWheels(applyCorrection(normalize(new double[] {y-x, y+x,y+x, y-x})));
     }
 
-    public void forceTowardTarget2(double velocityFactor, double linearFactor) {
-        double rotation = -odometry.heading;
+    /**
+     * Takes a field-relative vector and converts it into wheel powers
+     * that would make the robot move in the direction of the field vector.
+     * <p>
+     * Does this by rotating the vector relative to the robot heading where it adds up the slide
+     * and the forwards/backwards.
+     */
+    public double[] vectorToLocalWheelPowers(double x, double y) {
+        // positive heading is counterclockwise
+        double heading = Math.toRadians(odometry.heading);
+        double cos = Math.cos(heading);
+        double sin = Math.sin(heading);
+        double localForwards = x * cos + y * sin; // clockwise rotation
+        double localSlide = -x * sin + y * cos;
 
-        double currentXVel = Math.signum(odometry.xVelocity) *(
+        return normalize(new double[]
+                {localForwards-localSlide, localForwards+localSlide,
+                 localForwards+localSlide, localForwards-localSlide}
+        );
+    }
+
+    public void forceTowardTarget2(double velocityFactor, double linearFactor) {
+        double rotation = odometry.heading;
+
+        double currentXVel = Math.signum(odometry.xVelocity) * (
                 0.00130445 * Math.pow(odometry.xVelocity, 2)
                         + 0.0644448 * Math.abs(odometry.xVelocity) + 0.0179835);
         double currentYVel = Math.signum(odometry.yVelocity) * (
                 0.00130445 * Math.pow(odometry.yVelocity, 2)
                         + 0.0644448 * Math.abs(odometry.yVelocity) + 0.0179835);
 
-//        if (currentXVel >= currentYVel) {
-//            currentXVel -= currentYVel;
-//            currentYVel = 0;
-//        }
-//        else {
-//            currentYVel -= currentXVel;
-//            currentXVel = 0;
-//        }
-        double addToY = 0;
-        double addToX = 0;
-        if (currentXVel > currentYVel) {
-            // (y/x)=(yv+?/xv)
-            addToY = ((targetY - odometry.y)/(targetX - odometry.x))*currentXVel-currentYVel;
-        }
-        else {
-            addToX = ((targetY - odometry.y)/(targetX - odometry.x))*currentXVel-currentYVel;
-        }
-
-        // if x is greater)
-
-
-        // switch and add?
-//        double x1 = (targetX - odometry.x) - currentXVel * velocityFactor;
-//        double y1 = (targetY - odometry.y) - currentYVel * velocityFactor;
-        double x1 = (targetX - odometry.x) + addToX * velocityFactor;
-        double y1 = (targetY - odometry.y) + addToY * velocityFactor;
+        // try to reverse and make negative?
+        double x1 = targetX - (odometry.x + currentXVel*5);
+        double y1 = targetY - (odometry.y + currentXVel*5);
 
         double cos = Math.cos(Math.toRadians(rotation));
         double sin = Math.sin(Math.toRadians(rotation));
-        double x = (x1 * cos - y1 * sin) / linearFactor;
-        double y = (x1 * sin + y1 * cos) / linearFactor;
+        double x = (x1 * cos + y1 * sin) / 5;
+        double y = (-x1 * sin + y1 * cos) / 5;
 
         powerWheels(applyCorrection(normalize(new double[] {x-y, x+y, x+y, x-y})));
 //        double rotation = -odometry.heading;
@@ -327,33 +340,8 @@ public abstract class RobotMovement extends Robot {
 //                0.00130445 * Math.pow(odometry.yVelocity, 2)
 //                        + 0.0644448 * Math.abs(odometry.yVelocity) + 0.0179835);
 //
-////        if (currentXVel >= currentYVel) {
-////            currentXVel -= currentYVel;
-////            currentYVel = 0;
-////        }
-////        else {
-////            currentYVel -= currentXVel;
-////            currentXVel = 0;
-////        }
-//        if (currentXVel >= currentYVel) {
-//            currentXVel -= currentYVel;
-//            currentYVel = 0;
-//            // (y/x)=(yv+?/xv)
-//            // addToY = (y/x)*xv-yv
-//        }
-//        else {
-//            currentYVel -= currentXVel;
-//            currentXVel = 0;
-//        }
-//
-//        // if x is greater)
-//
-//
-//        // switch and add?
-////        double x1 = (targetX - odometry.x) - currentXVel * velocityFactor;
-////        double y1 = (targetY - odometry.y) - currentYVel * velocityFactor;
-//        double x1 = (targetX - odometry.x) + currentYVel * velocityFactor;
-//        double y1 = (targetY - odometry.y) + currentXVel * velocityFactor;
+//        double x1 = (targetX - odometry.x) + currentYVel*5;
+//        double y1 = (targetY - odometry.y) + currentXVel*5;
 //
 //        double cos = Math.cos(Math.toRadians(rotation));
 //        double sin = Math.sin(Math.toRadians(rotation));
@@ -361,11 +349,10 @@ public abstract class RobotMovement extends Robot {
 //        double y = (x1 * sin + y1 * cos) / linearFactor;
 //
 //        powerWheels(applyCorrection(normalize(new double[] {x-y, x+y, x+y, x-y})));
-
     }
 
     public void forceTowardTarget3() {
-        double rotation = -odometry.heading;
+        double rotation = odometry.heading;
 
         double currentXVel = Math.signum(odometry.xVelocity) * (
                 0.00130445 * Math.pow(odometry.xVelocity, 2)
@@ -374,13 +361,20 @@ public abstract class RobotMovement extends Robot {
                 0.00130445 * Math.pow(odometry.yVelocity, 2)
                         + 0.0644448 * Math.abs(odometry.yVelocity) + 0.0179835);
 
-        double x1 = targetX - (odometry.x - currentXVel*5);
-        double y1 = targetY - (odometry.y);
+        if (currentXVel > xError*5) {
+            currentXVel = 0;
+        }
+        if (currentYVel > yError*5) {
+            currentYVel = 0;
+        }
+        // should be + was -
+        double x1 = targetX - (odometry.x + currentXVel*5);
+        double y1 = targetY - (odometry.y + currentYVel*5);
 
         double cos = Math.cos(Math.toRadians(rotation));
         double sin = Math.sin(Math.toRadians(rotation));
-        double x = (x1 * cos - y1 * sin) / 5;
-        double y = (x1 * sin + y1 * cos) / 5;
+        double x = (x1 * cos + y1 * sin) / 5;
+        double y = (-x1 * sin + y1 * cos) / 5;
 
         powerWheels(applyCorrection(normalize(new double[] {x-y, x+y, x+y, x-y})));
     }

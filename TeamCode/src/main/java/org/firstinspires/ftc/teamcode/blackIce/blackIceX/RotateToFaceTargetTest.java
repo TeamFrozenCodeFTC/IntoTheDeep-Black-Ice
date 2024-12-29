@@ -38,7 +38,7 @@ public class RotateToFaceTargetTest extends RobotMovement {
             double targetAngleCorrection;
 
             if (distanceToTarget < 25) {
-                targetAngleCorrection = getTurnCorrection();
+                targetAngleCorrection = getTurn();
             }
             else {
                 double degrees = Math.toDegrees(Math.atan2(y1, x1)) - targetHeading + 90;

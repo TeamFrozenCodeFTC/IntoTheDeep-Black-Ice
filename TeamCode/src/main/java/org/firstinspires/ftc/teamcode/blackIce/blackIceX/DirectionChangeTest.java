@@ -13,22 +13,23 @@ public class DirectionChangeTest extends RobotMovement {
         initWheels();
         waitForStart();
 
-        odometry.setPosition(-180,0,0);
+        odometry.setPosition(0,0,0);
 
         updatePosition();
 
-        accelerate2(-180, 24, 0);
+        moveTo(0, 24, 0);
 
-        setTarget(-180, 24, -24);
+        setTarget(0, 24, -24);
 
         while (opModeIsActive() && isNotWithinErrorMargin(wideErrorMargin)) {
             if (distanceToTarget < odometry.brakingDistance) {
                 break;
             }
-            forceTowardTarget3();
+            forceTowardTarget2(0,5);
             updatePosition();
         }
         brakeForSeconds(2);
+        holdFor(2);
 
 //        // Move away from submersible
 //        accelerate(-90, 4, TILE + EDGE_OF_TILE - 1.5);
