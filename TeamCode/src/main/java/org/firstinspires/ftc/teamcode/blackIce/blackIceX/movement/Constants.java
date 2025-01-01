@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement;
 
 public class Constants {
-    static final double MAX_POWER = 1;
-
-    static final double HEADING_POWER = 0.02;
-
     public static class Measurement {
         static final int TILE = 24;
         static final int ROBOT = 18;

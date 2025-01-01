@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement;////package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.blackIce.blackIceX.ErrorMargin;
 import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.HeadingCorrection;
 import org.firstinspires.ftc.teamcode.util.Util;
@@ -8,6 +10,9 @@ import org.firstinspires.ftc.teamcode.util.Util;
 public abstract class Movement extends HeadingCorrection {
     // have cancel if not moving, and have cancel for teleOp,
     // combine to one func with opModeIsActive()
+
+    // set to position always with intake but just limit power
+
     /**
      * Moves to the the given position and stops.
      * <p>
@@ -20,14 +25,24 @@ public abstract class Movement extends HeadingCorrection {
     public void stopAtPosition(double heading, double x, double y) {
         setTarget(heading, x, y);
 
-        while (opModeIsActive() && isNotWithinErrorMargin(defaultErrorMargin)) {
+        while (isNotInterrupted() && isNotWithinErrorMargin(defaultErrorMargin)) {
             if (distanceToTarget <= odometry.brakingDistance && odometry.velocity > 10) {
-                brake();
+                drive.brake();
             } else {
                 moveTowardTarget(5);
             }
 
             updatePosition();
+        }
+    }
+
+    public void holdPositionFor(double seconds) {
+        ElapsedTime timer = new ElapsedTime();
+
+        timer.reset();
+        while (isNotInterrupted() && timer.seconds() < seconds) {
+            updatePosition();
+            moveTowardTarget(5);
         }
     }
 
@@ -37,16 +52,16 @@ public abstract class Movement extends HeadingCorrection {
     public void quickBrakeTo(double heading, double x, double y, double continuingVelocity) {
         setTarget(heading, x, y);
 
-        while (opModeIsActive() && isNotWithinErrorMargin(defaultErrorMargin)) {
+        while (isNotInterrupted() && isNotWithinErrorMargin(defaultErrorMargin)) {
             if (distanceToTarget <= odometry.brakingDistance) {
                 if (odometry.velocity > continuingVelocity) {
-                    brake();
+                    drive.brake();
                 }
                 else {
                     break;
                 }
             } else {
-                moveTowardTarget(5);
+                moveTowardTarget(1);
             }
 
             updatePosition();
@@ -59,7 +74,7 @@ public abstract class Movement extends HeadingCorrection {
     public void moveTo(double heading, double x, double y) {
         setTarget(heading, x, y);
 
-        while (opModeIsActive() && isNotWithinErrorMargin(defaultErrorMargin)) {
+        while (isNotInterrupted() && isNotWithinErrorMargin(defaultErrorMargin)) {
             if (distanceToTarget <= odometry.brakingDistance) {
                 break;
             }
@@ -69,16 +84,15 @@ public abstract class Movement extends HeadingCorrection {
         }
     }
 
-//    public void backIntoWall() {
-//        // While neither touch sensors are pressed...
-//        do {
-//            targetY = 24+24-(24-18);
-//            updatePosition();
-//            goStraight(-0.3);
-//        } while (!touchRight.isPressed() && !touchLeft.isPressed());
-//    }
+    public void backIntoWall(double power) {
+        // While neither touch sensors are pressed...
+        do {
+            updatePosition();
+            drive.power(applyTurnCorrection(drive.backward(power), turnOverMovement()));
+        } while (isNotInterrupted() && !touchRight.isPressed() && !touchLeft.isPressed());
+    }
 
-     /**
+    /**
      * Takes a field-relative vector and converts it into wheel powers
      * that would make the robot move in the direction of the field vector.
      * <p>
@@ -100,31 +114,8 @@ public abstract class Movement extends HeadingCorrection {
     }
 
     public void moveTowardTarget(double linearSlow) {
-        double currentXVel = Math.signum(odometry.xVelocity) * (
-                0.00130445 * Math.pow(odometry.xVelocity, 2)
-                        + 0.0644448 * Math.abs(odometry.xVelocity) + 0.0179835);
-        double currentYVel = Math.signum(odometry.yVelocity) * (
-                0.00130445 * Math.pow(odometry.yVelocity, 2)
-                        + 0.0644448 * Math.abs(odometry.yVelocity) + 0.0179835);
-
-//        double estimatedStoppedX;
-//        double estimatedStoppedY;
-//
-//        // Makes sure the velocity doesn't overpower
-//        if (Math.abs(currentXVel) < Math.abs(xError) * linearSlow / 2) {
-//            estimatedStoppedX = (odometry.x + currentXVel * linearSlow);
-//        }
-//        else {
-//            estimatedStoppedX = odometry.x;
-//        }
-//        if (Math.abs(currentYVel) < Math.abs(yError) * linearSlow / 2) {
-//            estimatedStoppedY = (odometry.y + currentYVel * linearSlow);
-//        }
-//        else {
-//            estimatedStoppedY = odometry.y;
-//        }
-        double x1 = xError - currentXVel * linearSlow;
-        double y1 = yError - currentYVel * linearSlow;
+        double x1 = xError - odometry.xBrakingDistance * linearSlow;
+        double y1 = yError - odometry.yBrakingDistance * linearSlow;
 
         if (x1/linearSlow < 1) {
             x1 = xError;
@@ -135,17 +126,24 @@ public abstract class Movement extends HeadingCorrection {
 
         double[] powers = fieldVectorToLocalWheelPowers(x1, y1, linearSlow);
 
-        powerWheels(applyTurnCorrection(powers));}
-//    public void moveTowardTarget(double linearSlow) {
-//
-//
-//
-//        double x1 = xError;
-//        double y1 = yError;
-//
-//        double[] powers = fieldVectorToLocalWheelPowers(x1, y1);
-//
-//        powerWheels(applyTurnCorrection(powers));
-//    }
+        drive.power(applyTurnCorrection(powers, turnOverMovement()));
+    }
 
+    public void shiftLeft() {
+        // for some reason is the smoothest (only works when going backwards)
+        double rotation = odometry.heading - 90;
+        double x1 = -(targetX - odometry.x);
+        double y1 = (targetY - odometry.y);
+
+        double cos = Math.cos(Math.toRadians(rotation));
+        double sin = Math.sin(Math.toRadians(rotation));
+        double xx = x1 * cos - y1 * sin;
+        double yy = x1 * sin + y1 * cos;
+
+        double x = xx - odometry.xBrakingDistance; // switch to positive for going forwards
+        double y = yy - odometry.yBrakingDistance;
+
+        drive.power(applyTurnCorrection(Util.normalize(new double[] {y-x, y+x,y+x, y-x}), turnOverMovement()));
+    }
 }
+

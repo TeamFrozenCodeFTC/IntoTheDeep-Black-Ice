@@ -26,6 +26,7 @@ public class Odometry {
     }
 
     private double estimateYStoppingDistance() {
+        //return 0.00156045 * Math.pow(yVelocity, 2) + 0.0523188 * yVelocity + 0.0317991;
         return 0.00130445 * Math.pow(yVelocity, 2) + 0.0644448 * yVelocity + 0.0179835;
         // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
     }

@@ -5,14 +5,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.blackIceX.RobotMovement;
+import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Movement;
 
 import java.util.ArrayList;
 
 public class RelativeWheelControls {
-    RobotMovement op;
+    Movement op;
     boolean firstInput = false;
 
-    public RelativeWheelControls(RobotMovement op) {
+    public RelativeWheelControls(Movement op) {
         this.op = op;
     }
 
@@ -36,19 +37,15 @@ public class RelativeWheelControls {
 
         if (op.gamepad1.dpad_up) {
             op.viperSlide.topBarRaise();
-            op.brakeToPosition(-90, 0, 30, op.wideErrorMargin);
+            op.quickBrakeTo(-90, 0, 30, 10);
 
             op.viperSlide.waitForExtension();
 
             // While neither touch sensors are pressed...
-            do {
-                op.targetY = 24+24-(24-18);
-                op.updatePosition();
-                op.goStraight(0.4);
-            } while (!op.touchRight.isPressed() && !op.touchLeft.isPressed());
+            op.backIntoWall(0.3);
 
             op.viperSlide.topBarPull();
-            op.odometry.setHeading(-90);
+            //odometry.setHeading(-90);
             //odometry.setY(31);
             op.viperSlide.waitForExtension();
             op.viperSlide.clawOut();
@@ -125,10 +122,16 @@ public class RelativeWheelControls {
         double sin = Math.sin(radians);
         double x = xPower * cos - yPower * sin;
         double y = xPower * sin + yPower * cos;
+//
+//        double mag = Math.max(1, Math.sqrt(x * x + y * y));
+//        if (mag != 0) {
+//            x /= mag;
+//            y /= mag;
+//        }
 
         controls.add(new Double[][] {
-                {y-x, y+x},
-                {y+x, y-x}
+                {Math.min(0.75, y-x), Math.min(0.75, y+x)},
+                {Math.min(0.75, y+x), Math.min(0.75, y-x)}
         });
         op.telemetry.addData("xStick", xStick);
         op.telemetry.addData("yStick", yStick);

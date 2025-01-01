@@ -19,6 +19,20 @@ public class Util {
         };
     }
 
+    public static double[] normalizeTo(double[] a, double n) {
+        double maxPower = n;
+        for (double value : a) {
+            maxPower = Math.max(maxPower, Math.abs(value));
+        }
+
+        return new double[]{
+                a[0] / maxPower,
+                a[1] / maxPower,
+                a[2] / maxPower,
+                a[3] / maxPower
+        };
+    }
+
     public static double simplifyAngle(double angle) {
         angle = (angle + 180) % 360;  // Shift range to 0-360
         if (angle < 0) angle += 360; // Handle negative modulo result

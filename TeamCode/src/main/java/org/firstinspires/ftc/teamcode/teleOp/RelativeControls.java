@@ -5,10 +5,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.blackIceX.RobotMovement;
+import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Movement;
 
 
 @TeleOp
-public class RelativeControls extends RobotMovement {
+public class RelativeControls extends Movement {
     @Override
     public void runOpMode() {
         initRobot();
@@ -30,6 +31,10 @@ public class RelativeControls extends RobotMovement {
 
         while (opModeIsActive()) {
             relativeWheelControls.control();
+            if (gamepad1.triangle) {
+                odometry.resetHeading();
+            }
+
             telemetry.update();
 
             if (120-timer.seconds() < 30 && 120-timer.seconds() > 29) {

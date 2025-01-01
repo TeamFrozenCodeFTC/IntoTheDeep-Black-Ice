@@ -107,10 +107,11 @@ import static org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Constan
 import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Movement;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class SlideAll4Specimen extends Movement {
+public class Specimen5 extends Movement {
     public void hangSpecimen(double x) {
         viperSlide.topBarRaise();
         quickBrakeTo(-90, x, 30, 10);
+        //moveTo(-90, x, 30);
 
         viperSlide.waitForExtension();
 
@@ -127,6 +128,7 @@ public class SlideAll4Specimen extends Movement {
 
     public void getSpecimen() {
         quickBrakeTo(90, TILE + HALF_OF_ROBOT, 3, 10);
+        //moveTo(90, TILE + HALF_OF_ROBOT, 3);
 
         backIntoWall(0.3);
 
@@ -134,6 +136,10 @@ public class SlideAll4Specimen extends Movement {
         sleep(200);
         viperSlide.bottomBasketRaise();
         sleep(250);
+
+        // arc?
+        //goThroughPosition(90+15, TILE * 2 - 5, 5);
+        //goThroughPosition(180, TILE * 2 - 5 - 5, 11);
     }
 
     @Override
@@ -155,21 +161,24 @@ public class SlideAll4Specimen extends Movement {
 //        LINEAR_INCH_SLOW_DOWN = 10;
         moveTo(-180, TILE, TILE + EDGE_OF_TILE - 3);
 
-        moveTo(-180, TILE * 2 - 8, TILE + EDGE_OF_TILE + HALF_OF_ROBOT);
-        moveTo(90, TILE * 2 - 5, 3);       // 2nd sample + 12
+        // 1st sample
+        moveTo(-180, TILE * 2 - 8, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 2);
+        moveTo(90, TILE * 2 - 5, 3);
+
+        // 2nd sample + 12
         moveTo(90, TILE * 2 - 5, 12);
-        quickBrakeTo(-180, TILE * 2 - 1, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 6, 5);
+        moveTo(-180, TILE * 2 - 1, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 6);
         moveTo(-180, TILE * 2 + 5, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 2);
         moveTo( 90, TILE * 2, 3);
 
         moveTo(90, TILE * 2, 12);
-        quickBrakeTo(0, TILE * 2 + 5, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 6, 5);
-        quickBrakeTo(0, TILE * 3 - HALF_OF_ROBOT, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 6, 5);
+        moveTo(0, TILE * 2 + 5, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 6);
+        moveTo(0, TILE * 3 - HALF_OF_ROBOT, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 6);
 
-        quickBrakeTo(0, TILE * 3 - HALF_OF_ROBOT, 2, 5);
+        moveTo(0, TILE * 3 - HALF_OF_ROBOT, 2);
 
         // Getting Specimen
-        quickBrakeTo(0, TILE * 3 - HALF_OF_ROBOT - ROBOT_TURN_RADIUS, ROBOT_TURN_RADIUS, 5);
+        moveTo(0, TILE * 3 - HALF_OF_ROBOT - ROBOT_TURN_RADIUS, ROBOT_TURN_RADIUS);
 
         // 2
         getSpecimen();
@@ -183,6 +192,8 @@ public class SlideAll4Specimen extends Movement {
         getSpecimen();
         hangSpecimen(0);
 
-        moveTo(-45, TILE*2, 8);
+        // 5
+        getSpecimen();
+        hangSpecimen(0);
     }
 }
