@@ -4,18 +4,16 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.blackIce.blackIceX.RobotMovement;
-import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Movement;
 
 
 @TeleOp
-public class RelativeControls extends Movement {
+public class Controls extends Robot {
     @Override
     public void runOpMode() {
         initRobot();
 
         SampleControls specimenControls = new SampleControls(this);
-        RelativeWheelControls relativeWheelControls = new RelativeWheelControls(this);
+        DriveControls relativeWheelControls = new DriveControls(this);
 
         timer = new ElapsedTime();
 
@@ -38,6 +36,10 @@ public class RelativeControls extends Movement {
             telemetry.update();
 
             if (120-timer.seconds() < 30 && 120-timer.seconds() > 29) {
+                gamepad1.rumble(0.5, 0.5, 100);
+            }
+
+            if (120-timer.seconds() < 35 && odometry.x > 4*24 && odometry.y > 1.5*24) {
                 gamepad1.rumble(0.5, 0.5, 100);
             }
         }

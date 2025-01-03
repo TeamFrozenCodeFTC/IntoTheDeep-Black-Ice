@@ -4,13 +4,19 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.blackIceX.ErrorMargin;
 import org.firstinspires.ftc.teamcode.util.Util;
 
-public abstract class TargetTracker extends Robot {
+public class TargetTracker {
+    Robot robot;
+
+    public TargetTracker(Robot robot) {
+        this.robot = robot;
+    }
+
     public ErrorMargin defaultErrorMargin = new ErrorMargin(2, 0.5, 0.5);
 //    public ErrorMargin wideErrorMargin = new ErrorMargin(5, 1.5, 1.5);
 
-    public double targetHeading;
-    public double targetX;
-    public double targetY;
+    public double heading;
+    public double x;
+    public double y;
 
     public double headingError;
     public double xError;
@@ -20,12 +26,12 @@ public abstract class TargetTracker extends Robot {
     public double totalDistanceToTarget;
     public double previousHeading;
 
-    public void setTarget(double heading, double x, double y) {
-        previousHeading = targetHeading;
+    public void setTarget(double targetHeading, double targetX, double targetY) {
+        previousHeading = this.heading;
 
-        targetHeading = heading;
-        targetX = x;
-        targetY = y;
+        this.heading = targetHeading;
+        this.x = targetX;
+        this.y = targetY;
 
         updatePosition();
 
@@ -33,10 +39,10 @@ public abstract class TargetTracker extends Robot {
     }
 
     public void updatePosition() {
-        odometry.update();
-        headingError = Util.simplifyAngle(targetHeading - odometry.heading);
-        xError = targetX - odometry.x;
-        yError = targetY - odometry.y;
+        robot.odometry.update();
+        headingError = Util.simplifyAngle(heading - robot.odometry.heading);
+        xError = x - robot.odometry.x;
+        yError = y - robot.odometry.y;
         distanceToTarget = Math.sqrt(Math.pow(xError, 2) + Math.pow(yError, 2));
     }
 

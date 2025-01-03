@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.teleOp.tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
-@TeleOp
+@Disabled
+@TeleOp(group="Debugging")
 public class Calibration extends Robot {
     @Override
     public void runOpMode() {

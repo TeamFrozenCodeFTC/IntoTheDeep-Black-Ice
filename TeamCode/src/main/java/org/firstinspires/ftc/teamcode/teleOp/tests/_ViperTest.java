@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.teleOp.tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
-@TeleOp
+@Disabled
+@TeleOp(group="Tests")
 public class _ViperTest extends Robot {
     @Override
     public void runOpMode() throws InterruptedException {

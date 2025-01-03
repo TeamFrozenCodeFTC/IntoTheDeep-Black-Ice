@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import org.firstinspires.ftc.teamcode.Robot;
 
+@Disabled
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
 public class VelocityCorrectionTest extends RobotMovement {
     @Override

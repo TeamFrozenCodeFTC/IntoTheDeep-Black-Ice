@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Disabled
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
 public class BreakSpeedTest extends RobotMovement {
     public double[] getStoppingDistance(double power) {

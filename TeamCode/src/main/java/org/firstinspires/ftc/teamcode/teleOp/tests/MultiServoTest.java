@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.LinearEquation;
 
-@TeleOp
+@TeleOp(group="Tests")
 public class MultiServoTest extends GeneralTest {
 
     class ServoTester implements ComponentTester {

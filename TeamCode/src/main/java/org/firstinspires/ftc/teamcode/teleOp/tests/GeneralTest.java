@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.teleOp.tests;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public abstract class GeneralTest extends LinearOpMode {
-
     public abstract String[] getComponents();
 
     public abstract ComponentTester getTester();

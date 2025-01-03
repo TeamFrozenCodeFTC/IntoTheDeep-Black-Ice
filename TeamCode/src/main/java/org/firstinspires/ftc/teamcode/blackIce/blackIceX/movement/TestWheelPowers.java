@@ -27,7 +27,6 @@ public class TestWheelPowers extends RobotMovement {
             telemetry.addData("frontRight", powers[2]);
             telemetry.addData("backRight", powers[3]);
 
-
             telemetry.update();
         }
 

@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
+@Disabled
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
 public class SpecimenOpto extends RobotMovement {
     public void hangSpecimen(double x) {

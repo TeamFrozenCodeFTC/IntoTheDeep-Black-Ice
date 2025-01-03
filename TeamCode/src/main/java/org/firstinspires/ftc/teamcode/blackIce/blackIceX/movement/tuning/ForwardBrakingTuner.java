@@ -3,18 +3,19 @@ package org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.tuning;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Movement;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class ForwardBrakingTuner extends Movement {
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(group = "Tuning")
+public class ForwardBrakingTuner extends Robot {
     public double[] getStoppingDistance(double power) {
-        setTarget(0,0,0);
+        movement.target.setTarget(0,0,0);
         ElapsedTime timer = new ElapsedTime();
 
         timer.reset();
         while (opModeIsActive() && timer.seconds() < 0.6) {
-            updatePosition();
-            drive.power(applyTurnCorrection(drive.forward(power), locked()));
+            movement.target.updatePosition();
+            drive.power(movement.headingCorrection.applyTurnCorrection(drive.forward(power), movement.headingCorrection.locked()));
             telemetry.update();
         }
 

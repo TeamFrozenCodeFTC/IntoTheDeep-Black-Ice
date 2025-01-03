@@ -1,23 +1,19 @@
 package org.firstinspires.ftc.teamcode.teleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.blackIce.blackIceX.RobotMovement;
-import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Movement;
+import org.firstinspires.ftc.teamcode.util.Util;
 
 import java.util.ArrayList;
 
-public class RelativeWheelControls {
-    Movement op;
+public class DriveControls {
+    Robot op;
     boolean firstInput = false;
 
-    public RelativeWheelControls(Movement op) {
+    public DriveControls(Robot op) {
         this.op = op;
     }
 
-    ArrayList<Double[][]> controls = new ArrayList<>();
+    ArrayList<double[]> controls = new ArrayList<>();
 
     static double SPEED_FACTOR = 1;
 
@@ -34,15 +30,18 @@ public class RelativeWheelControls {
         if (op.gamepad1.triangle) {
             op.odometry.resetHeading();
         }
+        if (op.gamepad1.square) {
+            op.odometry.setPosition(0,0,0);
+        }
 
         if (op.gamepad1.dpad_up) {
             op.viperSlide.topBarRaise();
-            op.quickBrakeTo(-90, 0, 30, 10);
+            op.movement.quickBrakeTo(-90, 0, 30, 10);
 
             op.viperSlide.waitForExtension();
 
             // While neither touch sensors are pressed...
-            op.backIntoWall(0.3);
+            op.movement.backIntoWall(0.3);
 
             op.viperSlide.topBarPull();
             //odometry.setHeading(-90);
@@ -67,11 +66,11 @@ public class RelativeWheelControls {
         double backLeftPower   = 0;
         double backRightPower  = 0;
         double frontRightPower = 0;
-        for (Double[][] control : controls) {
-            frontLeftPower  += powerEquation(control[0][0]) * SPEED_FACTOR;
-            backLeftPower   += powerEquation(control[1][0]) * SPEED_FACTOR;
-            backRightPower  += powerEquation(control[1][1]) * SPEED_FACTOR;
-            frontRightPower += powerEquation(control[0][1]) * SPEED_FACTOR;
+        for (double[] control : controls) {
+            frontLeftPower  += powerEquation(control[0]) * SPEED_FACTOR;
+            backLeftPower   += powerEquation(control[1]) * SPEED_FACTOR;
+            backRightPower  += powerEquation(control[2]) * SPEED_FACTOR;
+            frontRightPower += powerEquation(control[3]) * SPEED_FACTOR;
         }
 
         op.frontLeftWheel.setPower(frontLeftPower);
@@ -85,9 +84,9 @@ public class RelativeWheelControls {
     void pivot() {
         double pivot = op.gamepad1.right_stick_x;
 
-        controls.add(new Double[][] {
-                {pivot, -pivot},
-                {pivot, -pivot}
+        controls.add(new double[] {
+                pivot, -pivot,
+                pivot, -pivot
         });
     }
 
@@ -120,29 +119,51 @@ public class RelativeWheelControls {
 
         double cos = Math.cos(radians);
         double sin = Math.sin(radians);
-        double x = xPower * cos - yPower * sin;
-        double y = xPower * sin + yPower * cos;
-//
-//        double mag = Math.max(1, Math.sqrt(x * x + y * y));
-//        if (mag != 0) {
-//            x /= mag;
-//            y /= mag;
-//        }
+        double x = (xPower * cos - yPower * sin) * 65;
+        double y = (xPower * sin + yPower * cos) * 58;
 
-        controls.add(new Double[][] {
-                {Math.min(0.75, y-x), Math.min(0.75, y+x)},
-                {Math.min(0.75, y+x), Math.min(0.75, y-x)}
-        });
+        controls.add(Util.normalize(new double[] {
+                y-x, y+x,
+                y+x, y-x
+        }));
+
+
+//        controls.add(new Double[][] {
+//                {y-x, y+x},
+//                {y+x, y-x}
+//        });
         op.telemetry.addData("xStick", xStick);
         op.telemetry.addData("yStick", yStick);
+    }
+
+    double[] preRelativeSlide() {
+        double xStick = -op.gamepad1.left_stick_x;
+        double yStick = -op.gamepad1.left_stick_y;
+
+        if (!firstInput && (xStick != 0 || yStick != 0)) {
+            firstInput = true;
+            op.timer.reset();
+        }
+
+        double radians = getRadians();
+
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+        double x = (xStick * cos - yStick * sin) * 65;
+        double y = (xStick * sin + yStick * cos) * 58;
+
+        return new double[] {
+                y-x, y+x,
+                y+x, y-x
+        };
     }
 
     void slide() {
         double x = (-op.gamepad1.right_trigger + op.gamepad1.left_trigger) * 0.7;
 
-        controls.add(new Double[][] {
-                {-x, +x},
-                {+x, -x}
+        controls.add(new double[] {
+                -x, +x,
+                +x, -x
         });
     }
 }

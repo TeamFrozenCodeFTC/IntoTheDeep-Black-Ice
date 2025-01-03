@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.TargetTracker;
+
 // A parent class to all operation modes. Contains the Robot's Hardware but also LinearOpMode.
 public abstract class Robot extends LinearOpMode {
     // 7 Motors
@@ -35,6 +38,7 @@ public abstract class Robot extends LinearOpMode {
     public Intake intake;
     public Odometry odometry;
     public Drive drive;
+    public Movement movement;
 
     public ElapsedTime timer;
 
@@ -81,6 +85,7 @@ public abstract class Robot extends LinearOpMode {
         initWheels();
 
         intakeExtender = hardwareMap.get(DcMotor.class, "intakeMotor");
+        runToPositionMode(intakeExtender);
         autoBrake(intakeExtender);
         reverse(intakeExtender);
 
@@ -114,6 +119,7 @@ public abstract class Robot extends LinearOpMode {
         viperSlide = new ViperSlide(this);
         intake = new Intake(this);
         drive = new Drive(this);
+        movement = new Movement(this);
 
         intake.armIn();
         viperSlide.bucketDown();
@@ -130,58 +136,4 @@ public abstract class Robot extends LinearOpMode {
     public boolean isNotInterrupted() {
         return !gamepadHasInterrupted() && opModeIsActive();
     }
-
-//    public void powerWheels(double[] powers) {
-//        frontLeftWheel.setPower(powers[0]);
-//        backLeftWheel.setPower(powers[1]);
-//        frontRightWheel.setPower(powers[2]);
-//        backRightWheel.setPower(powers[3]);
-//    }
-//
-//    public void brake() {
-//        setAllWheelPowersTo(0);
-//    }
-//
-//    public void setAllWheelPowersTo(double power) {
-//        powerWheels(generateWheelPowers(power));
-//    }
-//
-//    public double[] generateWheelPowers(double power) {
-//        return new double[] {power, power, power, power};
-//    }
-//
-//    public double[] slideWheelPowers(double power) {
-//        return new double[] {power, -power, -power, power};
-//    }
-//
-//    public void brakeFor(double seconds) {
-//        ElapsedTime timer = new ElapsedTime();
-//
-//        timer.reset();
-//        while (opModeIsActive() && timer.seconds() < seconds) {
-//            brake();
-//        }
-//    }
-//
-//    public boolean gamepadHasInterrupted() {
-//        return gamepad1.x;
-//    }
-//
-//    public boolean isStuck() {
-//        return odometry.velocity == 0 && wheelsArePowered(); // ?
-//    }
-//
-//    public boolean wheelsArePowered() {
-//        return frontLeftWheel.getPower() != 0 ||
-//               backLeftWheel.getPower() != 0 ||
-//                frontRightWheel.getPower() != 0 ||
-//                frontRightWheel.getPower() != 0;
-//    }
-//
-//    /**
-//     * Makes sure opMode is running and that the controller has not canceled the movement.
-//     */
-//    public boolean isNotInterrupted() {
-//        return !gamepadHasInterrupted() && opModeIsActive();
-//    }
 }

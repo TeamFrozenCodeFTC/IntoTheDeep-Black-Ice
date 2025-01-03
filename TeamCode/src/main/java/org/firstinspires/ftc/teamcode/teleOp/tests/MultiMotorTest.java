@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.LinearEquation;
 
-@TeleOp
+@TeleOp(group="Tests")
 public class MultiMotorTest extends GeneralTest {
 
     class MotorTester implements ComponentTester {
@@ -27,13 +27,10 @@ public class MultiMotorTest extends GeneralTest {
             telemetry.addData("ticks", motor.getCurrentPosition());
         }
     }
-// -1098,
+
     String[] components = {
-//            "frontLeft",
-//            "backLeft",
-//            "frontRight",
-//            "backRight",
-            "intakeMotor"
+            "intakeMotor",
+            "viperSlideMotor",
     };
     ComponentTester tester = new MotorTester();
 

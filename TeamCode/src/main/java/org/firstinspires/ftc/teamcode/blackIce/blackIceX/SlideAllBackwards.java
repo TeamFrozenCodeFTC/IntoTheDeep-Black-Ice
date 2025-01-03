@@ -100,6 +100,9 @@
 
 package org.firstinspires.ftc.teamcode.blackIce.blackIceX;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
+@Disabled
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
 public class SlideAllBackwards extends RobotMovement {
     public void hangSpecimen(double x) {
