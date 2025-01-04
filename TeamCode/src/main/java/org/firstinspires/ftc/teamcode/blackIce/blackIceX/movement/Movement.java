@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement;////package o
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.blackIce.blackIceX.ErrorMargin;
-import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.HeadingCorrection;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 

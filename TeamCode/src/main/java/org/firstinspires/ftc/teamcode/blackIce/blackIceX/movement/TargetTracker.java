@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.blackIce.blackIceX.ErrorMargin;
+import org.firstinspires.ftc.teamcode.oldBlackIce.ErrorMargin;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 public class TargetTracker {

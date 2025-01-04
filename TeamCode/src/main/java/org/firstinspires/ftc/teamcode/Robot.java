@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Movement;
-import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.TargetTracker;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 // A parent class to all operation modes. Contains the Robot's Hardware but also LinearOpMode.
 public abstract class Robot extends LinearOpMode {
