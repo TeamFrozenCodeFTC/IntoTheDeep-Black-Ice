@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.util.Util;
+
 public class Drive {
     Robot robot;
 
@@ -51,6 +53,13 @@ public class Drive {
         });
     }
 
+    public double[] multiply(double[] powers1, double multiplier) {
+        return normalize(new double[] {
+                powers1[0] * multiplier, powers1[1] * multiplier,
+                powers1[2] * multiplier, powers1[3] * multiplier
+        });
+    }
+
     public void brakeFor(double seconds) {
         ElapsedTime timer = new ElapsedTime();
 
@@ -60,15 +69,34 @@ public class Drive {
         }
     }
 
+    private long stuckStartTime = 0; // Time when the robot starts potentially being stuck
+    private final long STUCK_THRESHOLD_TIME = 250; // Time in milliseconds to determine if stuck
+    private final double MIN_VELOCITY = 1; // Minimum velocity to consider the robot "moving"
+
     public boolean isStuck() {
-        return robot.odometry.velocity == 0 && wheelsAreMoving();
+        boolean wheelsMoving = wheelsAreMoving();
+        double currentVelocity = robot.odometry.velocity;
+
+        if (currentVelocity < MIN_VELOCITY && wheelsMoving) {
+            if (stuckStartTime == 0) {
+                // Record the time when the robot might be stuck
+                stuckStartTime = System.currentTimeMillis();
+            } else if (System.currentTimeMillis() - stuckStartTime > STUCK_THRESHOLD_TIME) {
+                // If stuck for longer than the threshold, return true
+                return true;
+            }
+        } else {
+            // Reset the timer if conditions for "stuck" are not met
+            stuckStartTime = 0;
+        }
+        return false;
     }
 
     public boolean wheelsAreMoving() {
         return robot.frontLeftWheel.getPower() != 0 ||
                 robot.backLeftWheel.getPower() != 0 ||
                 robot.frontRightWheel.getPower() != 0 ||
-                robot.frontRightWheel.getPower() != 0;
+                robot.backRightWheel.getPower() != 0;
     }
 
     private double[] normalize(double[] powers) {
@@ -83,5 +111,26 @@ public class Drive {
                 powers[2] / maxPower,
                 powers[3] / maxPower
         };
+    }
+
+    /**
+     * Takes a field-relative vector and converts it into wheel powers
+     * that would make the robot move in the direction of the field vector.
+     * <p>
+     * Does this by rotating the vector relative to the robot heading where it adds up the lateral
+     * and forwards/backwards.
+     */
+    public double[] fieldVectorToLocalWheelPowers(double x, double y) {
+        // positive heading is counterclockwise
+        double heading = Math.toRadians(robot.odometry.heading);
+        double cos = Math.cos(heading);
+        double sin = Math.sin(heading);
+        double localForwards = (x * cos + y * sin); // clockwise rotation
+        double localSlide = (-x * sin + y * cos);
+
+        return Util.normalize(new double[]
+                {localForwards-localSlide, localForwards+localSlide,
+                 localForwards+localSlide, localForwards-localSlide}
+        );
     }
 }

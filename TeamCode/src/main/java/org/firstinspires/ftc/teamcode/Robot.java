@@ -2,12 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.Movement;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 // A parent class to all operation modes. Contains the Robot's Hardware but also LinearOpMode.
@@ -27,6 +26,7 @@ public abstract class Robot extends LinearOpMode {
     public Servo sweeperRotator;
 
     public Servo dumperServo;
+
     public Servo clawLeft;
     public Servo clawRight;
 
@@ -75,7 +75,6 @@ public abstract class Robot extends LinearOpMode {
 
         frontRightWheel = hardwareMap.get(DcMotor.class, "frontRight");
         autoBrake(frontRightWheel);
-        reverse(frontRightWheel);
 
         backRightWheel = hardwareMap.get(DcMotor.class, "backRight");
         autoBrake(backRightWheel);
@@ -94,7 +93,6 @@ public abstract class Robot extends LinearOpMode {
         runToPositionMode(viperSlideMotor);
 
         sweeper = hardwareMap.get(DcMotor.class, "sweeper");
-        sweeper.setDirection(DcMotorSimple.Direction.REVERSE);
 
         sweeperRotator = hardwareMap.get(Servo.class, "sweeperRotator");
 
@@ -121,13 +119,21 @@ public abstract class Robot extends LinearOpMode {
         drive = new Drive(this);
         movement = new Movement(this);
 
-        intake.armIn();
-        viperSlide.bucketDown();
-        viperSlide.clawOut();
+        // disable servos
+
+//        intake.armIn();
+//        viperSlide.bucketDown();
+//        viperSlide.clawOut();
+    }
+
+    public void loopUpdate() {
+        viperSlide.loopUpdate();
+        intake.loopUpdate();
+        movement.target.updatePosition();
     }
 
     public boolean gamepadHasInterrupted() {
-        return gamepad1.x;
+        return gamepad1.cross;
     }
 
     /**

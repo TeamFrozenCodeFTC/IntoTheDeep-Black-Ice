@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 public class Intake {
     Robot op;
 
@@ -7,47 +9,47 @@ public class Intake {
         this.op = op;
     }
 
-    public static final double ARM_MIN_POSITION = .35;
-    public static final double ARM_MAX_POSITION = 0.96;
+    public static final double ARM_MIN_POSITION = .4269;
+    public static final double ARM_MAX_POSITION = 1;
 
     public static final int MAX_TICKS = 1500;
     public static final int MIN_TICKS = 0;
 
-    private double targetTicks;
-
-    public void stopExtender() {
-        op.intakeExtender.setPower(0);
-    }
+    boolean extending = false;
+    boolean retracting = false;
 
     public void retract() {
-        targetTicks = MIN_TICKS;
         op.intakeExtender.setTargetPosition(MIN_TICKS);
         op.intakeExtender.setPower(-1);
 
-        new Thread(this::waitForExtension).start();
+        retracting = true;
+        extending = false;
     }
 
     public void fullyExtend() {
-        targetTicks = MAX_TICKS;
         op.intakeExtender.setTargetPosition(MAX_TICKS);
         op.intakeExtender.setPower(1);
 
-        new Thread(this::waitForExtension).start();
+        retracting = false;
+        extending = true;
     }
 
-    public void waitForExtension() {
-        while (op.intakeExtender.isBusy() || op.viperSlideMotor.getCurrentPosition() < targetTicks-10) {
-            op.idle();
+    public void loopUpdate() {
+        if (retracting && op.intakeExtender.getCurrentPosition() < 10) {
+            op.intakeExtender.setPower(0);
         }
-        op.intakeExtender.setPower(0);
+
+        if (extending && op.intakeExtender.getCurrentPosition() > MAX_TICKS-10) {
+            op.intakeExtender.setPower(0);
+        }
     }
 
     public void armUp() {
-        op.sweeperRotator.setPosition(.7);
+        op.sweeperRotator.setPosition(.65);
     }
 
     public void armDown() {
-        op.sweeperRotator.setPosition(0.04);
+        op.sweeperRotator.setPosition(0.29); // .3
     }
 
     public void armOut() {
@@ -58,12 +60,20 @@ public class Intake {
         op.sweeperRotator.setPosition(ARM_MIN_POSITION);
     }
 
+    public void restArm() {
+        op.sweeperRotator.getController().pwmDisable();
+    }
+
     public void spinSweeperIn() {
         op.sweeper.setPower(0.5);
     }
 
+    public void spinSweeperBy(double power) {
+        op.sweeper.setPower(power);
+    }
+
     public void spinSweeperOut() {
-        op.sweeper.setPower(-1);
+        op.sweeper.setPower(-0.75);
     }
 
     public void stopSweeper() {

@@ -1,7 +1,7 @@
-package org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement;
+package org.firstinspires.ftc.teamcode.blackIce;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.oldBlackIce.ErrorMargin;
+import org.firstinspires.ftc.teamcode.blackIce.ErrorMargin;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 public class TargetTracker {
@@ -44,6 +44,9 @@ public class TargetTracker {
         xError = x - robot.odometry.x;
         yError = y - robot.odometry.y;
         distanceToTarget = Math.sqrt(Math.pow(xError, 2) + Math.pow(yError, 2));
+
+        robot.telemetry.addData("velocity", robot.odometry.velocity);
+        robot.telemetry.update();
     }
 
     public boolean isNotWithinErrorMargin(ErrorMargin errorMargin) {
@@ -52,5 +55,9 @@ public class TargetTracker {
             Math.abs(xError) > errorMargin.x ||
             Math.abs(headingError) > errorMargin.degrees
         );
+    }
+
+    public boolean isWithinErrorMargin(ErrorMargin errorMargin) {
+        return !isNotWithinErrorMargin(errorMargin);
     }
 }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 public class ViperSlide {
     Robot op;
 
@@ -7,29 +9,56 @@ public class ViperSlide {
         this.op = op;
     }
 
-    public final static int MAX_TICKS = 4300;
     public double targetTicks;
 
-    private void raise(int ticks) {
-        op.sweeperRotator.setPosition(.5);
+    boolean lowering = false;
+
+    static final int RELEASE_CLAW_TICKS = 2100;
+
+    public void raise(int ticks) {
+        op.sweeperRotator.setPosition(.65);
+
         op.viperSlideMotor.setTargetPosition(ticks);
         targetTicks = ticks;
         op.viperSlideMotor.setPower(1);
     }
 
-    public void topBasketRaise() {
-        raise(4300);
+    public void loopUpdate() {
+        restMotorAfterLowered();
+
+        releaseClawAtTicks();
+    }
+
+    private void releaseClawAtTicks() {
+        if (lowering && op.viperSlideMotor.getCurrentPosition() < RELEASE_CLAW_TICKS) {
+            op.viperSlide.clawOut();
+        }
+    }
+
+    ElapsedTime loweringTimer = new ElapsedTime();
+
+    private void restMotorAfterLowered() {
+        // Powers off the motor when finished lowering
+        if (lowering && (op.viperSlideMotor.getCurrentPosition() < 10 || loweringTimer.seconds() > 5)) {
+            lowering = false;
+            op.viperSlideMotor.setPower(0);
+        }
+    }
+
+    public void upperBasketRaise() {
+        raise(4400);
     }
 
     public void bottomBasketRaise() {
         raise(3000);
     }
 
-    public void topBarRaise() {
-        raise(2256);
+    public void upperChamberRaise() {
+        raise(2000);
     }
-    public void topBarPull() {
-        raise(1400);
+
+    public void upperChamberPull() {
+        raise(1300);
     }
 
     public void bottomBarRaise() {
@@ -44,49 +73,43 @@ public class ViperSlide {
     }
 
     public void lower() {
-        op.sweeperRotator.setPosition(.5);
+        lowering = true;
+        loweringTimer.reset();
         bucketDown();
+
         op.viperSlideMotor.setTargetPosition(0);
 
         op.viperSlideMotor.setPower(-1);
-
-        new Thread(() -> {
-            long start = System.currentTimeMillis();
-            while (op.opModeIsActive() && op.viperSlideMotor.getCurrentPosition() > 10 && (System.currentTimeMillis() - start) < 10000) {
-                op.idle();
-            }
-            op.viperSlideMotor.setPower(0);
-        }).start();
     }
 
     public void waitForExtension() {
-        while (op.viperSlideMotor.isBusy()
-                || op.viperSlideMotor.getCurrentPosition() < targetTicks-10) {
+        while (op.isNotInterrupted() && !isExtended()) {
             op.idle();
         }
+    }
 
+    public boolean isExtended() {
+        // don't have .isBusy()
+        return (op.viperSlideMotor.getCurrentPosition() < targetTicks-10);
     }
 
     public void dump() {
         op.viperSlide.clawGrab();
-        op.dumperServo.setPosition(0.6);
-    }
-
-    public void bucketFlat() {
-        op.dumperServo.setPosition(0.6);
+        op.dumperServo.setPosition(0.63);
     }
 
     public void bucketDown() {
-        op.dumperServo.setPosition(0.2);
+        op.dumperServo.setPosition(0.375);
     }
 
     public void clawGrab() {
-        op.clawLeft.setPosition(.095);//
-        op.clawRight.setPosition(.7);
+        op.clawLeft.setPosition(.095);
+        op.clawRight.setPosition(.55);
     }
 
     public void clawOut() {
         op.clawLeft.setPosition(.5);
-        op.clawRight.setPosition(.3);
+        op.clawRight.setPosition(.22);
     }
 }
+

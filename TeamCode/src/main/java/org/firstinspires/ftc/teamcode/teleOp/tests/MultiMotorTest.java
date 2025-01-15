@@ -30,7 +30,7 @@ public class MultiMotorTest extends GeneralTest {
 
     String[] components = {
             "intakeMotor",
-            "viperSlideMotor",
+            "linearSlide",
     };
     ComponentTester tester = new MotorTester();
 

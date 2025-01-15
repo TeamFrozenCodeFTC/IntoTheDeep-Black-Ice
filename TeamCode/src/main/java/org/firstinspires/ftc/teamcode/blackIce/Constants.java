@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement;
+package org.firstinspires.ftc.teamcode.blackIce;
 
 public class Constants {
     public static class Measurement {
@@ -7,6 +7,8 @@ public class Constants {
         public static final int HALF_OF_ROBOT = ROBOT / 2;
         public static final int EDGE_OF_TILE = TILE - ROBOT;
         public static final double ROBOT_TURN_RADIUS = Math.sqrt(Math.pow(HALF_OF_ROBOT, 2) * 2);
+        public static final double EXTRA_TURN_RADIUS = ROBOT_TURN_RADIUS - HALF_OF_ROBOT;
+        public static final double EDGE_OF_SUBMERSIBLE = 4.25;
     }
 
     public static class TurnCorrection {

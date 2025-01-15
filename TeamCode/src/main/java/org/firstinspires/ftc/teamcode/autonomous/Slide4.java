@@ -8,10 +8,10 @@ import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.ROBO
 import org.firstinspires.ftc.teamcode.Robot;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Specimen")
-public class SlideAll4Specimen extends Robot {
+public class Slide4 extends Robot {
     public void hangSpecimen(double x) {
         viperSlide.upperChamberRaise();
-        movement.quickBrakeTo(-90, x, 28, 10);
+        movement.quickBrakeTo(-90, x, 26, 10);
 
         viperSlide.waitForExtension();
 
@@ -59,7 +59,7 @@ public class SlideAll4Specimen extends Robot {
         movement.moveTo(-180, TILE + 4, TILE + EDGE_OF_TILE - 4);
 
         // Hook 2nd Sample
-        movement.moveTo(-180, TILE * 2 - 6, TILE + EDGE_OF_TILE + HALF_OF_ROBOT);
+        movement.moveTo(-180, TILE * 2 - 8, TILE + EDGE_OF_TILE + HALF_OF_ROBOT);
         // Push 2nd Sample
         movement.moveTo(90, TILE * 2 - 5, 3);
 
@@ -67,7 +67,7 @@ public class SlideAll4Specimen extends Robot {
         movement.moveTo(90, TILE * 2 - 5, 12);
 
         // Aligns with 3th Sample
-        movement.quickBrakeTo(-180, TILE * 2 - 1, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 2, 5);
+        movement.quickBrakeTo(-180, TILE * 2 - 1, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 6, 5);
         // Hook 3rd Sample
         movement.moveTo(-180, TILE * 2 + 5, TILE + EDGE_OF_TILE + HALF_OF_ROBOT - 2);
         // Push 3rd Sample
@@ -76,8 +76,8 @@ public class SlideAll4Specimen extends Robot {
 //        // Moves straight out of observation zone
 //        movement.moveTo(90, TILE * 2, 12);
 
-//        // Getting Specimen
-//        movement.quickBrakeTo(0, TILE * 3 - HALF_OF_ROBOT - ROBOT_TURN_RADIUS, ROBOT_TURN_RADIUS, 5);
+        // Getting Specimen
+        movement.quickBrakeTo(0, TILE * 3 - HALF_OF_ROBOT - ROBOT_TURN_RADIUS, ROBOT_TURN_RADIUS, 5);
 
         // 2
         getSpecimen();
@@ -92,10 +92,7 @@ public class SlideAll4Specimen extends Robot {
         hangSpecimen(3.5); // technically should be 2.5
 
         // movement.moveTo(-45, TILE*2, 8);
-        // movement.stopAtPosition(90, TILE + HALF_OF_ROBOT, 0);
-        movement.stopAtPositionPI(90, TILE + HALF_OF_ROBOT, 0);
-        while (opModeIsActive()) {
-            movement.holdPosition();
-        }
+        movement.stopAtPosition(90, TILE + HALF_OF_ROBOT, 0);
+
     }
 }

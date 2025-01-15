@@ -1,8 +1,5 @@
-package org.firstinspires.ftc.teamcode.blackIce.blackIceX.movement;
+package org.firstinspires.ftc.teamcode.blackIce;
 
-
-import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.util.Util;
 
 public class HeadingCorrection {
     Movement movement;
@@ -15,8 +12,7 @@ public class HeadingCorrection {
 
     public double turnOverMovement() {
         double turnPower = movement.target.headingError * Constants.TurnCorrection.TURN_POWER;
-        double progressFactor = Math.min(1,
-                (movement.target.totalDistanceToTarget - movement.target.distanceToTarget) / movement.target.totalDistanceToTarget
+        double progressFactor = Math.min(1, (movement.target.totalDistanceToTarget - movement.target.distanceToTarget) / movement.target.totalDistanceToTarget
                         + Constants.TurnCorrection.FINISH_TURN_BY_PERCENT);
         return turnPower * progressFactor;
     }

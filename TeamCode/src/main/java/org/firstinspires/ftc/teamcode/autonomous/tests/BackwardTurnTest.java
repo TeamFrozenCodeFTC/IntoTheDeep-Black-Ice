@@ -6,12 +6,11 @@ import org.firstinspires.ftc.teamcode.Robot;
 public class BackwardTurnTest extends Robot {
     @Override
     public void runOpMode() {
-        initOdometry();
-        initWheels();
+        initRobot();
         waitForStart();
 
         movement.moveTo(0, -20, 0);
-        movement.stopAtPosition(180, 20, 0);
+        movement.stopAtPositionPI(180, 20, 0);
 //        sleep(3000);
     }
 }

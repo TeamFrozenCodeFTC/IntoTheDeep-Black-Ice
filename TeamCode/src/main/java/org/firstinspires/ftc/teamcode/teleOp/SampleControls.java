@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleOp;
 
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.teamcode.Intake;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.ViperSlide;
 
 // Uses gamepad2
 public class SampleControls {
@@ -16,7 +12,6 @@ public class SampleControls {
 
     void control() {
         linearSlide();
-        dumper();
         intakeExtender();
         intakeArm();
         intakeSweeper();
@@ -32,41 +27,80 @@ public class SampleControls {
         }
     }
 
-    void linearSlide() {
-        if (op.gamepad2.left_trigger > 0) {
-            op.viperSlide.topBarRaise();
-        }
-//        else if (op.gamepad2.right_trigger > 0) {
-//            op.viperSlide.topBarPull();
+//    boolean lowering = false;
+//    void linearSlide() {
+//        if (op.gamepad2.dpad_up) {
+//            op.viperSlide.upperChamberRaise();
 //        }
-        else if (op.gamepad2.right_bumper) {
-            op.viperSlide.topBasketRaise();
+//        else if (op.gamepad2.dpad_left) {
+//            op.viperSlide.upperBasketRaise();
+//        }
+//        else if (op.gamepad2.dpad_right) {
+//            op.viperSlide.raise(2000);
+//        }
+//        else if (op.gamepad2.dpad_down) {
+//            lowering = true;
+//            if (op.viperSlideMotor.getCurrentPosition() > 2100) {
+//                op.viperSlide.upperChamberPull();
+//                op.viperSlide.waitForExtension();
+//                op.viperSlide.clawOut();
+//            }
+//            op.viperSlide.lower();
+//        }
+//
+//        if (lowering && op.viperSlideMotor.getCurrentPosition() < 10) {
+//            lowering = false;
+//            op.viperSlideMotor.setPower(0);
+//        }
+//    }
+
+//    boolean lowering = false;
+//    void linearSlide() {
+//        if (op.gamepad2.dpad_up) {
+//            op.viperSlide.upperChamberRaise();
+//        }
+//        else if (op.gamepad2.dpad_left) {
+//            op.viperSlide.upperBasketRaise();
+//        }
+//        else if (op.gamepad2.dpad_right) {
+//            op.viperSlide.raise(2000);
+//        }
+//        else if (op.gamepad2.dpad_down) {
+//            lowering = true;
+//            op.viperSlide.lower();
+//        }
+//
+//        if (lowering && op.viperSlideMotor.getCurrentPosition() < 10) {
+//            lowering = false;
+//            op.viperSlideMotor.setPower(0);
+//        }
+//
+//        if (lowering && op.viperSlideMotor.getCurrentPosition() < 2100) {
+//            op.viperSlide.clawOut();
+//        }
+//    }
+
+    void linearSlide() {
+        if (op.gamepad2.dpad_up) {
+            op.viperSlide.upperChamberRaise();
+        }
+        else if (op.gamepad2.dpad_left) {
+            op.viperSlide.upperBasketRaise();
+        }
+        else if (op.gamepad2.dpad_right) {
+            op.viperSlide.raise(2000);
         }
         else if (op.gamepad2.dpad_down) {
             op.viperSlide.lower();
         }
+
     }
 
-    void dumper() {
-        if (op.gamepad2.dpad_up) {
-            op.viperSlide.dump();
-        }
-        else {
-            op.viperSlide.bucketDown();
-        }
-    }
 
     void intakeExtender() {
-//        double power = -op.gamepad2.left_stick_y;
-//        double position = op.intakeExtender.getCurrentPosition();
-//
-//        if (position > Intake.MAX_TICKS && power > 0) {
-//            power = 0;
-//        }
-//        if (position < Intake.MIN_TICKS && power < 0) {
-//            power = 0;
-//        }
-//        op.intakeExtender.setPower(power);
+        if (op.gamepad2.right_stick_button) {
+            return;
+        }
 
         double power = -op.gamepad2.left_stick_y;
 
@@ -82,45 +116,45 @@ public class SampleControls {
 
     void intakeArm() {
         // Once a sample is acquired, this lifts and retracts the intake.
-        if (op.gamepad2.left_stick_button) {
-            op.intake.armUp();
-            op.intake.retract();
-            // go back
-        }
+//        if (op.gamepad2.right_stick_button) {
+//            op.intake.armUp();
+//            op.intake.retract();
+//            // go back
+//        }
         // Sweep Samples out of the side of the submersible.
-        else if (op.gamepad2.right_stick_button) {
+        if (op.gamepad2.left_stick_button) {
             op.intake.armDown();
-            op.intake.spinSweeperOut();
+            op.intake.spinSweeperBy(-1);
         }
+        // Get Samples from submersible
         else if (op.gamepad2.right_stick_y < 0) {
             op.intake.armOut();
             //op.sleep(500);
             //op.sweeperRotator.getController().pwmDisable();
         }
         else if (op.gamepad2.right_stick_y > 0) {
-            //op.sweeperRotator.getController().pwmEnable();
             op.intake.armIn();
         }
     }
 
     void intakeSweeper() {
-        if (op.gamepad2.right_bumper) {
-            op.intake.spinSweeperIn();
+        // Sweeper In
+        if (op.gamepad2.right_trigger > 0) {
+            op.intake.spinSweeperBy(op.gamepad2.right_trigger * 0.75);
         }
-        else if (op.gamepad2.left_bumper) {
-            op.intake.spinSweeperOut();
+        else if (op.gamepad2.left_trigger > 0) {
+            op.intake.spinSweeperBy(-op.gamepad2.left_trigger * 0.65);
         }
         else {
             op.sweeper.setPower(0);
         }
-//        if (op.gamepad2.square) {
-//            op.intake.spinSweeperOut();
-//        }
-//        else if (op.gamepad2.circle) {
-//            op.intake.spinSweeperIn();
-//        }
-//        else {
-//            op.sweeper.setPower(0);
-//        }
+
+        if (op.gamepad2.square) {
+            op.viperSlide.clawGrab();
+            op.viperSlide.dump();
+        }
+        else {
+            op.viperSlide.bucketDown();
+        }
     }
 }
