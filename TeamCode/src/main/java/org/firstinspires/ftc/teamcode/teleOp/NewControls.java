@@ -3,14 +3,17 @@ package org.firstinspires.ftc.teamcode.teleOp;
 import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF_OF_ROBOT;
 import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
-
+@Config
 @TeleOp
 public class NewControls extends Robot {
+    public static double POWER = 3;
+
     @Override
     public void runOpMode() {
         initRobot();
@@ -35,15 +38,12 @@ public class NewControls extends Robot {
             telemetry.addData("viper slide power", viperSlideMotor.getPower());
             telemetry.update();
 
-            if (120-timer.seconds() < 30 && 120-timer.seconds() > 29) {
+            if (120-timer.seconds() < 35 && 120-timer.seconds() > 34) {
                 gamepad1.rumble(1, 1, 100);
                 gamepad2.rumble(1, 1, 100);
             }
 
             loopUpdate();
-//            else if (120-timer.seconds() < 35 && odometry.x > 4*24 && odometry.y > 1.5*24) {
-//                gamepad1.rumble(0.5, 0.5, 100);
-//            }
         }
     }
 }

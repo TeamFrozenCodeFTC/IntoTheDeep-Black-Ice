@@ -14,5 +14,20 @@ public class Constants {
     public static class TurnCorrection {
         public static final double FINISH_TURN_BY_PERCENT = 0.20;
         public static final double TURN_POWER = 0.03;
+
+
+
+        // 1. Heading Complete Percentage 20% - finishes turning by 20% before the end of the movement
+
+        // 2. Heading Proportional - 0.03
+
+        // 6,7,8 Error Margin, x,y,heading
+
+        // 9, 10 x and y for braking distances (automatic)
+
+        // Little to none arbitrary tuning variables
+        // Black Ice has less than 10 tuning variables while Pedro path has more than 60
+
+        // Only the automatic braking distance test is required to use movements that don't fully brake
     }
 }

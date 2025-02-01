@@ -10,26 +10,20 @@ import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.ROBO
 import org.firstinspires.ftc.teamcode.Robot;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class Basket4 extends Robot {
+public class FourBasket extends Robot {
     public void dumpSample() {
         viperSlide.upperBasketRaise();
 
-        movement.stopAtPositionPI(
+        movement.stopAtPosition(
             45, -TILE*2 - HALF_OF_ROBOT - EDGE_OF_TILE + EXTRA_TURN_RADIUS + 2,
             EXTRA_TURN_RADIUS + 2);
         viperSlide.waitForExtension();
-        movement.stopAtPositionPI(
+        movement.stopAtPosition(
             45, -TILE*2 - HALF_OF_ROBOT - EDGE_OF_TILE + EXTRA_TURN_RADIUS + 2.5,
-            EXTRA_TURN_RADIUS - 0.5);
-
+            EXTRA_TURN_RADIUS - 0.5); // lower power?
 
         viperSlide.dump();
         sleep(1000);
-//        movement.movePast(
-//            45, -TILE*2 - HALF_OF_ROBOT - EDGE_OF_TILE + EXTRA_TURN_RADIUS + 4,
-//            EXTRA_TURN_RADIUS + 2);
-
-
     }
     @Override
     public void runOpMode() {

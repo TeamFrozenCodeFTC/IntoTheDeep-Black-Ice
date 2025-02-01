@@ -53,6 +53,14 @@ public class Drive {
         });
     }
 
+    public double[] combineMax(double[] powers1, double[] powers2, double max) {
+        return downScaleTo(max,
+            new double[] {
+            powers1[0] + powers2[0], powers1[1] + powers2[1],
+            powers1[2] + powers2[2], powers1[3] + powers2[3]
+        });
+    }
+
     public double[] multiply(double[] powers1, double multiplier) {
         return normalize(new double[] {
                 powers1[0] * multiplier, powers1[1] * multiplier,
@@ -112,6 +120,28 @@ public class Drive {
                 powers[3] / maxPower
         };
     }
+
+    public double[] downScaleTo(double maxScaleTo, double[] powers) {
+        double maxPower = 0;
+        for (double value : powers) {
+            maxPower = Math.max(maxPower, Math.abs(value));
+        }
+
+        // Avoid upscaling array
+        if (maxPower <= maxScaleTo) {
+            return powers;
+        }
+
+        double scaleDownBy = maxScaleTo / maxPower;
+
+        for (int i = 0; i < powers.length; i++) {
+            powers[i] *= scaleDownBy;
+        }
+
+        return powers;
+    }
+
+
 
     /**
      * Takes a field-relative vector and converts it into wheel powers

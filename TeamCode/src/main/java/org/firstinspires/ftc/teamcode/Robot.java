@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.MovementBuilder;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 // A parent class to all operation modes. Contains the Robot's Hardware but also LinearOpMode.
@@ -38,7 +39,8 @@ public abstract class Robot extends LinearOpMode {
     public Intake intake;
     public Odometry odometry;
     public Drive drive;
-    public Movement movement;
+    //public Movement movement;
+    public MovementBuilder movement;
 
     public ElapsedTime timer;
 
@@ -48,6 +50,13 @@ public abstract class Robot extends LinearOpMode {
 
     private void unbrakeMotor(DcMotor motor) {
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    public void floatAllWheels() {
+        frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     private void reverse(DcMotor motor) {
@@ -112,18 +121,29 @@ public abstract class Robot extends LinearOpMode {
     }
 
     public void initRobot() {
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
+
         initHardware();
 
         viperSlide = new ViperSlide(this);
         intake = new Intake(this);
         drive = new Drive(this);
-        movement = new Movement(this);
+        //movement = new Movement(this);
+        movement = new MovementBuilder(this);
 
         // disable servos
+        //clawLeft.getController().pwmDisable();
 
-//        intake.armIn();
-//        viperSlide.bucketDown();
-//        viperSlide.clawOut();
+        initServos();
+
+        // make intake arm always up unless doing basket/bucket
+    }
+
+    public void initServos() {
+        intake.armIn();
+        viperSlide.bucketDown();
+        viperSlide.clawOut();
     }
 
     public void loopUpdate() {

@@ -19,15 +19,26 @@ public class Odometry {
     public double yBrakingDistance;
 
     public double brakingDistance;
+//
+//    private double estimateXStoppingDistance() {
+//        return 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
+//        // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
+//    }
+//
+//    private double estimateYStoppingDistance() {
+//        //return 0.00156045 * Math.pow(yVelocity, 2) + 0.0523188 * yVelocity + 0.0317991;
+//        return 0.00130445 * Math.pow(yVelocity, 2) + 0.0644448 * yVelocity + 0.0179835;
+//        // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
+//    }
 
     private double estimateXStoppingDistance() {
-        return 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
+        return Math.signum(xVelocity) * 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
         // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
     }
 
     private double estimateYStoppingDistance() {
         //return 0.00156045 * Math.pow(yVelocity, 2) + 0.0523188 * yVelocity + 0.0317991;
-        return 0.00130445 * Math.pow(yVelocity, 2) + 0.0644448 * yVelocity + 0.0179835;
+        return Math.signum(yVelocity) *0.00130445 * Math.pow(yVelocity, 2) + 0.0644448 * yVelocity + 0.0179835;
         // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
     }
 
@@ -47,6 +58,8 @@ public class Odometry {
         odometry.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED,
                 GoBildaPinpointDriver.EncoderDirection.REVERSED);
         odometry.resetPosAndIMU();
+
+        update();
     }
 
     public void update() {

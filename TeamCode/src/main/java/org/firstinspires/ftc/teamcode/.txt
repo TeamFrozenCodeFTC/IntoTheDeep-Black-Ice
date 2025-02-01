@@ -1,4 +1,11 @@
-// TODO
-Run MultiServoTest
 
-Clean up 4 Auto Specimen
+
+try makes controls not field-centric but make them reverse when backwards
+Black Ice uses no arbitrary tuning variables
+all tuning is automatic
+
+linear path follower
+
+pedro path has 65 tuning variables
+
+Black Ice has 1 automatic test for braking distances

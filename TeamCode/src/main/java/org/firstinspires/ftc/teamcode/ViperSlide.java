@@ -13,7 +13,7 @@ public class ViperSlide {
 
     boolean lowering = false;
 
-    static final int RELEASE_CLAW_TICKS = 2100;
+    static final int RELEASE_CLAW_TICKS = 1300;
 
     public void raise(int ticks) {
         op.sweeperRotator.setPosition(.65);
@@ -39,7 +39,7 @@ public class ViperSlide {
 
     private void restMotorAfterLowered() {
         // Powers off the motor when finished lowering
-        if (lowering && (op.viperSlideMotor.getCurrentPosition() < 10 || loweringTimer.seconds() > 5)) {
+        if (lowering && (op.viperSlideMotor.getCurrentPosition() < 60 || loweringTimer.seconds() > 5)) {
             lowering = false;
             op.viperSlideMotor.setPower(0);
         }
@@ -77,12 +77,14 @@ public class ViperSlide {
         loweringTimer.reset();
         bucketDown();
 
-        op.viperSlideMotor.setTargetPosition(0);
+        op.viperSlideMotor.setTargetPosition(50);
 
         op.viperSlideMotor.setPower(-1);
     }
 
     public void waitForExtension() {
+        op.telemetry.addData("waiting", "for slide");
+        op.telemetry.update();
         while (op.isNotInterrupted() && !isExtended()) {
             op.idle();
         }
@@ -90,7 +92,14 @@ public class ViperSlide {
 
     public boolean isExtended() {
         // don't have .isBusy()
-        return (op.viperSlideMotor.getCurrentPosition() < targetTicks-10);
+        double x = op.viperSlideMotor.getCurrentPosition();
+        return (x > targetTicks-10 && x < targetTicks+10);
+    }
+
+    public boolean isExtendedPast(double ticks) {
+        // don't have .isBusy()
+        double x = op.viperSlideMotor.getCurrentPosition();
+        return (x > ticks-10);
     }
 
     public void dump() {

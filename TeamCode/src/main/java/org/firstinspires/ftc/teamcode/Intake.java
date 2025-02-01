@@ -10,7 +10,7 @@ public class Intake {
     }
 
     public static final double ARM_MIN_POSITION = .4269;
-    public static final double ARM_MAX_POSITION = 1;
+    public static final double ARM_MAX_POSITION = .99;
 
     public static final int MAX_TICKS = 1500;
     public static final int MIN_TICKS = 0;
@@ -28,6 +28,14 @@ public class Intake {
 
     public void fullyExtend() {
         op.intakeExtender.setTargetPosition(MAX_TICKS);
+        op.intakeExtender.setPower(1);
+
+        retracting = false;
+        extending = true;
+    }
+
+    public void extendTo(int ticks) {
+        op.intakeExtender.setTargetPosition(ticks);
         op.intakeExtender.setPower(1);
 
         retracting = false;

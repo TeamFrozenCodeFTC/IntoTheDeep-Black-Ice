@@ -8,14 +8,14 @@ import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE
 import org.firstinspires.ftc.teamcode.Robot;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
-public class PIDTest extends Robot {
+public class SilasTest extends Robot {
     @Override
     public void runOpMode() {
         initRobot();
         waitForStart();
 
-        odometry.setPosition(90, 0, 0);
+        odometry.setPosition(0, 0, 0);
 
-        movement.stopAtPosition(90, 36, 0);
+        movement.stopAtPosition(0, 24*3-7, 0);
     }
 }
