@@ -7,6 +7,8 @@ public class MovementBuild {
     HeadingCorrection headingCorrection;
     DriveCorrection driveCorrection;
     MovementExit movementExit;
+
+    boolean zeroPowerBrake = true;
     double maxPower = 1;
 
     public MovementBuild(MovementBuilder builder, double x, double y, double heading) {
@@ -14,7 +16,17 @@ public class MovementBuild {
 
         builder.target.setTarget(heading, x, y);
 
-        setMovementExit((MovementBuild movementBuild) -> builder.target.isNotWithinErrorMargin(builder.target.defaultErrorMargin));
+        setMovementExit(() -> !builder.target.isNotWithinErrorMargin(builder.target.defaultErrorMargin));
+    }
+
+    public MovementBuild zeroPowerBrake() {
+        zeroPowerBrake = true;
+        return this;
+    }
+
+    public MovementBuild zeroPowerFloat() {
+        zeroPowerBrake = false;
+        return this;
     }
 
     public MovementBuild setHeadingCorrection(HeadingCorrection newHeadingCorrection) {
@@ -38,8 +50,6 @@ public class MovementBuild {
         return this;
     }
 
-    // TODO small and large PID for turning
-
     public void moveTowardTarget() {
         builder.robot.drive.power(builder.robot.drive.combineMax(
             builder.driveCorrections.getWheelPowers(driveCorrection),
@@ -62,11 +72,11 @@ public class MovementBuild {
 //    }
 
     // moveThrough = movePast
-    public MovementBuild   moveThrough() {
+    public MovementBuild moveThrough() {
         return this
             .setHeadingCorrection(builder.headingCorrections.turnOverMovement)
             .setDriveCorrection(builder.driveCorrections.proportional)
-        .setMovementExit((MovementBuild movementBuild) -> {
+        .setMovementExit(() -> {
             boolean pastY;
             boolean pastX;
             if (builder.target.previousY < builder.target.y) {
@@ -88,7 +98,7 @@ public class MovementBuild {
             else {
                 pastX = builder.robot.odometry.x > builder.target.x - builder.robot.odometry.xBrakingDistance;
             }
-            return pastY && pastX;
+            return !(pastY && pastX);
         });
     }
 
@@ -99,10 +109,9 @@ public class MovementBuild {
                 builder.robot.movement.target.xError - builder.robot.odometry.xBrakingDistance * brakePercent,
                 builder.robot.movement.target.yError - builder.robot.odometry.yBrakingDistance * brakePercent,
             })
-            .setMovementExit((MovementBuild movementBuild) ->
-                !builder.target.isWithinBrakingErrorMargin(builder.target.defaultErrorMargin));
+            .setMovementExit(() ->
+                builder.target.isWithinBrakingErrorMargin(builder.target.defaultErrorMargin));
     }
-    // 2335
 
     public MovementBuild stopAtCustom() {
         return this
@@ -134,34 +143,26 @@ public class MovementBuild {
             .setHeadingCorrection(builder.headingCorrections.locked);
     }
 
+    // MAKE SURE YOU RUN YOUR MOVEMENT
     public void run() {
-        while (
-            builder.robot.isNotInterrupted()
-                && movementExit.condition(this)
-        ) {
-            moveTowardTarget();
-
-            builder.robot.telemetry.addData("x pos", builder.robot.odometry.x);
-            builder.robot.telemetry.addData("y pos", builder.robot.odometry.y);
-            builder.robot.telemetry.addData("x braking distance", builder.robot.odometry.xBrakingDistance);
-            builder.robot.telemetry.addData("y braking distance", builder.robot.odometry.yBrakingDistance);
-            builder.robot.telemetry.addData("x vel", builder.robot.odometry.xVelocity);
-            builder.robot.telemetry.addData("y vel", builder.robot.odometry.yVelocity);
-            builder.robot.telemetry.update();
-
-            builder.robot.loopUpdate();
-        }
-        builder.robot.drive.brake();
+        runTimeout(7);
     }
 
     public void runTimeout(double timeout) {
+        if (zeroPowerBrake) {
+            builder.robot.drive.zeroPowerBrake();
+        }
+        else {
+            builder.robot.drive.zeroPowerFloat();
+        }
+
         ElapsedTime timer = new ElapsedTime();
 
         timer.reset();
         while (
             builder.robot.isNotInterrupted()
-                && movementExit.condition(this)
-                && timer.seconds() < timeout
+            && !movementExit.condition()
+            && timer.seconds() < timeout
         ) {
             moveTowardTarget();
 
@@ -175,6 +176,7 @@ public class MovementBuild {
 
             builder.robot.loopUpdate();
         }
-        builder.robot.drive.brake();
+
+        builder.robot.drive.zeroPower();
     }
 }

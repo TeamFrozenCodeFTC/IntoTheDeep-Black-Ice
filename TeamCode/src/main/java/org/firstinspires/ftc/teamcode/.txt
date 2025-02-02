@@ -1,4 +1,6 @@
-
+// TODo next year
+// lateral and forward braking distance
+//
 
 try makes controls not field-centric but make them reverse when backwards
 Black Ice uses no arbitrary tuning variables

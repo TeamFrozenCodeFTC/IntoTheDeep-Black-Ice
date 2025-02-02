@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.Util;
@@ -18,7 +19,21 @@ public class Drive {
         robot.backRightWheel.setPower(powers[3]);
     }
 
-    public void brake() {
+    public void zeroPowerFloat() {
+        robot.frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void zeroPowerBrake() {
+        robot.frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    public void zeroPower() {
         power(forward(0));
     }
 
@@ -73,38 +88,8 @@ public class Drive {
 
         timer.reset();
         while (robot.isNotInterrupted() && timer.seconds() < seconds) {
-            brake();
+            zeroPower();
         }
-    }
-
-    private long stuckStartTime = 0; // Time when the robot starts potentially being stuck
-    private final long STUCK_THRESHOLD_TIME = 250; // Time in milliseconds to determine if stuck
-    private final double MIN_VELOCITY = 1; // Minimum velocity to consider the robot "moving"
-
-    public boolean isStuck() {
-        boolean wheelsMoving = wheelsAreMoving();
-        double currentVelocity = robot.odometry.velocity;
-
-        if (currentVelocity < MIN_VELOCITY && wheelsMoving) {
-            if (stuckStartTime == 0) {
-                // Record the time when the robot might be stuck
-                stuckStartTime = System.currentTimeMillis();
-            } else if (System.currentTimeMillis() - stuckStartTime > STUCK_THRESHOLD_TIME) {
-                // If stuck for longer than the threshold, return true
-                return true;
-            }
-        } else {
-            // Reset the timer if conditions for "stuck" are not met
-            stuckStartTime = 0;
-        }
-        return false;
-    }
-
-    public boolean wheelsAreMoving() {
-        return robot.frontLeftWheel.getPower() != 0 ||
-                robot.backLeftWheel.getPower() != 0 ||
-                robot.frontRightWheel.getPower() != 0 ||
-                robot.backRightWheel.getPower() != 0;
     }
 
     private double[] normalize(double[] powers) {
@@ -140,6 +125,8 @@ public class Drive {
 
         return powers;
     }
+
+
 
 
 
