@@ -58,14 +58,14 @@ public class HangUpsideDown extends Robot {
         movement.buildMovement(-90, 10.25, 30)
             .moveTo(0)
             .setHeadingCorrection(movement.headingCorrections.locked)
-            .setMovementExit(() -> !viperSlide.isExtendedPast(1903))
+            .setMovementExit(() -> viperSlide.isExtendedPast(1903))
             .run();
 
         movement.buildMovement(-90, 10.25, 32)
             .moveTo(0)
             .setMaxPower(0.5)
             .setHeadingCorrection(movement.headingCorrections.locked)
-            .setMovementExit(() -> !viperSlide.isExtended())
+            .setMovementExit(() -> viperSlide.isExtended())
             .run();
 
         viperSlide.clawOut();

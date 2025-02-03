@@ -39,6 +39,7 @@ public class HangSpecimenTest extends Robot {
         viperSlide.bottomBasketRaise();
         sleep(250);
     }
+
     @Override
     public void runOpMode() {
         initRobot();
