@@ -49,7 +49,7 @@ public abstract class Specimen extends Robot {
             .stopAtPosition()
             .setHeadingCorrection(movement.headingCorrections.locked)
             .setMovementExit(() -> {
-                double progress = (double) (1903 - viperSlideMotor.getCurrentPosition()) / 1903;
+                double progress = (double) (2000 - viperSlideMotor.getCurrentPosition()) / 2000;
                 toSubmersibleMovement.setMaxPower(progress+0.1);
                 return viperSlide.isExtended();
             });

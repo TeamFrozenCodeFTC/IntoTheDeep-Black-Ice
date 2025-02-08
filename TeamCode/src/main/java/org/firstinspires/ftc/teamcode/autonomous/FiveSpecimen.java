@@ -48,6 +48,7 @@ public class FiveSpecimen extends Specimen {
 //
         viperSlide.clawGrab();
 //        // may need sleep here
+
         viperSlide.upperChamberRaise();
 //
         //movement.stopAtPosition(-90, 10.25-1.5, 28);
