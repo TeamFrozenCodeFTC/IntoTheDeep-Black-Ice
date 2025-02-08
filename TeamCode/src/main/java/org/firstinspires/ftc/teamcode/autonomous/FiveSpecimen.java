@@ -41,7 +41,7 @@ public class FiveSpecimen extends Specimen {
         movement.moveThrough(90, 60, 36);
         intake.armIn();
 //        movement.stopAtPosition(90, 60, 4);
-        movement.moveThrough(90, 60, 4);
+        movement.moveThrough(90, 60, 6);
 
         drive.power(drive.backward(0.4));
         sleep(400);
