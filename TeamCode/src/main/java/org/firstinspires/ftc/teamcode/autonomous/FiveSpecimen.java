@@ -55,15 +55,15 @@ public class FiveSpecimen extends Specimen {
         movement.moveThrough(-90, 11, 23);
 //
         //movement.stopAtPosition(-90, 10.25-1.5, 28);
+        hangSpecimen(10.25-1.5);
+        getSpecimen();
+
         hangSpecimen(10.25-3);
         getSpecimen();
 
-        hangSpecimen(10.25-1);
+        hangSpecimen(10.25-4.5);
         getSpecimen();
 
-        hangSpecimen(10.25-1);
-        getSpecimen();
-
-        hangSpecimen(10.25-1);
+        hangSpecimen(10.25-6);
     }
 }
