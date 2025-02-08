@@ -39,7 +39,7 @@ public class ViperSlide {
 
     private void restMotorAfterLowered() {
         // Powers off the motor when finished lowering
-        if (lowering && (op.viperSlideMotor.getCurrentPosition() < 60 || loweringTimer.seconds() > 5)) {
+        if (lowering && (op.viperSlideMotor.getCurrentPosition() < 110 || loweringTimer.seconds() > 5)) {
             lowering = false;
             op.viperSlideMotor.setPower(0);
         }
@@ -77,7 +77,7 @@ public class ViperSlide {
         loweringTimer.reset();
         bucketDown();
 
-        op.viperSlideMotor.setTargetPosition(50);
+        op.viperSlideMotor.setTargetPosition(100); // if you change this you have to change restMotorAfterLowered() ticks
 
         op.viperSlideMotor.setPower(-1);
     }
@@ -119,6 +119,16 @@ public class ViperSlide {
     public void clawOut() {
         op.clawLeft.setPosition(.5);
         op.clawRight.setPosition(.22);
+    }
+
+    public void liftRobot() {
+        op.leftLift.setPosition(.5);
+        op.rightLift.setPosition(.4144);
+    }
+
+    public void liftersIn() {
+        op.leftLift.setPosition(.8425);
+        op.rightLift.setPosition(.0912);
     }
 }
 

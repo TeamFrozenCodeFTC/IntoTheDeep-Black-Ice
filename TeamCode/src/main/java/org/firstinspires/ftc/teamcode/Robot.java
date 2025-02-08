@@ -31,6 +31,9 @@ public abstract class Robot extends LinearOpMode {
     public Servo clawLeft;
     public Servo clawRight;
 
+    public Servo rightLift;
+    public Servo leftLift;
+
     // 2 Touch sensors
     public TouchSensor touchLeft;
     public TouchSensor touchRight;
@@ -113,6 +116,9 @@ public abstract class Robot extends LinearOpMode {
         clawLeft = hardwareMap.get(Servo.class, "clawLeft");
         clawRight = hardwareMap.get(Servo.class, "clawRight");
 
+        leftLift = hardwareMap.get(Servo.class, "leftLift");
+        rightLift = hardwareMap.get(Servo.class, "rightLift");
+
         initOdometry();
     }
 
@@ -137,6 +143,7 @@ public abstract class Robot extends LinearOpMode {
 
         initServos();
 
+
         // make intake arm always up unless doing basket/bucket
     }
 
@@ -144,6 +151,7 @@ public abstract class Robot extends LinearOpMode {
         intake.armIn();
         viperSlide.bucketDown();
         viperSlide.clawOut();
+        viperSlide.liftersIn();
     }
 
     public void loopUpdate() {

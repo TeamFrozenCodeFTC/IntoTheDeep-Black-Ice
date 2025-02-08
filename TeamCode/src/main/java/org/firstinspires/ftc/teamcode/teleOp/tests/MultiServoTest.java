@@ -33,7 +33,9 @@ public class MultiServoTest extends GeneralTest {
             "sweeperRotator",
             "dumperServo",
             "clawLeft",
-            "clawRight"
+            "clawRight",
+            "leftLift",
+        "rightLift"
     };
     ComponentTester tester = new ServoTester();
 

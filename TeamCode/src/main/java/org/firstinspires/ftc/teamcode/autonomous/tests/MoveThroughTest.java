@@ -16,8 +16,10 @@ public class MoveThroughTest extends Robot {
 
         odometry.setPosition(90, 0, 0);
         movement.target.setTarget(90, 0, 0);
+        // test what happens without set target
 
-        movement.moveThrough(90, 15, 5);
-        movement.stopAtPosition(90, 24, 24);
+        movement.moveThrough(90, 0, 24);
+        movement.moveThrough(90, 0, 0);
+        movement.moveThrough(90, 0, 24);
     }
 }

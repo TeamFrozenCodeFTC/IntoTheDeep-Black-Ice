@@ -21,7 +21,7 @@ public class HangSpecimenTest extends Robot {
         movement.buildMovement(-90, x, 32)
             .stopAtPosition()
             .setMaxPower(0.5)
-            .setMovementExit((MovementBuild movementBuild) -> !viperSlide.isExtended())
+            .setMovementExit(() -> !viperSlide.isExtended())
             .run();
 
         viperSlide.clawOut();

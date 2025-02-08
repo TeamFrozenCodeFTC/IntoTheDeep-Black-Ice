@@ -25,40 +25,43 @@ public class NewDriveControls {
             robot.odometry.setPosition(90,robot.odometry.x, robot.odometry.y);
         }
         // Reset Odometry in observation zone corner
-        else if (robot.gamepad1.square) {
-            robot.odometry.setPosition(90,24*3-9,0);
-        }
         else if (robot.gamepad1.circle) {
             robot.odometry.setPosition(90,24*3-9,0);
         }
+        else if (robot.gamepad1.cross) {
+            robot.viperSlide.liftRobot();
+        }
+        else if (robot.gamepad1.square) {
+            robot.viperSlide.liftersIn();
+        }
         else if (robot.gamepad1.dpad_up) {
-//            robot.movement.quickBrakeTo(90, TILE + HALF_OF_ROBOT, 3, 10);
-//
-//            robot.movement.backIntoWall(0.3);
-//
-//            robot.odometry.setY(0);
-//
-//            robot.viperSlide.clawGrab();
-//            robot.sleep(200);
-//            robot.viperSlide.bottomBasketRaise();
-//            robot.sleep(250);
-//
-//            robot.viperSlide.upperChamberRaise();
-//            robot.movement.quickBrakeTo(-90, x, 28, 10);
-//
-//            robot.viperSlide.waitForExtension();
-//
-//            // While neither touch sensors are pressed...
-//            robot.movement.backIntoWall(0.3);
-//
-//            robot.odometry.setHeading(-90);
-//
-//            robot.viperSlide.upperChamberPull();
-//            robot.viperSlide.waitForExtension();
-//            robot.viperSlide.clawOut();
-//            robot.viperSlide.lower();
-//
-//            x += 1.5;
+            robot.movement.stopAtPosition(90, TILE + HALF_OF_ROBOT, 3);
+
+            robot.movement.backIntoWall(0.3);
+
+            robot.odometry.setY(0);
+
+            robot.viperSlide.clawGrab();
+            robot.sleep(200);
+            robot.viperSlide.bottomBasketRaise();
+            robot.sleep(250);
+
+            robot.viperSlide.upperChamberRaise();
+            robot.movement.stopAtPosition(-90, x, 28);
+
+            robot.viperSlide.waitForExtension();
+
+            // While neither touch sensors are pressed...
+            robot.movement.backIntoWall(0.3);
+
+            robot.odometry.setHeading(-90);
+
+            robot.viperSlide.upperChamberPull();
+            robot.viperSlide.waitForExtension();
+            robot.viperSlide.clawOut();
+            robot.viperSlide.lower();
+
+            x += 1.5;
         }
 
         double speedFactor;
