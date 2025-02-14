@@ -7,9 +7,8 @@ import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.MovementBuild;
 
-// Load specimen upside down
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Specimen")
-public class FiveSpecimen extends Specimen {
+public class FiveSpecimenSlide extends Specimen {
     @Override
     public void runOpMode() {
         initRobot();
@@ -42,7 +41,7 @@ public class FiveSpecimen extends Specimen {
 
         movement.moveThrough(90, 60, 10);
 
-        drive.power(drive.backward(0.3));
+        drive.power(drive.backward(0.1));
         sleep(400);
 
         viperSlide.clawGrab();
@@ -52,17 +51,17 @@ public class FiveSpecimen extends Specimen {
 
         movement.moveThrough(-90, 11, 23);
 
-        hangSpecimen(10.25-1.5);
-        getSpecimen();
-
-        hangSpecimen(10.25-3);
+        hangSpecimen(10.25-6);
         getSpecimen();
 
         hangSpecimen(10.25-4.5);
         getSpecimen();
 
-        hangSpecimen(10.25-6);
+        hangSpecimen(10.25-3);
+        getSpecimen();
 
-        movement.stopAtPosition(-90-45, TILE + EDGE_OF_TILE, 3);
+        hangSpecimen(10.25-1.5);
+
+        movement.stopAtPosition(-90+45, TILE + EDGE_OF_TILE + 5, 5);
     }
 }

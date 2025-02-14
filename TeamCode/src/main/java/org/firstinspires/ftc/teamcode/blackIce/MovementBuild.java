@@ -73,34 +73,11 @@ public class MovementBuild {
 //    }
 
     // moveThrough = movePast
+
     public MovementBuild moveThrough() {
         return this
             .setHeadingCorrection(builder.headingCorrections.turnOverMovement)
             .setDriveCorrection(builder.driveCorrections.proportional)
-//        .setMovementExit(() -> {
-//            boolean pastY;
-//            boolean pastX;
-//            if (builder.target.previousY < builder.target.y) {
-//                pastY = builder.robot.odometry.y < builder.target.y - builder.robot.odometry.yBrakingDistance;
-//            }
-//            else if (builder.target.previousY == builder.target.y) {
-//                pastY = true;
-//            }
-//            else {
-//                pastY = builder.robot.odometry.y > builder.target.y - builder.robot.odometry.yBrakingDistance;
-//            }
-//
-//            if (builder.target.previousX < builder.target.x) {
-//                pastX = builder.robot.odometry.x < builder.target.x - builder.robot.odometry.xBrakingDistance;
-//            }
-//            else if (builder.target.previousX == builder.target.x) {
-//                pastX = true;
-//            }
-//            else {
-//                pastX = builder.robot.odometry.x > builder.target.x - builder.robot.odometry.xBrakingDistance;
-//            }
-//            return !(pastY && pastX);
-//        });
             .setMovementExit(() -> {
                 boolean pastY;
                 boolean pastX;
@@ -171,7 +148,7 @@ public class MovementBuild {
 
     // MAKE SURE YOU RUN YOUR MOVEMENT
     public void run() {
-        runTimeout(7);
+        runTimeout(5);
     }
 
     public void runTimeout(double timeout) {

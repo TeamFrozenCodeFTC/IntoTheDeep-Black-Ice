@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleOp;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.Robot;
 
 // Uses gamepad2
@@ -35,10 +37,19 @@ public class SampleControls {
             op.viperSlide.upperBasketRaise();
         }
         else if (op.gamepad2.dpad_right) {
-            op.viperSlide.raise(2000);
+            op.viperSlide.raise(1700);
         }
         else if (op.gamepad2.dpad_down) {
             op.viperSlide.lower();
+        }
+        else if (op.gamepad2.touchpad_finger_1) {
+            ElapsedTime timer = new ElapsedTime();
+            op.viperSlide.lower();
+            timer.reset();
+            while (timer.seconds() < 3) {
+                double progress = 1 - timer.seconds() / 3;
+                op.viperSlideMotor.setPower(progress);
+            }
         }
     }
 

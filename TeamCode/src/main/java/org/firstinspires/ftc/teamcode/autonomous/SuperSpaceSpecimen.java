@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.blackIce.MovementBuild;
 
 // Load specimen upside down
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Specimen")
-public class FiveSpecimen extends Specimen {
+public class SuperSpaceSpecimen extends Specimen {
     @Override
     public void runOpMode() {
         initRobot();
@@ -52,16 +52,21 @@ public class FiveSpecimen extends Specimen {
 
         movement.moveThrough(-90, 11, 23);
 
-        hangSpecimen(10.25-1.5);
+
+        movement.moveThrough(-90, 10.25-2, 24);
+        hangSpecimen(10.25-2);
         getSpecimen();
 
-        hangSpecimen(10.25-3);
+        movement.moveThrough(-90, 10.25-4, 26);
+        hangSpecimen(10.25-4);
         getSpecimen();
 
-        hangSpecimen(10.25-4.5);
-        getSpecimen();
-
+        movement.moveThrough(-90, 10.25-6, 26);
         hangSpecimen(10.25-6);
+        getSpecimen();
+
+        movement.moveThrough(-90, 10.25-8, 26);
+        hangSpecimen(10.25-8);
 
         movement.stopAtPosition(-90-45, TILE + EDGE_OF_TILE, 3);
     }

@@ -9,19 +9,20 @@ import org.firstinspires.ftc.teamcode.blackIce.MovementBuild;
 
 // Load specimen upside down
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Specimen")
-public class FiveSpecimen extends Specimen {
+public class FourSpecimen extends Specimen {
     @Override
     public void runOpMode() {
         initRobot();
 
         intake.armIn();
-        viperSlide.clawGrab();
+        viperSlide.clawOut();
 
         waitForStart();
 
-        hangFirstUpsideDown(10.25);
+        odometry.setPosition(-90, 24, 0);
+        movement.target.setTarget(-90, 0, 0);
 
-        movement.moveThrough(-90, 32, 26); // Go past submersible
+        movement.moveThrough(-90, 12, 0); // push yellow sample
         movement.stopAtPosition(-90, 40, 36); // Get Sample 1
         movement.turnAndMoveThrough(-180, 47, 7.75); // push sample 1
 
@@ -39,7 +40,6 @@ public class FiveSpecimen extends Specimen {
             .run();
 
         movement.moveThrough(90, 60, 36);
-
         movement.moveThrough(90, 60, 10);
 
         drive.power(drive.backward(0.3));
@@ -62,7 +62,6 @@ public class FiveSpecimen extends Specimen {
         getSpecimen();
 
         hangSpecimen(10.25-6);
-
         movement.stopAtPosition(-90-45, TILE + EDGE_OF_TILE, 3);
     }
 }

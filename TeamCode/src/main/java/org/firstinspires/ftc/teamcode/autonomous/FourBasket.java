@@ -15,22 +15,29 @@ public class FourBasket extends Robot {
         viperSlide.upperBasketRaise();
 
         movement.stopAtPosition(
-            45, -TILE*2 - HALF_OF_ROBOT - EDGE_OF_TILE + EXTRA_TURN_RADIUS + 2,
-            EXTRA_TURN_RADIUS + 2);
+            72, -59.1,
+            7);
         viperSlide.waitForExtension();
         movement.stopAtPosition(
-            45, -TILE*2 - HALF_OF_ROBOT - EDGE_OF_TILE + EXTRA_TURN_RADIUS + 2.5,
-            EXTRA_TURN_RADIUS - 0.5); // lower power?
+            72, -59.1,
+            5.7);
 
         viperSlide.dump();
+        viperSlide.clawOut();
         sleep(1000);
+
+        movement.stopAtPosition(
+            72, -55,
+            5.6);
+        viperSlide.lower();
     }
+
     @Override
     public void runOpMode() {
         initRobot();
 
         viperSlide.bucketDown();
-        intake.armIn();
+        intake.armIn2();
 
         waitForStart();
 
@@ -39,22 +46,21 @@ public class FourBasket extends Robot {
         dumpSample();
         viperSlide.lower();
 
-        movement.moveTo(
+        movement.moveThrough(
             -180, -TILE - HALF_OF_ROBOT - 2,
             EDGE_OF_TILE + HALF_OF_ROBOT);
-        movement.stopAtPositionPI(
-            -180, -TILE - HALF_OF_ROBOT - 1,
-            EDGE_OF_TILE + HALF_OF_ROBOT + TILE - 1.5);
+        movement.stopAtPosition(
+            -180, -34, 38);
         intake.armOut();
         sleep(750);
         intake.spinSweeperBy(0.75);
-        movement.stopAtPositionPI(
-            -180, -TILE - HALF_OF_ROBOT - 4.5,
-            EDGE_OF_TILE + HALF_OF_ROBOT + TILE - 1.5);
+        movement.stopAtPosition(
+            -180, -34-3,
+            38);
         sleep(500);
         intake.stopSweeper();
-        intake.armIn();
-        sleep(2000);
+        intake.armIn2();
+        sleep(1200);
         sweeper.setPower(-0.5);
         sleep(900);
         intake.spinSweeperIn();
@@ -62,37 +68,29 @@ public class FourBasket extends Robot {
         intake.stopSweeper();
 
         dumpSample();
-        viperSlide.lower();
 
-        movement.moveTo(
-            -180, -TILE - HALF_OF_ROBOT - 2,
-            EDGE_OF_TILE + HALF_OF_ROBOT);
-        movement.stopAtPositionPI(
-            -180, -TILE - HALF_OF_ROBOT - 6 - 4,
-            EDGE_OF_TILE + HALF_OF_ROBOT + TILE - 1.5);
+        movement.stopAtPosition(
+            -180, -44.2,
+            38);
         intake.armOut();
         sleep(750);
         intake.spinSweeperBy(0.75);
-        movement.stopAtPositionPI(
-            -180, -TILE - HALF_OF_ROBOT - 6 - 7,
-            EDGE_OF_TILE + HALF_OF_ROBOT + TILE - 1.5);
-
+        movement.stopAtPosition(
+            -180, -44.2-3,
+            38);
         sleep(500);
         intake.stopSweeper();
-        intake.armIn();
-        sleep(2000);
+        intake.armIn2();
+        sleep(1200);
         sweeper.setPower(-0.5);
-        sleep(900);
+        sleep(1200);
         intake.spinSweeperIn();
         sleep(150);
         intake.stopSweeper();
 
         dumpSample();
-        viperSlide.lower();
 
-        movement.stopAtPositionPI(
-            90, -TILE - HALF_OF_ROBOT - 2,
-            EDGE_OF_TILE + HALF_OF_ROBOT);
+        movement.stopAtPosition(-90+45, -33.5, 48);
 
         while (opModeIsActive()) {
             idle();

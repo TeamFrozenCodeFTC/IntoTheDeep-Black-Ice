@@ -34,7 +34,7 @@ public class DriveCorrections {
 
     public double[] stopAtTarget() {
         return new double[]{
-            robot.movement.target.xError - robot.odometry.xBrakingDistance,
+            robot.movement.target.xError - robot.odometry.xBrakingDistance,  // try multiplying this whole thing
             robot.movement.target.yError - robot.odometry.yBrakingDistance,
         };
     }

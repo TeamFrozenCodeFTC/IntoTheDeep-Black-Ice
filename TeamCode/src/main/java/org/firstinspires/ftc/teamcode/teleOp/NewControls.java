@@ -17,8 +17,10 @@ public class NewControls extends Robot {
     @Override
     public void runOpMode() {
         initRobot();
+        clawLeft.getController().pwmDisable();
+        leftLift.getController().pwmDisable();
 
-        odometry.setPosition(90, TILE + HALF_OF_ROBOT, 0);
+        odometry.setPosition(-90+45, TILE + HALF_OF_ROBOT, 0);
 
         SampleControls specimenControls = new SampleControls(this);
         NewDriveControls relativeWheelControls = new NewDriveControls(this);
@@ -29,7 +31,7 @@ public class NewControls extends Robot {
 
         timer.reset();
 
-        odometry.setPosition(90, TILE + HALF_OF_ROBOT, 0);
+        odometry.setPosition(-90+45, TILE + HALF_OF_ROBOT, 0);
 
         while (opModeIsActive()) {
             specimenControls.control();

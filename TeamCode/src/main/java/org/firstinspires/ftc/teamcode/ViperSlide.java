@@ -9,7 +9,7 @@ public class ViperSlide {
         this.op = op;
     }
 
-    public double targetTicks;
+    public int targetTicks;
 
     boolean lowering = false;
 
@@ -27,6 +27,8 @@ public class ViperSlide {
         restMotorAfterLowered();
 
         releaseClawAtTicks();
+//
+//        op.viperSlideMotor.setTargetPosition(targetTicks);
     }
 
     private void releaseClawAtTicks() {
@@ -78,7 +80,7 @@ public class ViperSlide {
         bucketDown();
 
         op.viperSlideMotor.setTargetPosition(100); // if you change this you have to change restMotorAfterLowered() ticks
-
+        targetTicks = 100;
         op.viperSlideMotor.setPower(-1);
     }
 
@@ -117,7 +119,7 @@ public class ViperSlide {
     }
 
     public void clawOut() {
-        op.clawLeft.setPosition(.5);
+        op.clawLeft.setPosition(.315);
         op.clawRight.setPosition(.22);
     }
 

@@ -55,12 +55,13 @@ public abstract class Robot extends LinearOpMode {
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    public void floatAllWheels() {
-        frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-    }
+//    public void floatAllWheels() {
+//        frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//        backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//        frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//        backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//    }
+
 
     private void reverse(DcMotor motor) {
         motor.setDirection(DcMotor.Direction.REVERSE);
@@ -143,8 +144,20 @@ public abstract class Robot extends LinearOpMode {
 
         initServos();
 
-
         // make intake arm always up unless doing basket/bucket
+    }
+
+    public void initAllButServos() {
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
+
+        initHardware();
+
+        viperSlide = new ViperSlide(this);
+        intake = new Intake(this);
+        drive = new Drive(this);
+        //movement = new Movement(this);
+        movement = new MovementBuilder(this);
     }
 
     public void initServos() {
@@ -161,7 +174,7 @@ public abstract class Robot extends LinearOpMode {
     }
 
     public boolean gamepadHasInterrupted() {
-        return gamepad1.cross;
+        return gamepad1.dpad_down;
     }
 
     /**

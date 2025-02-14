@@ -39,13 +39,13 @@ public abstract class Specimen extends Robot {
     }
 
     MovementBuild toSubmersibleMovement;
-    public void hangFirstUpsideDown() { // make more consistent
+    public void hangFirstUpsideDown(double x) { // make more consistent
         // Start with claw facing submersible
         odometry.setPosition(-90, HALF_OF_ROBOT + EDGE_OF_TILE, 0);
 
         viperSlide.raise(2430);
 
-        toSubmersibleMovement = movement.buildMovement(-90, 10.25, 30.5)
+        toSubmersibleMovement = movement.buildMovement(-90, x, 30.5)
             .stopAtPosition()
             .setHeadingCorrection(movement.headingCorrections.locked)
             .setMovementExit(() -> {
