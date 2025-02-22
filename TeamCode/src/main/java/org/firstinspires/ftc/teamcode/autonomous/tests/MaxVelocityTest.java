@@ -8,18 +8,21 @@ import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE
 import org.firstinspires.ftc.teamcode.Robot;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
-public class SquareStopTest extends Robot {
+public class MaxVelocityTest extends Robot {
     @Override
     public void runOpMode() {
         initRobot();
         waitForStart();
 
-        odometry.setPosition(90, 0, 0);
+        odometry.setPosition(0, 0, 0);
 
-        movement.stopAtPosition(90, 0, 36);
-        movement.stopAtPosition(90, 48, 36);
-        movement.stopAtPosition(90, 48, 0);
-        movement.stopAtPosition(90, 0, 0);
-        
-    }
-}
+        movement.buildMovement(0, 48, 0)
+            .stopAtPosition()
+            .setMaxVelocity(20)
+            .run();
+
+        movement.buildMovement(-180, 48, 0)
+            .stopAtPosition()
+            .setMaxHeadingVelocity(20)
+            .run();
+}}

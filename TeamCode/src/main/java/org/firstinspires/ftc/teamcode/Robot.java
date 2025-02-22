@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -12,6 +13,8 @@ import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 // A parent class to all operation modes. Contains the Robot's Hardware but also LinearOpMode.
 public abstract class Robot extends LinearOpMode {
+    public static Robot instance;
+
     // 7 Motors
     public DcMotor frontLeftWheel;
     public DcMotor backLeftWheel;
@@ -128,8 +131,11 @@ public abstract class Robot extends LinearOpMode {
     }
 
     public void initRobot() {
+        Robot.instance = this;
+
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = dashboard.getTelemetry();
+        //telemetry = new MultipleTelemetry();
 
         initHardware();
 

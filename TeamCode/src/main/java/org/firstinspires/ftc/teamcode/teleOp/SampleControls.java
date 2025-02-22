@@ -61,7 +61,7 @@ public class SampleControls {
         double power = -op.gamepad2.left_stick_y;
 
         if (power > 0) {
-            op.intakeExtender.setTargetPosition(1500);
+            op.intakeExtender.setTargetPosition(1244);
         }
         if (power < 0) {
             op.intakeExtender.setTargetPosition(0);

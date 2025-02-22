@@ -20,5 +20,6 @@ public class SquarePastTest extends Robot {
         movement.movePast(90, 48, 24);
         movement.movePast(90, 48, 0);
         movement.movePast(90, 0, 0);
+        
     }
 }

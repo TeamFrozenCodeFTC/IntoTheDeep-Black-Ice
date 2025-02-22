@@ -15,6 +15,8 @@ public class DriveCorrections {
         this.robot = robot;
     }
 
+    //private final Robot robot = Robot.instance;
+
     public double[] adjustWithBrakingDistanceWithoutStop() {
         double x = robot.movement.target.xError - robot.odometry.xBrakingDistance;
         double y = robot.movement.target.yError - robot.odometry.yBrakingDistance;
@@ -32,25 +34,37 @@ public class DriveCorrections {
     public DriveCorrection adjustWithBrakingDistanceWithoutStop = this::adjustWithBrakingDistanceWithoutStop;
 
 
-    public double[] stopAtTarget() {
-        return new double[]{
-            robot.movement.target.xError - robot.odometry.xBrakingDistance,  // try multiplying this whole thing
-            robot.movement.target.yError - robot.odometry.yBrakingDistance,
-        };
+    public static double[] stopAtTarget() {
+        return fieldVectorToLocalWheelPowers(new double[]{
+            (robot.movement.target.xError - robot.odometry.xBrakingDistance), // / ((double) 1 /4),  // try multiplying this whole thing
+            (robot.movement.target.yError - robot.odometry.yBrakingDistance) // / ((double) 1 /4),// / (1/4) inch error margin
+        });
     }
     public DriveCorrection stopAtTarget = this::stopAtTarget;
 
+    public static double[] stopAtTargetLateral() {
+        double[] robotVector = fieldVectorToRobotVector(new double[]{
+            robot.movement.target.xError, // - robot.odometry.xBrakingDistance) / ((double) 1 /4),  // try multiplying this whole thing
+            robot.movement.target.yError  // - robot.odometry.yBrakingDistance) / ((double) 1 /4),// / (1/4) inch error margin
+        });
+        return robotVectorToLocalWheelPowers(new double[] {
+            robotVector[0] - robot.odometry.forwardBrakingDistance,
+            robotVector[1] - robot.odometry.lateralBrakingDistance,
+        });
+    }
+    public DriveCorrection stopAtTargetLateral = this::stopAtTarget;
+
     public double[] proportional() {
-        return new double[]{
+        return fieldVectorToLocalWheelPowers(new double[]{
             robot.movement.target.xError,
             robot.movement.target.yError,
-        };
+        });
     }
     public DriveCorrection proportional = this::proportional;
-
-    public double[] getWheelPowers(DriveCorrection driveCorrection) {
-        return fieldVectorToLocalWheelPowers(driveCorrection.calculateDriveVector());
-    }
+//
+//    public double[] getWheelPowers(DriveCorrection driveCorrection) {
+//        return fieldVectorToLocalWheelPowers(driveCorrection.calculateDriveVector());
+//    }
 
     /**
      * Takes a field-relative vector and converts it into wheel powers

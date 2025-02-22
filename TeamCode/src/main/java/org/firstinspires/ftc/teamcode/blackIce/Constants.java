@@ -13,7 +13,7 @@ public class Constants {
 
     public static class TurnCorrection {
         public static final double FINISH_TURN_BY_PERCENT = 0.20;
-        public static final double TURN_POWER = 0.03;
+        public static final double TURN_POWER = 0.03;//0.03;
 
 
 

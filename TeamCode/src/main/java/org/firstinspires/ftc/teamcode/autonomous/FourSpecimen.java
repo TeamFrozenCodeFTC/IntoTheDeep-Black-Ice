@@ -63,5 +63,6 @@ public class FourSpecimen extends Specimen {
 
         hangSpecimen(10.25-6);
         movement.stopAtPosition(-90-45, TILE + EDGE_OF_TILE, 3);
+        
     }
 }

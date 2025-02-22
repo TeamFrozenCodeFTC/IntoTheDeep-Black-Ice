@@ -57,5 +57,6 @@ public abstract class GeneralTest extends LinearOpMode {
             compTest.test();
             telemetry.update();
         }
+        
     }
 }

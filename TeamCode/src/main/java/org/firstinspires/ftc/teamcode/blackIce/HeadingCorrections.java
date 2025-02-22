@@ -45,6 +45,6 @@ public class HeadingCorrections {
     public HeadingCorrection turnToFaceTarget = this::turnToFaceTarget;
 
     public double[] getWheelPowers(HeadingCorrection headingCorrection) {
-        return robot.movement.robot.drive.turnCounterclockwise(headingCorrection.calculateTurnPower());
+        return robot.drive.turnCounterclockwise(headingCorrection.calculateTurnPower());
     }
 }

@@ -15,11 +15,12 @@ public class MoveThroughTest extends Robot {
         waitForStart();
 
         odometry.setPosition(90, 0, 0);
-        movement.target.setTarget(90, 0, 0);
+        movement.target.setTarget(90, 0, 0); // TODO FIX QUIRK
         // test what happens without set target
 
-        movement.moveThrough(90, 0, 24);
-        movement.moveThrough(90, 0, 0);
-        movement.moveThrough(90, 0, 24);
+        movement.moveThrough2(90, 0, 16);
+        movement.moveThrough2(90, 24, 16);
+        movement.moveThrough2(90, 12, 16);
+        movement.moveThrough2(90, 12, 12);
     }
 }

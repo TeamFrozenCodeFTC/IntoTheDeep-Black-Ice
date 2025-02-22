@@ -63,5 +63,6 @@ public class FiveSpecimenSlide extends Specimen {
         hangSpecimen(10.25-1.5);
 
         movement.stopAtPosition(-90+45, TILE + EDGE_OF_TILE + 5, 5);
+        
     }
 }

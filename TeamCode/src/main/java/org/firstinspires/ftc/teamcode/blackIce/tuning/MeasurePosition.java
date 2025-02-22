@@ -14,10 +14,7 @@ public class MeasurePosition extends Robot {
 
         sweeperRotator.getController().pwmDisable();
 
-        frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        drive.zeroPowerFloat();
 
         while (opModeIsActive()) {
             odometry.update();
@@ -27,5 +24,6 @@ public class MeasurePosition extends Robot {
 
             telemetry.update();
         }
+        
     }
 }

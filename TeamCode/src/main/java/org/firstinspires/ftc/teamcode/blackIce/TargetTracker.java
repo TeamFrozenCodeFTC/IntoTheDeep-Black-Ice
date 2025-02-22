@@ -62,9 +62,6 @@ public class TargetTracker {
         xError = x - robot.odometry.x;
         yError = y - robot.odometry.y;
         distanceToTarget = Math.sqrt(Math.pow(xError, 2) + Math.pow(yError, 2));
-
-        robot.telemetry.addData("velocity", robot.odometry.velocity);
-        robot.telemetry.update();
     }
 
     public boolean isNotWithinErrorMargin(ErrorMargin errorMargin) {

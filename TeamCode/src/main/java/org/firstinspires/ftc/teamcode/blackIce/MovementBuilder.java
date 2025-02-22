@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
 import org.firstinspires.ftc.teamcode.Robot;
-
+import org.firstinspires.ftc.teamcode.blackIce.BezierCurve;
 
 public class MovementBuilder {
     Robot robot;
@@ -20,8 +20,16 @@ public class MovementBuilder {
         return new MovementBuild(this, x, y, heading);
     }
 
+    public MovementBuild buildMovement(BezierCurve curve) {
+        return new MovementBuild(this, curve);
+    }
+
     public void moveThrough(double heading, double x, double y) {
         buildMovement(heading, x, y).moveThrough().run(); // make error margin larger
+    }
+
+    public void moveThrough2(double heading, double x, double y) {
+        buildMovement(heading, x, y).moveThrough2().run(); // make error margin larger
     }
 
     public void moveTo(double heading, double x, double y, double brakingPercent) {

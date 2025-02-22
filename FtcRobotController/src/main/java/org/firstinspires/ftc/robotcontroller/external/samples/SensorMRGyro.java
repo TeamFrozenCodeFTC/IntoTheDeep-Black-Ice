@@ -102,7 +102,7 @@ public class SensorMRGyro extends LinearOpMode {
     telemetry.log().add("Press A & B to reset heading");
 
     // Loop until we're asked to stop
-    while (opModeIsActive())  {
+    while (opModeIsActive()) {
 
       // If the A and B buttons are pressed just now, reset Z heading.
       curResetState = (gamepad1.a && gamepad1.b);
@@ -130,16 +130,16 @@ public class SensorMRGyro extends LinearOpMode {
       int zAxisScalingCoefficient = modernRoboticsI2cGyro.getZAxisScalingCoefficient();
 
       telemetry.addLine()
-        .addData("dx", formatRate(rates.xRotationRate))
-        .addData("dy", formatRate(rates.yRotationRate))
-        .addData("dz", "%s deg/s", formatRate(rates.zRotationRate));
+          .addData("dx", formatRate(rates.xRotationRate))
+          .addData("dy", formatRate(rates.yRotationRate))
+          .addData("dz", "%s deg/s", formatRate(rates.zRotationRate));
       telemetry.addData("angle", "%s deg", formatFloat(zAngle));
       telemetry.addData("heading", "%3d deg", heading);
       telemetry.addData("integrated Z", "%3d", integratedZ);
       telemetry.addLine()
-        .addData("rawX", formatRaw(rawX))
-        .addData("rawY", formatRaw(rawY))
-        .addData("rawZ", formatRaw(rawZ));
+          .addData("rawX", formatRaw(rawX))
+          .addData("rawY", formatRaw(rawY))
+          .addData("rawZ", formatRaw(rawZ));
       telemetry.addLine().addData("z offset", zAxisOffset).addData("z coeff", zAxisScalingCoefficient);
       telemetry.update();
     }

@@ -18,6 +18,9 @@ public class Odometry {
     public double xBrakingDistance;
     public double yBrakingDistance;
 
+    public double forwardBrakingDistance;
+    public double lateralBrakingDistance;
+
     public double brakingDistance;
 //
 //    private double estimateXStoppingDistance() {
@@ -31,12 +34,27 @@ public class Odometry {
 //        // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
 //    }
 
+    private double estimateForwardBrakingDistance() {
+        return Math.signum(xVelocity) * 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
+    }
+
+    private double estimateLateralBrakingDistance() {
+        return Math.signum(yVelocity) * 0.00130445 * Math.pow(yVelocity, 2) + 0.0644448 * yVelocity + 0.0179835;
+    }
+    // reverse rotate ^^^
+
     private double estimateXStoppingDistance() {
+        if (xVelocity < 0.01) {
+            return 0;
+        }
         return Math.signum(xVelocity) * 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
         // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
     }
 
     private double estimateYStoppingDistance() {
+        if (yVelocity < 0.01) {
+            return 0;
+        }
         //return 0.00156045 * Math.pow(yVelocity, 2) + 0.0523188 * yVelocity + 0.0317991;
         return Math.signum(yVelocity) *0.00130445 * Math.pow(yVelocity, 2) + 0.0644448 * yVelocity + 0.0179835;
         // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
@@ -80,6 +98,9 @@ public class Odometry {
         xBrakingDistance = estimateXStoppingDistance();
         yBrakingDistance = estimateYStoppingDistance();
         brakingDistance = estimateStoppingDistance();
+
+        lateralBrakingDistance = estimateLateralBrakingDistance();
+        forwardBrakingDistance = estimateForwardBrakingDistance();
     }
 
     public void setPosition(double startingHeading, double startingX, double startingY) {

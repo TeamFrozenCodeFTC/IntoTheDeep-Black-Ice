@@ -27,5 +27,6 @@ public class SquareRunTest extends Robot {
         movement.moveTo(90, 48, 24, 0.8);
         movement.moveTo(90, 48, 0, 0.8);
         movement.moveTo(90, 0, 0, 0.8);
+
     }
 }

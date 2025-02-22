@@ -14,8 +14,11 @@ public class PIDTest extends Robot {
         initRobot();
         waitForStart();
 
-        odometry.setPosition(90, 0, 0);
+        odometry.setPosition(0, 0, 0);
 
-        movement.stopAtPosition(90, 36, 0);
+        movement.stopAtPosition(0, 48, 0);
+        telemetry.addData("x", odometry.x);
+        telemetry.addData("y", odometry.y);
+        telemetry.update();
     }
 }
