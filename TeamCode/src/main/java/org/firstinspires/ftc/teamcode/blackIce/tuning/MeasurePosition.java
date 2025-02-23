@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.blackIce.tuning;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.Drive;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
@@ -16,7 +13,7 @@ public class MeasurePosition extends Robot {
 
         sweeperRotator.getController().pwmDisable();
 
-        Drive.zeroPowerFloat();
+        Drive.zeroPowerFloatMode();
 
         while (opModeIsActive()) {
             Odometry.update();

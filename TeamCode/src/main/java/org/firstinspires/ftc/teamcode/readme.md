@@ -1,5 +1,11 @@
 Everything is in inches
-
+// prevents overshooting
+// starts braking at the most optimal point
+// TODO simplify math
+// efficient and effective
+// advanced path follower
+// simple and effective
+// weakness - high expectations
 
 ## TeamCode Module
 

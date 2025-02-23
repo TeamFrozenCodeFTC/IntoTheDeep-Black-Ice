@@ -5,12 +5,6 @@ import org.firstinspires.ftc.teamcode.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 public final class Target {
-//    Robot robot;
-//
-//    public TargetTracker(Robot robot) {
-//        this.robot = robot;
-//    }
-
     public static ErrorMargin defaultErrorMargin = new ErrorMargin(1, 1, 3);
     // make stopAtPosition wait until velocity is less than x instead of based of error margin
     // + help if gets stuck
@@ -28,7 +22,7 @@ public final class Target {
     public static double distanceToTarget;
 
     public static double totalDistanceToTarget;
-    public static double previousHeading;
+    public static double previousHeading = 0;
 
 //    public double lateralBrakingDistance;
 //    public double forwardBrakingDistance;
@@ -52,8 +46,6 @@ public final class Target {
         y = targetY;
 
         updatePosition();
-
-        //totalDistanceToTarget = Math.sqrt(Math.pow(xError, 2) + Math.pow(yError, 2));
     }
 
     public static void updatePosition() {
@@ -61,7 +53,7 @@ public final class Target {
         headingError = Util.simplifyAngle(heading - Odometry.heading);
         xError = x - Odometry.x;
         yError = y - Odometry.y;
-        //distanceToTarget = Math.sqrt(Math.pow(xError, 2) + Math.pow(yError, 2));
+        distanceToTarget = 100;
     }
 
     public static boolean isNotWithinErrorMargin(ErrorMargin errorMargin) {

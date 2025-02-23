@@ -15,6 +15,7 @@ public class Path extends Movement {
     public boolean isConstantHeading = false;
 
     public Path(double[][] points) {
+        super(Target.previousHeading, points[0][0], points[0][1]);
         this.points = points;
     }
 
@@ -34,7 +35,7 @@ public class Path extends Movement {
         Robot robot = Robot.robot;
 
         // Set previous Point
-        Target.setTarget(Odometry.heading, points[0][0], points[0][1]);
+        Target.setTarget(Target.previousHeading, points[0][0], points[0][1]);
 
         double[] endPoint = points[points.length - 1];
 
@@ -75,13 +76,8 @@ public class Path extends Movement {
             // Hacky Solution for allowing things to be build for curve
             Target.setTarget(targetHeading, point[0], point[1]);
             robot.loopUpdate();
-            movementBuild.curve = null; // otherwise gets stuck in loop
-            movementBuild.moveThrough().noBrakeAfter().run();
-
-//            new Movement(point[0], point[1], targetHeading)
-//                .moveThrough2()
-//                .noBrakeAfter()
-//                .run();
+            movementBuild.path = null; // otherwise gets stuck in loop
+            movementBuild.moveThrough().continuePowerAfter().run();
         }
 
         robot.telemetry.addData("to target pos", 1);
@@ -100,10 +96,8 @@ public class Path extends Movement {
 
         Target.setTarget(targetHeading, endPoint[0], endPoint[1]);
         robot.loopUpdate();
-        movementBuild.curve = null; // otherwise gets stuck in loop
+        movementBuild.path = null; // otherwise gets stuck in loop
         movementBuild.stopAtPosition().run();
-
-        // Movement.stopAtPosition(targetHeading, endPoint[0], endPoint[1]);
 
         Drive.zeroPower();
     }

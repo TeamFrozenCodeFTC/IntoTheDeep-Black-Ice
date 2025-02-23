@@ -17,7 +17,7 @@ public final class DriveCorrections {
             y = Target.yError;
         }
 
-        return new double[]{x, y};
+        return fieldVectorToLocalWheelPowers(new double[]{x, y});
     };
 
     public static DriveCorrection stopAtTarget = () -> fieldVectorToLocalWheelPowers(
@@ -40,8 +40,8 @@ public final class DriveCorrections {
 
     public static DriveCorrection proportional = () -> fieldVectorToLocalWheelPowers(
         new double[]{
-            Target.xError,
-            Target.yError,
+            Target.xError * 1.5,
+            Target.yError * 1.5,
     });
 
     /**

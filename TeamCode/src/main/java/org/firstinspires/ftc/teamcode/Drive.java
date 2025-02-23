@@ -9,12 +9,6 @@ import org.firstinspires.ftc.teamcode.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 public final class Drive {
-//    Robot robot;
-//
-//    public Drive(Robot op) {
-//        this.robot = op;
-//    }
-
     public static void power(double[] powers) {
         robot.frontLeftWheel.setPower(powers[0]);
         robot.backLeftWheel.setPower(powers[1]);
@@ -22,14 +16,14 @@ public final class Drive {
         robot.backRightWheel.setPower(powers[3]);
     }
 
-    public static void zeroPowerFloat() {
+    public static void zeroPowerFloatMode() {
         robot.frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         robot.backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         robot.frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         robot.backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    public static void zeroPowerBrake() {
+    public static void zeroPowerBrakeMode() {
         robot.frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -128,10 +122,6 @@ public final class Drive {
 
         return powers;
     }
-
-
-
-
 
     /**
      * Takes a field-relative vector and converts it into wheel powers
