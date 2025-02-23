@@ -1,19 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.blackIce.MovementBuilder;
+import org.firstinspires.ftc.teamcode.blackIce.Target;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 // A parent class to all operation modes. Contains the Robot's Hardware but also LinearOpMode.
 public abstract class Robot extends LinearOpMode {
-    public static Robot instance;
+    public static Robot robot; // instance
 
     // 7 Motors
     public DcMotor frontLeftWheel;
@@ -43,10 +42,6 @@ public abstract class Robot extends LinearOpMode {
 
     public ViperSlide viperSlide;
     public Intake intake;
-    public Odometry odometry;
-    public Drive drive;
-    //public Movement movement;
-    public MovementBuilder movement;
 
     public ElapsedTime timer;
 
@@ -123,15 +118,11 @@ public abstract class Robot extends LinearOpMode {
         leftLift = hardwareMap.get(Servo.class, "leftLift");
         rightLift = hardwareMap.get(Servo.class, "rightLift");
 
-        initOdometry();
-    }
-
-    public void initOdometry() {
-        odometry = new Odometry(this);
+        Odometry.init();
     }
 
     public void initRobot() {
-        Robot.instance = this;
+        Robot.robot = this;
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = dashboard.getTelemetry();
@@ -141,9 +132,9 @@ public abstract class Robot extends LinearOpMode {
 
         viperSlide = new ViperSlide(this);
         intake = new Intake(this);
-        drive = new Drive(this);
-        //movement = new Movement(this);
-        movement = new MovementBuilder(this);
+//        drive = new Drive(this);
+//        //movement = new Movement(this);
+//        movement = new MovementBuilder(this);
 
         // disable servos
         //clawLeft.getController().pwmDisable();
@@ -161,9 +152,9 @@ public abstract class Robot extends LinearOpMode {
 
         viperSlide = new ViperSlide(this);
         intake = new Intake(this);
-        drive = new Drive(this);
-        //movement = new Movement(this);
-        movement = new MovementBuilder(this);
+//        drive = new Drive(this);
+//        //movement = new Movement(this);
+//        movement = new MovementBuilder(this);
     }
 
     public void initServos() {
@@ -176,7 +167,7 @@ public abstract class Robot extends LinearOpMode {
     public void loopUpdate() {
         viperSlide.loopUpdate();
         intake.loopUpdate();
-        movement.target.updatePosition();
+        Target.updatePosition();
     }
 
     public boolean gamepadHasInterrupted() {

@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.blackIce.tuning;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Drive;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group = "Tuning")
 public class MeasurePosition extends Robot {
@@ -14,13 +16,13 @@ public class MeasurePosition extends Robot {
 
         sweeperRotator.getController().pwmDisable();
 
-        drive.zeroPowerFloat();
+        Drive.zeroPowerFloat();
 
         while (opModeIsActive()) {
-            odometry.update();
-            telemetry.addData("x -> ", odometry.x);
-            telemetry.addData("y  ^ ", odometry.y);
-            telemetry.addData("heading", odometry.heading);
+            Odometry.update();
+            telemetry.addData("x -> ", Odometry.x);
+            telemetry.addData("y  ^ ", Odometry.y);
+            telemetry.addData("heading", Odometry.heading);
 
             telemetry.update();
         }

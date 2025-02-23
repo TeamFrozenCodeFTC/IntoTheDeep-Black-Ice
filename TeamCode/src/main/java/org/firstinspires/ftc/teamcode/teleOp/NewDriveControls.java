@@ -9,7 +9,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Drive;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 public class NewDriveControls {
     Robot robot;
@@ -26,11 +28,11 @@ public class NewDriveControls {
 
     void control() {
         if (robot.gamepad1.right_stick_button) {
-            robot.odometry.setPosition(90, robot.odometry.x, robot.odometry.y);
+            Odometry.setPosition(90, Odometry.x, Odometry.y);
         }
         // Reset Odometry in observation zone corner
         else if (robot.gamepad1.circle) {
-            robot.odometry.setPosition(90,24*3-9,0);
+            Odometry.setPosition(90,24*3-9,0);
         }
         else if (robot.gamepad1.square) {
             robot.viperSlide.liftRobot();
@@ -48,56 +50,56 @@ public class NewDriveControls {
             robot.viperSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
         else if (robot.gamepad1.dpad_up) {
-            robot.movement.stopAtPosition(90, TILE + HALF_OF_ROBOT, 3);
-            robot.movement.buildMovement(90, TILE + HALF_OF_ROBOT, -3)
-                .stopAtPosition()
-                .setMaxPower(0.4)
-                .runTimeout(0.3);
-
-            robot.viperSlide.clawGrab();
-            robot.sleep(200);
-            robot.viperSlide.bottomBasketRaise();
-            robot.sleep(250);
-
-            robot.viperSlide.upperChamberRaise();
-
-            robot.movement.moveThrough(-90, x, 30);
-
-            robot.movement.buildMovement(-90, x, 32)
-                .stopAtPosition()
-                .setMaxPower(0.5)
-                .runTimeout(0.7);
-
-            robot.viperSlide.upperChamberPull();
-            robot.viperSlide.waitForExtension();
-
-            robot.viperSlide.clawOut();
-            robot.viperSlide.lower();
-
-            x -= 1.5;
-            robot.frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            robot.movement.stopAtPosition(90, TILE + HALF_OF_ROBOT, 3);
+//            robot.movement.buildMovement(90, TILE + HALF_OF_ROBOT, -3)
+//                .stopAtPosition()
+//                .setMaxPower(0.4)
+//                .runTimeout(0.3);
+//
+//            robot.viperSlide.clawGrab();
+//            robot.sleep(200);
+//            robot.viperSlide.bottomBasketRaise();
+//            robot.sleep(250);
+//
+//            robot.viperSlide.upperChamberRaise();
+//
+//            robot.movement.moveThrough(-90, x, 30);
+//
+//            robot.movement.buildMovement(-90, x, 32)
+//                .stopAtPosition()
+//                .setMaxPower(0.5)
+//                .runTimeout(0.7);
+//
+//            robot.viperSlide.upperChamberPull();
+//            robot.viperSlide.waitForExtension();
+//
+//            robot.viperSlide.clawOut();
+//            robot.viperSlide.lower();
+//
+//            x -= 1.5;
+//            robot.frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            robot.backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            robot.frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            robot.backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         else if (robot.gamepad1.dpad_right) {
-            robot.movement.moveThrough(-90, 38, 57);
-            robot.intake.armOut();
-            robot.movement.stopAtPosition(-90, 48, 13);
-            robot.intake.spinSweeperOut();
-
-            ElapsedTime timer = new ElapsedTime();
-            timer.reset();
-            while (timer.seconds() < 0.2) {
-                robot.idle();
-            }
-
-            robot.intake.stopSweeper();
-
-            robot.frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            robot.movement.moveThrough(-90, 38, 57);
+//            robot.intake.armOut();
+//            robot.movement.stopAtPosition(-90, 48, 13);
+//            robot.intake.spinSweeperOut();
+//
+//            ElapsedTime timer = new ElapsedTime();
+//            timer.reset();
+//            while (timer.seconds() < 0.2) {
+//                robot.idle();
+//            }
+//
+//            robot.intake.stopSweeper();
+//
+//            robot.frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            robot.backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            robot.frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            robot.backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
 
@@ -110,9 +112,9 @@ public class NewDriveControls {
             speedFactor = 1;
         }
 
-        robot.drive.power(
-            robot.drive.multiply(
-                robot.drive.combine(
+        Drive.power(
+            Drive.multiply(
+                Drive.combine(
                     pivot(),
                     controllerRelativeMovement()
                 ),
@@ -124,7 +126,7 @@ public class NewDriveControls {
     private double[] pivot() {
         double power = powerEquation(robot.gamepad1.right_stick_x);
 
-        return robot.drive.turnClockwise(power);
+        return Drive.turnClockwise(power);
     }
 
     boolean firstInput = false;
@@ -140,6 +142,6 @@ public class NewDriveControls {
             robot.timer.reset();
         }
 
-        return robot.drive.fieldVectorToLocalWheelPowers(xStick, yStick);
+        return Drive.fieldVectorToLocalWheelPowers(xStick, yStick);
     }
 }

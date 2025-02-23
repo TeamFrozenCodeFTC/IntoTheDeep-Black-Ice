@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.autonomous.tests;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.DriveCorrections;
+import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.Target;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -15,23 +19,16 @@ public class MoreAccurateStopAt extends Robot {
 
         clawLeft.getController().pwmDisable();
 
-        odometry.setPosition(0, 0, 0);
+        Odometry.setPosition(0, 0, 0);
 
-        AtomicReference<Double> totalXError = new AtomicReference<>((double) 0);
-        AtomicReference<Double> totalYError = new AtomicReference<>((double) 0);
-
-        movement.buildMovement(0, 48, 0)
+        new Movement(-48, 0, 0)
             .stopAtPosition()
-            .setDriveCorrection(() -> {
-                totalXError.updateAndGet(v -> Double.valueOf(v + movement.target.xError));
-                totalYError.updateAndGet(v -> Double.valueOf(v + movement.target.yError));
-
-                return movement.driveCorrections.fieldVectorToLocalWheelPowers(new double[]{
-                    (movement.target.xError - odometry.xBrakingDistance),
-                    (movement.target.yError - odometry.yBrakingDistance) // * 1 higher becomes more unstable but more accurate, lower becomes more stable but less accurate
-                });
-            })
+            .setDriveCorrection(() -> DriveCorrections.fieldVectorToLocalWheelPowers(new double[]{
+                (Target.xError - Odometry.xBrakingDistance),
+                (Target.yError - Odometry.yBrakingDistance) // * 1 higher becomes more unstable but more accurate, lower becomes more stable but less accurate
+            }))
             .setMovementExit(() -> false)
             .runTimeout(999);
     }
-}
+}// TODO try turn or drive
+//

@@ -4,55 +4,67 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Target;
 
-public class Odometry {
-    public double heading;
-    public double x;
-    public double y;
+public final class Odometry {
+    public static GoBildaPinpointDriver odometry;
 
-    public double velocity;
-    public double headingVelocity;
-    public double xVelocity;
-    public double yVelocity;
+    // Private constructor to prevent instantiation
+    private Odometry() {}
 
-    public double xBrakingDistance;
-    public double yBrakingDistance;
+    public static void init() {
+        odometry = robot.hardwareMap.get(GoBildaPinpointDriver.class, "odo");
 
-    public double forwardBrakingDistance;
-    public double lateralBrakingDistance;
+        odometry.setOffsets(-36, 0);
+        odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
 
-    public double brakingDistance;
-//
-//    private double estimateXStoppingDistance() {
-//        return 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
-//        // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
-//    }
-//
-//    private double estimateYStoppingDistance() {
-//        //return 0.00156045 * Math.pow(yVelocity, 2) + 0.0523188 * yVelocity + 0.0317991;
-//        return 0.00130445 * Math.pow(yVelocity, 2) + 0.0644448 * yVelocity + 0.0179835;
-//        // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
-//    }
+        odometry.setEncoderDirections(
+            GoBildaPinpointDriver.EncoderDirection.REVERSED,
+            GoBildaPinpointDriver.EncoderDirection.REVERSED
+        );
+        odometry.resetPosAndIMU();
 
-    private double estimateForwardBrakingDistance() {
+        update();
+    }
+
+    private static final Robot robot = Robot.robot;
+
+    public static double heading;
+    public static double x;
+    public static double y;
+
+    public static double velocity;
+    public static double headingVelocity;
+    public static double xVelocity;
+    public static double yVelocity;
+
+    public static double xBrakingDistance;
+    public static double yBrakingDistance;
+
+    public static double forwardBrakingDistance;
+    public static double lateralBrakingDistance;
+
+    public static double brakingDistance;
+
+    private static double estimateForwardBrakingDistance() {
         return Math.signum(xVelocity) * 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
     }
 
-    private double estimateLateralBrakingDistance() {
+    private static double estimateLateralBrakingDistance() {
         return Math.signum(yVelocity) * 0.00130445 * Math.pow(yVelocity, 2) + 0.0644448 * yVelocity + 0.0179835;
     }
     // reverse rotate ^^^
 
-    private double estimateXStoppingDistance() {
-        if (xVelocity < 0.01) {
+    private static double estimateXStoppingDistance() {
+        if (Math.abs(xVelocity) < 0.01) {
             return 0;
         }
         return Math.signum(xVelocity) * 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
         // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
     }
 
-    private double estimateYStoppingDistance() {
-        if (yVelocity < 0.01) {
+    private static double estimateYStoppingDistance() {
+        if (Math.abs(yVelocity) < 0.01) {
             return 0;
         }
         //return 0.00156045 * Math.pow(yVelocity, 2) + 0.0523188 * yVelocity + 0.0317991;
@@ -60,27 +72,12 @@ public class Odometry {
         // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
     }
 
-    private double estimateStoppingDistance() {
+    private static double estimateStoppingDistance() {
         return 0.00130445 * Math.pow(velocity, 2) + 0.0644448 * velocity + 0.0179835;
         // 0.00439157 * Math.pow(velocity, 2) + 0.0985017 * velocity - 0.0700498;
     }
 
-    public final GoBildaPinpointDriver odometry;
-
-    public Odometry(Robot op) {
-        odometry = op.hardwareMap.get(GoBildaPinpointDriver.class,"odo");
-
-        odometry.setOffsets(-36, 0);
-        odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-
-        odometry.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED,
-                GoBildaPinpointDriver.EncoderDirection.REVERSED);
-        odometry.resetPosAndIMU();
-
-        update();
-    }
-
-    public void update() {
+    public static void update() {
         odometry.update();
 
         Pose2D pos = odometry.getPosition();
@@ -103,7 +100,7 @@ public class Odometry {
         forwardBrakingDistance = estimateForwardBrakingDistance();
     }
 
-    public void setPosition(double startingHeading, double startingX, double startingY) {
+    public static void setPosition(double startingHeading, double startingX, double startingY) {
         odometry.setPosition(new Pose2D(
                 DistanceUnit.INCH,
                 startingX,
@@ -111,21 +108,20 @@ public class Odometry {
                 AngleUnit.DEGREES,
                 startingHeading
         ));
+        Target.previousHeading = startingHeading;
+        Target.previousX = startingX;
+        Target.previousY = startingY;
     }
 
-    public void setHeading(double newHeading) {
+    public static void setHeading(double newHeading) {
         setPosition(newHeading, x, y);
     }
 
-    public void setX(double newX) {
+    public static void setX(double newX) {
         setPosition(heading, newX, y);
     }
 
-    public void setY(double newY) {
+    public static void setY(double newY) {
         setPosition(heading, x, newY);
-    }
-
-    public void resetHeading() {
-        setHeading(0);
     }
 }

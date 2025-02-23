@@ -1,70 +1,48 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
-
-import androidx.annotation.NonNull;
-
-import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.autonomous.tests.SquareRunTest;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 
-public class DriveCorrections {
-    Robot robot;
-
-    public DriveCorrections(Robot robot) {
-        this.robot = robot;
-    }
-
-    //private final Robot robot = Robot.instance;
-
-    public double[] adjustWithBrakingDistanceWithoutStop() {
-        double x = robot.movement.target.xError - robot.odometry.xBrakingDistance;
-        double y = robot.movement.target.yError - robot.odometry.yBrakingDistance;
+public final class DriveCorrections {
+    public static DriveCorrection adjustWithBrakingDistanceWithoutStop = () -> {
+        double x = Target.xError - Odometry.xBrakingDistance;
+        double y = Target.yError - Odometry.yBrakingDistance;
 
         // test without this because of early exit
         if (Math.abs(x) < 1) {
-            x = robot.movement.target.xError;
+            x = Target.xError;
         }
         if (Math.abs(y) < 1) {
-            y = robot.movement.target.yError;
+            y = Target.yError;
         }
 
         return new double[]{x, y};
-    }
-    public DriveCorrection adjustWithBrakingDistanceWithoutStop = this::adjustWithBrakingDistanceWithoutStop;
+    };
 
+    public static DriveCorrection stopAtTarget = () -> fieldVectorToLocalWheelPowers(
+        new double[]{
+            (Target.xError - Odometry.xBrakingDistance), // / ((double) 1 /4),  // try multiplying this whole thing
+            (Target.yError - Odometry.yBrakingDistance) // / ((double) 1 /4),// / (1/4) inch error margin
+        }
+    );
 
-    public static double[] stopAtTarget() {
-        return fieldVectorToLocalWheelPowers(new double[]{
-            (robot.movement.target.xError - robot.odometry.xBrakingDistance), // / ((double) 1 /4),  // try multiplying this whole thing
-            (robot.movement.target.yError - robot.odometry.yBrakingDistance) // / ((double) 1 /4),// / (1/4) inch error margin
-        });
-    }
-    public DriveCorrection stopAtTarget = this::stopAtTarget;
-
-    public static double[] stopAtTargetLateral() {
+    public static DriveCorrection stopAtTargetLateral = () -> {
         double[] robotVector = fieldVectorToRobotVector(new double[]{
-            robot.movement.target.xError, // - robot.odometry.xBrakingDistance) / ((double) 1 /4),  // try multiplying this whole thing
-            robot.movement.target.yError  // - robot.odometry.yBrakingDistance) / ((double) 1 /4),// / (1/4) inch error margin
+            Target.xError, // - robot.odometry.xBrakingDistance) / ((double) 1 /4),  // try multiplying this whole thing
+            Target.yError  // - robot.odometry.yBrakingDistance) / ((double) 1 /4),// / (1/4) inch error margin
         });
         return robotVectorToLocalWheelPowers(new double[] {
-            robotVector[0] - robot.odometry.forwardBrakingDistance,
-            robotVector[1] - robot.odometry.lateralBrakingDistance,
+            robotVector[0] - Odometry.forwardBrakingDistance,
+            robotVector[1] - Odometry.lateralBrakingDistance,
         });
-    }
-    public DriveCorrection stopAtTargetLateral = this::stopAtTarget;
+    };
 
-    public double[] proportional() {
-        return fieldVectorToLocalWheelPowers(new double[]{
-            robot.movement.target.xError,
-            robot.movement.target.yError,
-        });
-    }
-    public DriveCorrection proportional = this::proportional;
-//
-//    public double[] getWheelPowers(DriveCorrection driveCorrection) {
-//        return fieldVectorToLocalWheelPowers(driveCorrection.calculateDriveVector());
-//    }
+    public static DriveCorrection proportional = () -> fieldVectorToLocalWheelPowers(
+        new double[]{
+            Target.xError,
+            Target.yError,
+    });
 
     /**
      * Takes a field-relative vector and converts it into wheel powers
@@ -73,13 +51,13 @@ public class DriveCorrections {
      * Does this by rotating the vector relative to the robot heading where it adds up the lateral
      * and forwards/backwards.
      */
-    public double[] fieldVectorToLocalWheelPowers(double[] vector) {
+    public static double[] fieldVectorToLocalWheelPowers(double[] vector) {
         return robotVectorToLocalWheelPowers(fieldVectorToRobotVector(vector));
     }
 
-    public double[] fieldVectorToRobotVector(double[] fieldVector) {
+    public static double[] fieldVectorToRobotVector(double[] fieldVector) {
         // positive heading is counterclockwise
-        double heading = Math.toRadians(robot.odometry.heading);
+        double heading = Math.toRadians(Odometry.heading);
         double cos = Math.cos(heading);
         double sin = Math.sin(heading);
         double localForwards = (fieldVector[0] * cos + fieldVector[1] * sin); // clockwise rotation
@@ -90,7 +68,7 @@ public class DriveCorrections {
         return new double[]{localForwards, localSlide};
     }
 
-    public double[] robotVectorToLocalWheelPowers(double[] robotVector) {
+    public static double[] robotVectorToLocalWheelPowers(double[] robotVector) {
         double localForwards = robotVector[0];
         double localSlide = robotVector[1];
 

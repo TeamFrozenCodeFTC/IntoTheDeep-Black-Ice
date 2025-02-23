@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode.autonomous.tests;
 
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EDGE_OF_TILE;
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EXTRA_TURN_RADIUS;
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF_OF_ROBOT;
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
-
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
 public class ForwardTest2 extends Robot {
@@ -14,9 +11,9 @@ public class ForwardTest2 extends Robot {
         initRobot();
         waitForStart();
 
-        odometry.setPosition(90, 0, 0);
+        Odometry.setPosition(90, 0, 0);
 
-        movement.stopAtPosition(90, 0, 24);
+        Movement.stopAtPosition(90, 0, 24);
         
     }
 }

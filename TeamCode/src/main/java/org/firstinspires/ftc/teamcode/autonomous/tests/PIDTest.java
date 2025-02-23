@@ -6,6 +6,8 @@ import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF
 import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
 public class PIDTest extends Robot {
@@ -14,11 +16,11 @@ public class PIDTest extends Robot {
         initRobot();
         waitForStart();
 
-        odometry.setPosition(0, 0, 0);
+        Odometry.setPosition(0, 0, 0);
 
-        movement.stopAtPosition(0, 48, 0);
-        telemetry.addData("x", odometry.x);
-        telemetry.addData("y", odometry.y);
+        Movement.stopAtPosition(0, 48, 0);
+        telemetry.addData("x", Odometry.x);
+        telemetry.addData("y", Odometry.y);
         telemetry.update();
     }
 }

@@ -1,11 +1,8 @@
-package org.firstinspires.ftc.teamcode.autonomous.tests;
-
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EDGE_OF_TILE;
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EXTRA_TURN_RADIUS;
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF_OF_ROBOT;
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
+package org.firstinspires.ftc.teamcode.autonomous.tests;//package org.firstinspires.ftc.teamcode.autonomous.tests;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
 public class MoveThroughTest extends Robot {
@@ -14,13 +11,9 @@ public class MoveThroughTest extends Robot {
         initRobot();
         waitForStart();
 
-        odometry.setPosition(90, 0, 0);
-        movement.target.setTarget(90, 0, 0); // TODO FIX QUIRK
-        // test what happens without set target
+        Odometry.setPosition(90, 0, 0);
 
-        movement.moveThrough2(90, 0, 16);
-        movement.moveThrough2(90, 24, 16);
-        movement.moveThrough2(90, 12, 16);
-        movement.moveThrough2(90, 12, 12);
+        Movement.moveThrough(90, 0, 16);
+        Movement.moveThrough(90, 24, 16);
     }
 }

@@ -1,50 +1,49 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
 
+import org.firstinspires.ftc.teamcode.Drive;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 
-public class HeadingCorrections {
-    Robot robot;
+public final class HeadingCorrections {
+//    Robot robot;
+//
+//    public HeadingCorrections(Robot robot) {
+//        this.robot = robot;
+//    }
 
-    public HeadingCorrections(Robot robot) {
-        this.robot = robot;
-    }
+    private static final Robot robot = Robot.robot;
 
-    private double turnOverMovement() {
-        double turnPower = robot.movement.target.headingError * Constants.TurnCorrection.TURN_POWER;
+    public static HeadingCorrection turnOverMovement = () -> {
+        double turnPower = Target.headingError * Constants.TurnCorrection.TURN_POWER;
 
-        if (robot.movement.target.distanceToTarget < 1 || Math.abs(robot.movement.target.heading - robot.movement.target.previousHeading) < 10) {
+        if (Target.distanceToTarget < 1 || Math.abs(Target.heading - Target.previousHeading) < 10) {
             return turnPower;
         }
 
-        double progressFactor = Math.min(1, (robot.movement.target.totalDistanceToTarget - robot.movement.target.distanceToTarget) / robot.movement.target.totalDistanceToTarget
-                        + Constants.TurnCorrection.FINISH_TURN_BY_PERCENT);
+        double progressFactor = Math.min(1, (Target.totalDistanceToTarget - Target.distanceToTarget) / Target.totalDistanceToTarget
+            + Constants.TurnCorrection.FINISH_TURN_BY_PERCENT);
         return turnPower * progressFactor;
-    }
-    public HeadingCorrection turnOverMovement = this::turnOverMovement;
+    };
 
-    private double locked() {
-        return robot.movement.target.headingError * Constants.TurnCorrection.TURN_POWER;
-    }
-    public HeadingCorrection locked = this::locked;
+    public static HeadingCorrection locked = () -> Target.headingError * Constants.TurnCorrection.TURN_POWER;
 
-    private double turnToFaceTarget() {
-        double progressFactor = Math.min(1, (robot.movement.target.totalDistanceToTarget - robot.movement.target.distanceToTarget) / robot.movement.target.totalDistanceToTarget);
+    public static HeadingCorrection turnToFaceTarget = () -> {
+        double progressFactor = Math.min(1, (Target.totalDistanceToTarget - Target.distanceToTarget) / Target.totalDistanceToTarget);
 
         if (progressFactor > 0.80) {
-            return locked();
+            return HeadingCorrections.locked.calculateTurnPower();
         }
 
-        double headingToFaceTarget = Math.toDegrees(Math.atan2(robot.movement.target.yError, robot.movement.target.xError));
-        double headingError = Util.simplifyAngle(headingToFaceTarget - robot.movement.robot.odometry.heading);
+        double headingToFaceTarget = Math.toDegrees(Math.atan2(Target.yError, Target.xError));
+        double headingError = Util.simplifyAngle(headingToFaceTarget - Odometry.heading);
 
         return headingError * Constants.TurnCorrection.TURN_POWER;
-    }
-    public HeadingCorrection turnToFaceTarget = this::turnToFaceTarget;
+    };
 
-    public double[] getWheelPowers(HeadingCorrection headingCorrection) {
-        return robot.drive.turnCounterclockwise(headingCorrection.calculateTurnPower());
+    public static double[] getWheelPowers(HeadingCorrection headingCorrection) {
+        return Drive.turnCounterclockwise(headingCorrection.calculateTurnPower());
     }
 }

@@ -67,17 +67,4 @@ public class QuadraticRegression {
 
         return newMatrix;
     }
-
-//    public static void main(String[] args) {
-//        List<double[]> points = new ArrayList<>(Arrays.asList(
-//            new double[]{1, 2},
-//            new double[]{2, 5},
-//            new double[]{3, 10},
-//            new double[]{4, 17},
-//            new double[]{5, 26}
-//        ));
-//
-//        double[] coefficients = quadraticFit(points);
-//        System.out.printf("y = %.5fx^2 + %.5fx + %.5f%n", coefficients[2], coefficients[1], coefficients[0]);
-//    }
 }

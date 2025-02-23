@@ -1,22 +1,17 @@
-package org.firstinspires.ftc.teamcode.blackIce;
+package org.firstinspires.ftc.teamcode.blackIce.paths;
 
-import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Constants;
 
 import java.util.Arrays;
 
-public class BezierCurve extends Curve {
-    public static double POINT_PER_INCH = 3;
-
-    public double pointPerInch;
-
+public class BezierCurve extends Path {
     public BezierCurve(double[][] controlPoints) {
         super(BezierCurve.calculateBezierPoints(controlPoints));
-        this.pointPerInch = POINT_PER_INCH;
     }
 
     private static double[][] calculateBezierPoints(double[][] controlPoints) {
         double totalLength = estimateCurveLength(controlPoints, 100);
-        int numPoints = Math.max(1, (int) (totalLength / POINT_PER_INCH));
+        int numPoints = Math.max(1, (int) (totalLength / Constants.Curve.INCHES_PER_POINT));
 
         double[][] curvePoints = new double[numPoints + 1][2];
         for (int i = 0; i <= numPoints; i++) {

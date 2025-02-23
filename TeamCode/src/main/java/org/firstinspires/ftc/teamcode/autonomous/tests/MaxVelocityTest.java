@@ -6,6 +6,8 @@ import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF
 import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
 public class MaxVelocityTest extends Robot {
@@ -14,14 +16,14 @@ public class MaxVelocityTest extends Robot {
         initRobot();
         waitForStart();
 
-        odometry.setPosition(0, 0, 0);
+        Odometry.setPosition(0, 0, 0);
 
-        movement.buildMovement(0, 48, 0)
+        new Movement(48, 0, 0)
             .stopAtPosition()
             .setMaxVelocity(20)
             .run();
 
-        movement.buildMovement(-180, 48, 0)
+        new Movement(48, 0, -180)
             .stopAtPosition()
             .setMaxHeadingVelocity(20)
             .run();

@@ -1,15 +1,17 @@
 package org.firstinspires.ftc.teamcode.blackIce.tuning;
 
-import android.annotation.SuppressLint;
-
+import org.firstinspires.ftc.teamcode.Drive;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.Target;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class DistanceTuner extends Robot {
     public List<double[]> run(double heading, int points) {
-        movement.target.setTarget(0, 0, 0);
+        Target.setTarget(0, 0, 0);
 
         waitForStart();
 
@@ -20,24 +22,24 @@ public abstract class DistanceTuner extends Robot {
             double power = Math.pow((1 - percentageDone), (double) 1/2);
 
             if (i % 2 == 0) {
-                movement.buildMovement(heading, 48, 0)
+                new Movement(heading, 48, 0)
                     .moveThrough()
                     .setMaxPower(power)
                     .run();
             }
             else {
-                movement.buildMovement(heading, 0, 0)
+                new Movement(heading, 0, 0)
                     .moveThrough()
                     .setMaxPower(power)
                     .run();
             }
 
-            double startingX = odometry.x;
-            double maxVelocity = Math.abs(odometry.xVelocity);
+            double startingX = Odometry.x;
+            double maxVelocity = Math.abs(Odometry.xVelocity);
 
-            drive.brakeFor(3);
+            Drive.brakeFor(3);
 
-            double newDistance = odometry.x;
+            double newDistance = Odometry.x;
 
             double brakingDistance = Math.abs(newDistance - startingX);
 

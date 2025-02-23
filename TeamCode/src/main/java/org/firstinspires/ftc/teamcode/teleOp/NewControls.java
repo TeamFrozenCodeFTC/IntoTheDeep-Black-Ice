@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @Config
 @TeleOp
@@ -20,7 +21,7 @@ public class NewControls extends Robot {
         clawLeft.getController().pwmDisable();
         leftLift.getController().pwmDisable();
 
-        odometry.setPosition(-90+45, TILE + HALF_OF_ROBOT, 0);
+        Odometry.setPosition(-90+45, TILE + HALF_OF_ROBOT, 0);
 
         SampleControls specimenControls = new SampleControls(this);
         NewDriveControls relativeWheelControls = new NewDriveControls(this);
@@ -31,7 +32,7 @@ public class NewControls extends Robot {
 
         timer.reset();
 
-        odometry.setPosition(-90+45, TILE + HALF_OF_ROBOT, 0);
+        Odometry.setPosition(-90+45, TILE + HALF_OF_ROBOT, 0);
 
         while (opModeIsActive()) {
             specimenControls.control();
