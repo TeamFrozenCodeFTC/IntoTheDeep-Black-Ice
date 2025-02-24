@@ -20,10 +20,14 @@ public final class DriveCorrections {
         return fieldVectorToLocalWheelPowers(new double[]{x, y});
     };
 
+     /**
+     * Stop at the target using proportial control and predicting braking distance.
+     * {@code (error * predictedBrakingDisplacement) * constant}
+     */
     public static DriveCorrection stopAtTarget = () -> fieldVectorToLocalWheelPowers(
         new double[]{
-            (Target.xError - Odometry.xBrakingDistance), // / ((double) 1 /4),  // try multiplying this whole thing
-            (Target.yError - Odometry.yBrakingDistance) // / ((double) 1 /4),// / (1/4) inch error margin
+            (Target.xError - Odometry.xBrakingDistance),
+            (Target.yError - Odometry.yBrakingDistance)
         }
     );
 
