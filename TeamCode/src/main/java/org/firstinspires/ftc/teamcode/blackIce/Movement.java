@@ -91,9 +91,7 @@ public class Movement {
      * @see Movement#Movement(double, double, double)
      */
     public Movement(double x, double y) {
-        Target.setTarget(Target.previousHeading, x, y);
-
-        setMovementExit(() -> !Target.isNotWithinErrorMargin(Target.defaultErrorMargin));
+        this(x, y, Target.previousHeading);
     }
 
     /**
