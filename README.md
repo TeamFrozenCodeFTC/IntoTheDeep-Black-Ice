@@ -2,6 +2,46 @@ Code Here: https://github.com/TeamFrozenCodeFTC/IntoTheDeep/tree/master/TeamCode
 
 Black Ice is a efficent and effective dynamic path follower developed by Team #18535, Frozen Code, in the 2025 season and offseason.
 
+Black Ice is a **Reactive Path Follower** developed by FTC Team #18535 to provide more simple, efficient, effective path following. Unlike tradition path following libraries that gradually slowing down, Black Ice dynamically calculates the braking distance based on the robot's current speed.
+This enables the robot to predict its position, allowing the robot maintain full power for as long as possible, only braking at the optimal point.
+
+Requirements: Pinpoint Odometry Processor
+
+Support for Beizer Curves
+
+Black Ice is tailored for teams looking for simple path execution with customization.
+
+Problem: Using an encoder on one wheel with IMU-based heading correction limited our speed and prevented simultaneous movement and turning.
+Evaluation: We explored using odometry wheels paired with a Pinpoint Odometry co-processor to accurately track the robot’s position, heading, and velocity.
+Solution: In addition to using using odometry wheels paired with a Pinpoint Odometry, we developed our own movement framework…
+
+Black Ice is an open-source, autonomous movement framework designed by Team 18535 for high-speed, smooth transitions between target positions using odometry and velocity-based braking. 
+Instead of gradually slowing down, Black Ice dynamically calculates the exact braking distance based on current speed.
+The robot maintains full power for as long as possible, only braking at the optimal point 
+Results in a fast, precise stop—or smoothly transitioning into the next movement without unnecessary delays.
+
+Why we developed our own?
+To intuitively learn, hands-on, how path following works in robotics
+Potentially find more efficient and simpler solutions
+Allow for more customization
+
+How is ours is different from others like Roadrunner and Pedro Path?
+The key difference is that Black Ice calculates braking distance by having the motors on zero power brake mode. Other libraries, calculate drift distance by having the motors on zero power float mode. Our framework uses the braking distance to predict where the robot will be next, allowing it to maintain full speed until it reaches an optimal braking point, minimizing unnecessary slowing while ensuring precise stopping.
+
+We have just one tuning test that runs the robot at different velocities to brake and calculate the braking distance. With those data points, we used quadratic regression (since stopping distance is proportional to velocity squared) to derive a function that accurately predicts the required braking distance at any speed.
+
+Our drive power formula is purely proportional, subtracting the predicted braking distance from the target position. No arbitrary constants are needed. No integral term is needed, as stationary robots have zero braking distance. No derivative term is required either, since braking distance naturally adjusts to slow the robot precisely when needed.
+
+
+Pedro Pathing is an advanced Reactive Vector Follower developed by FTC Team 10158 to revolutionize autonomous navigation in robotics. Unlike conventional pathing systems such as RoadRunner, Pedro Pathing leverages Bézier curve generation to produce smoother, faster, and more efficient trajectories. Its primary focus is on enhancing the adaptability of robots during autonomous operation by reacting dynamically to environmental changes, reducing error margins, and ensuring optimal path execution.
+
+By incorporating Bézier curves, the system provides:
+
+Smoother Transitions: Ensuring less jerky motions for precision-intensive tasks.
+Faster Execution: Reducing time spent in path planning and execution.
+Dynamic Adjustments: Reacting to obstacles or changes in the environment in real-time.
+Pedro Pathing is tailored for teams looking to push the boundaries of autonomous efficiency and accuracy. Whether you’re a seasoned team or just getting started with autonomous systems, this documentation will guide you through setting up, tuning, and implementing Pedro Pathing in your projects.
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the INTO THE DEEP (2024-2025) competition season.
