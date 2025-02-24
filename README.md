@@ -1,5 +1,7 @@
 Code Here: https://github.com/TeamFrozenCodeFTC/IntoTheDeep/tree/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode
 
+Black Ice is a efficent and effective dynamic path follower developed by Team #18535, Frozen Code, in the 2025 season and offseason.
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the INTO THE DEEP (2024-2025) competition season.
