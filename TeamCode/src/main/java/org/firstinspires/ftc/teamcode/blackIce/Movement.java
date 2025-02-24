@@ -43,7 +43,7 @@ public class Movement {
      * @see #stopAtPosition(double, double, double)
      */
     public static void stopAtPosition(double x, double y) {
-        new Movement(x, y, Target.previousHeading).stopAtPosition().run();
+        stopAtPosition(x, y, Target.previousHeading);
     }
 
     private HeadingCorrection headingCorrection;
@@ -91,7 +91,6 @@ public class Movement {
      * @see Movement#Movement(double, double, double)
      */
     public Movement(double x, double y) {
-        robot.telemetry.addData("previousHeading", Target.previousHeading);
         Target.setTarget(Target.previousHeading, x, y);
 
         setMovementExit(() -> !Target.isNotWithinErrorMargin(Target.defaultErrorMargin));
@@ -243,7 +242,7 @@ public class Movement {
     }
 
     /**
-     * Moves the robot through a target point without stopping at it.
+     * Move the robot through a target point without stopping at it.
      *
      * <p>
      * <h5>How does it work?</h5>
@@ -306,7 +305,7 @@ public class Movement {
     }
 
     /**
-     * Runs the movement (has a 5 second timeout).
+     * Run the movement (has a 5 second timeout).
      * 
      * @see Movement#runTimeout
      */
@@ -315,7 +314,7 @@ public class Movement {
     }
 
     /**
-     * Runs the movement with a timeout.
+     * Run the movement with a timeout.
      *
      * @param timeout The timeout seconds.
      */
