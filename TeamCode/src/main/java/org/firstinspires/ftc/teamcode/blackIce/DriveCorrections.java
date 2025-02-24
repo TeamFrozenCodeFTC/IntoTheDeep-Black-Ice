@@ -27,16 +27,16 @@ public final class DriveCorrections {
         }
     );
 
-    public static DriveCorrection stopAtTargetLateral = () -> {
-        double[] robotVector = fieldVectorToRobotVector(new double[]{
-            Target.xError, // - robot.odometry.xBrakingDistance) / ((double) 1 /4),  // try multiplying this whole thing
-            Target.yError  // - robot.odometry.yBrakingDistance) / ((double) 1 /4),// / (1/4) inch error margin
-        });
-        return robotVectorToLocalWheelPowers(new double[] {
-            robotVector[0] - Odometry.forwardBrakingDistance,
-            robotVector[1] - Odometry.lateralBrakingDistance,
-        });
-    };
+//    public static DriveCorrection stopAtTargetLateral = () -> {
+//        double[] robotVector = fieldVectorToRobotVector(new double[]{
+//            Target.xError, // - robot.odometry.xBrakingDistance) / ((double) 1 /4),  // try multiplying this whole thing
+//            Target.yError  // - robot.odometry.yBrakingDistance) / ((double) 1 /4),// / (1/4) inch error margin
+//        });
+//        return robotVectorToLocalWheelPowers(new double[] {
+//            robotVector[0] - Odometry.forwardBrakingDistance,
+//            robotVector[1] - Odometry.lateralBrakingDistance,
+//        });
+//    };
 
     public static DriveCorrection proportional = () -> fieldVectorToLocalWheelPowers(
         new double[]{
@@ -62,10 +62,19 @@ public final class DriveCorrections {
         double sin = Math.sin(heading);
         double localForwards = (fieldVector[0] * cos + fieldVector[1] * sin); // clockwise rotation
         double localSlide = (-fieldVector[0] * sin + fieldVector[1] * cos);
-//        double localForwards = (x * cos + y * sin) / divisor - target.forwardBrakingDistance; // clockwise rotation
-//        double localSlide = (-x * sin + y * cos) / divisor - target.lateralBrakingDistance;
 
         return new double[]{localForwards, localSlide};
+    }
+
+    public static double[] robotVectorToFieldVector(double[] robotVector) {
+        // Positive heading is counterclockwise
+        double heading = Math.toRadians(Odometry.heading);
+        double cos = Math.cos(heading);
+        double sin = Math.sin(heading);
+        double fieldX = (robotVector[0] * cos - robotVector[1] * sin); // Counterclockwise rotation
+        double fieldY = (robotVector[0] * sin + robotVector[1] * cos);
+
+        return new double[]{fieldX, fieldY};
     }
 
     public static double[] robotVectorToLocalWheelPowers(double[] robotVector) {

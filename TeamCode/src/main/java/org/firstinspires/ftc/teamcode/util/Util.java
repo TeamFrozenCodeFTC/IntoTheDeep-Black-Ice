@@ -24,4 +24,8 @@ public class Util {
         if (angle < 0) angle += 360; // Handle negative modulo result
         return angle - 180;          // Shift range back to -180 to 180
     }
+
+    public static double getVectorMagnitude(double x, double y) {
+        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    }
 }

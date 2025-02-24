@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.blackIce.Constants;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
 import org.firstinspires.ftc.teamcode.blackIce.Target;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
+import org.firstinspires.ftc.teamcode.util.Util;
 
 public class Path extends Movement {
     double[][] points;
@@ -14,17 +15,25 @@ public class Path extends Movement {
     public double headingOffset = 0;
     public boolean isConstantHeading = false;
 
+    /**
+     * Create a path of points the robot follows.
+     */
     public Path(double[][] points) {
-        super(Target.previousHeading, points[0][0], points[0][1]);
         this.points = points;
     }
 
+    /**
+     * Make the robot have a constant heading along the path.
+     */
     public Path setConstantHeading(double newConstantHeading) {
         isConstantHeading = true;
         constantHeading = newConstantHeading;
         return this;
     }
 
+    /**
+     * Make the robot have a offset heading along the path.
+     */
     public Path setHeadingOffset(double newHeadingOffset) {
         isConstantHeading = false;
         headingOffset = newHeadingOffset;
@@ -42,14 +51,11 @@ public class Path extends Movement {
         for (int i = 1; i <= points.length; i++) {
             robot.loopUpdate();
 
-            robot.telemetry.addData("i", i);
-            robot.telemetry.addData("points", points.length);
-            robot.telemetry.update();
-
             double[] point = points[i];
 
             double inchesLeftOnPath = (points.length - i) * Constants.Curve.INCHES_PER_POINT;
-            if (inchesLeftOnPath < Odometry.brakingDistance + 2) { // multiply by POINTS_PER_INCH
+            if (inchesLeftOnPath < Util.getVectorMagnitude(
+                Odometry.xBrakingDistance, Odometry.yBrakingDistance) + 2) {
                 break;
             }
 
@@ -70,18 +76,12 @@ public class Path extends Movement {
                 ) + headingOffset;
             }
 
-            robot.telemetry.addData("going", 1);
-            robot.telemetry.update(); // TODO run and test telemetry
-
             // Hacky Solution for allowing things to be build for curve
             Target.setTarget(targetHeading, point[0], point[1]);
             robot.loopUpdate();
             movementBuild.path = null; // otherwise gets stuck in loop
             movementBuild.moveThrough().continuePowerAfter().run();
         }
-
-        robot.telemetry.addData("to target pos", 1);
-        robot.telemetry.update();
 
         robot.loopUpdate();
 
@@ -90,7 +90,8 @@ public class Path extends Movement {
             targetHeading = constantHeading;
         } else {
             targetHeading = Math.toDegrees(
-                Math.atan2(endPoint[1] - points[points.length - 2][1], endPoint[0] - points[points.length - 2][0])
+                Math.atan2(endPoint[1] - points[points.length - 2][1],
+                    endPoint[0] - points[points.length - 2][0])
             ) + headingOffset;
         }
 

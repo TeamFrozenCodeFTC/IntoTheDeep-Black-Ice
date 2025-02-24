@@ -8,12 +8,15 @@ import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 import java.util.ArrayList;
 import java.util.List;
+// TODO make tele-op not reset slide encoders
 
 public abstract class DistanceTuner extends Robot {
     public List<double[]> run(double heading, int points) {
-        Target.setTarget(0, 0, 0);
+//        Odometry.setPosition(heading, 0, 0);
 
         waitForStart();
+
+        Odometry.setPosition(heading, 0, 0);
 
         List<double[]> data = new ArrayList<>();
 
@@ -22,24 +25,30 @@ public abstract class DistanceTuner extends Robot {
             double power = Math.pow((1 - percentageDone), (double) 1/2);
 
             if (i % 2 == 0) {
-                new Movement(heading, 48, 0)
+                new Movement(48, 0, heading)
                     .moveThrough()
                     .setMaxPower(power)
                     .run();
             }
             else {
-                new Movement(heading, 0, 0)
+                new Movement(0, 0, heading)
                     .moveThrough()
                     .setMaxPower(power)
                     .run();
             }
 
+            Odometry.update();
             double startingX = Odometry.x;
             double maxVelocity = Math.abs(Odometry.xVelocity);
 
             Drive.brakeFor(3);
 
+            Odometry.update();
             double newDistance = Odometry.x;
+
+            telemetry.addData("startingX", startingX);
+            telemetry.addData("maxVelocity", maxVelocity);
+            telemetry.addData("newDistanceX", newDistance);
 
             double brakingDistance = Math.abs(newDistance - startingX);
 

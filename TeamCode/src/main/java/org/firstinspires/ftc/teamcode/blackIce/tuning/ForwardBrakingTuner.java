@@ -17,6 +17,5 @@ public class ForwardBrakingTuner extends DistanceTuner {
     public void runOpMode() {
         initRobot();
         run(0, POINTS);
-        
     }
 }

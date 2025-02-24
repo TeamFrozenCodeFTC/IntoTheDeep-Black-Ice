@@ -17,10 +17,5 @@ public class LateralBrakingTuner extends DistanceTuner {
     public void runOpMode() {
         initRobot();
         run(90, POINTS);
-
-        while (opModeIsActive()) {
-            idle();
-        }
-        
     }
 }

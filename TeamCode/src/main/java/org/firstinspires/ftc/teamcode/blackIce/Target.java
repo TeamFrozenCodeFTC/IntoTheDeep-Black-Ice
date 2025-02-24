@@ -22,7 +22,7 @@ public final class Target {
     public static double distanceToTarget;
 
     public static double totalDistanceToTarget;
-    public static double previousHeading = 0;
+    public static double previousHeading;
 
 //    public double lateralBrakingDistance;
 //    public double forwardBrakingDistance;
@@ -53,7 +53,7 @@ public final class Target {
         headingError = Util.simplifyAngle(heading - Odometry.heading);
         xError = x - Odometry.x;
         yError = y - Odometry.y;
-        distanceToTarget = 100;
+        //distanceToTarget = 100;
     }
 
     public static boolean isNotWithinErrorMargin(ErrorMargin errorMargin) {

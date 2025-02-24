@@ -13,7 +13,6 @@ public class MoveThroughTest extends Robot {
 
         Odometry.setPosition(90, 0, 0);
 
-        Movement.moveThrough(90, 0, 16);
-        Movement.moveThrough(90, 24, 16);
+        Movement.moveThrough(48, 0);
     }
 }

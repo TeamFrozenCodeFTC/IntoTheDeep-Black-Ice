@@ -1,0 +1,299 @@
+Custom Movement Library that uses braking distance to predict the robot’s position
+Beans | 15385 | Midknight Mayhem — Yesterday at 10:01 PM
+would you mind elaborating a bit more?
+ᴘʏmon #18535 — Yesterday at 10:01 PM
+it is like pedro path or roadrunner but custom
+This is the core power formula
+public static DriveCorrection stopAtTarget = () -> fieldVectorToLocalWheelPowers(
+        new double[]{
+            (Target.xError - Odometry.xBrakingDistance),
+            (Target.yError - Odometry.yBrakingDistance)
+        }
+    );
+We just ran the robot at different velocities, turned the robot into brake mode, and calculated the braking distance. Then we plugged in all the points to create a function that gives us a predicted braking distance based of the robot's velocity
+Beans | 15385 | Midknight Mayhem — Yesterday at 10:04 PM
+oh ok
+like pedro zpam
+ᴘʏmon #18535 — Yesterday at 10:05 PM
+What is that?
+Beans | 15385 | Midknight Mayhem — Yesterday at 10:06 PM
+it's basically the same thing as you're doing here
+ᴘʏmon #18535 — Yesterday at 10:06 PM
+is there a github I can see?
+Beans | 15385 | Midknight Mayhem — Yesterday at 10:07 PM
+https://github.com/Pedro-Pathing/PedroPathing
+GitHub
+GitHub - Pedro-Pathing/PedroPathing: A Path Following Program Devel...
+A Path Following Program Developed by FTC Team 10158: Scott's Bots. - Pedro-Pathing/PedroPathing
+GitHub - Pedro-Pathing/PedroPathing: A Path Following Program Devel...
+the stuff should be in https://github.com/Pedro-Pathing/PedroPathing/blob/main/src/main/java/com/pedropathing/follower/Follower.java
+GitHub
+PedroPathing/src/main/java/com/pedropathing/follower/Follower.java ...
+A Path Following Program Developed by FTC Team 10158: Scott's Bots. - Pedro-Pathing/PedroPathing
+PedroPathing/src/main/java/com/pedropathing/follower/Follower.java ...
+ᴘʏmon #18535 — Yesterday at 10:09 PM
+Oh I see, but the main difference is pedro path uses floating (instead of braking) distance to predict the robot's position and it combines a lot of other factors. Our movement system is designed to be as simple as possible only using braking distance.
+Beans | 15385 | Midknight Mayhem — Yesterday at 10:09 PM
+mmm
+I wonder how much pedro increases loop times
+or are loop times mostly hardware communication rather than math
+ᴘʏmon #18535 — Yesterday at 10:10 PM
+I am not sure but there is definitely a base with hardware communication. I haven't even optimized our movement library yet
+I plan to optimize it more and then document it for other teams to use.
+I tried to make it as simple as possible to use (aka no roadrunner trajectories)
+Image
+I just recently added those Bezier Curves too
+Alex — Yesterday at 10:20 PM
+what do you use to follow the trajectory before braking?
+ᴘʏmon #18535 — Yesterday at 10:22 PM
+It just goes full power towards points placed every 3 inches along the path (can be changed)
+But it goes to the next point if the robot's projected position (based off the braking distance) is past the point
+so the braking distance helps it to not overshoot along the path
+here is the code for whether the robot is past a point:
+                double x = Odometry.x + Odometry.xBrakingDistance;
+                double y = Odometry.y + Odometry.yBrakingDistance;
+
+                if (Target.x == Target.previousX) {
+                    if (Target.previousY < Target.y) {
+                        return Odometry.y > Target.y;
+                    }
+                    else {
+                        return Odometry.y < Target.y;
+                    }
+                }
+
+                double slope = (Target.y - Target.previousY) / (Target.x - Target.previousX);
+
+                if (Target.x > Target.previousX) {
+                    return -x <= slope * (y - Target.y) - Target.x;
+                }
+                if (Target.x < Target.previousX) { // (Target.x < Target.previousX)
+                    return x <= slope * (-y + Target.y) + Target.x;
+                }
+
+Alex — Yesterday at 10:33 PM
+oh makes sense
+this is pretty simple and effective
+ᴘʏmon #18535 — Yesterday at 10:34 PM
+working on simplifying the logic a bit tho
+ return Math.signum(Target.x - Target.previousX) * (x - Target.x)
+                    <= slope * Math.signum(Target.x - Target.previousX) * (y - Target.y);
+instead of
+if (Target.x > Target.previousX) {
+                    return -x <= slope * (y - Target.y) - Target.x;
+                }
+                if (Target.x < Target.previousX) { // (Target.x < Target.previousX)
+                    return x <= slope * (-y + Target.y) + Target.x;
+                }
+Unnamed Programmer | 16377 — Today at 1:07 AM
+How complicated is this stuff, because yall are making this look easy
+ᴘʏmon #18535 — Today at 8:31 AM
+it is like 5x simpler than pedro path but all path followers are a little advanced. I have been programming for 5 years.
+Unnamed Programmer | 16377 — Today at 8:33 AM
+Oh wow
+Alex — Today at 11:12 AM
+what does the error at the end of the path look like
+like after braking
+Gabe I 20744 — Today at 12:11 PM
+My tippy ahh robot could not handle that lol
+ᴘʏmon #18535 — Today at 2:46 PM
+when it holds the position it is usually around 0.02 inches off
+Alex — Today at 3:22 PM
+that’s amazing
+could you share your code/logic for triggering braking?
+ᴘʏmon #18535 — Today at 3:24 PM
+it is simply the error - brakingDistance
+public static DriveCorrection stopAtTarget = () -> fieldVectorToLocalWheelPowers(
+        new double[]{
+            (Target.xError - Odometry.xBrakingDistance),
+            (Target.yError - Odometry.yBrakingDistance)
+        }
+    );
+
+once it becomes too fast the braking distance will over power the error and it will reverse the wheels to brake
+Alex — Today at 3:25 PM
+ohh do you not just use the dc motor brake mode?
+how much do you reverse the motors by
+ᴘʏmon #18535 — Today at 3:26 PM
+we used to but allowing the error to correct while it was braking made it even better
+ᴘʏmon #18535 — Today at 3:26 PM
+it depends on how fast it is going and how close it is to the target
+Alex — Today at 3:27 PM
+do you create a formula for that
+or like some sort of regression
+ᴘʏmon #18535 — Today at 3:27 PM
+it is right here
+to get the braking distance is quadratic regression
+private static double estimateForwardBrakingDistance() {
+        return Math.signum(xVelocity) * 0.00130445 * Math.pow(xVelocity, 2) + 0.0644448 * xVelocity + 0.0179835;
+    }
+Alex — Today at 3:27 PM
+got it, and braking distance is a function of velocity right
+do you brake on both axes
+ᴘʏmon #18535 — Today at 3:28 PM
+yes
+do you know how to fix a NullPointerException tho?
+Alex — Today at 3:28 PM
+yeah fs
+could you send the code?
+ᴘʏmon #18535 — Today at 3:28 PM
+I would be able to fix it but it doesnt tell me what line it is
+Alex — Today at 3:28 PM
+got it
+ᴘʏmon #18535 — Today at 3:28 PM
+it is a lot
+Alex — Today at 3:29 PM
+is there a github for it
+ᴘʏmon #18535 — Today at 3:29 PM
+https://github.com/TeamFrozenCodeFTC/IntoTheDeep-Black-Ice/
+GitHub
+GitHub - TeamFrozenCodeFTC/IntoTheDeep-Black-Ice: FTC Robotics Team...
+FTC Robotics Team 18535, Frozen Code - Into the Deep - TeamFrozenCodeFTC/IntoTheDeep-Black-Ice
+GitHub - TeamFrozenCodeFTC/IntoTheDeep-Black-Ice: FTC Robotics Team...
+Alex — Today at 3:29 PM
+got it, what file?
+ᴘʏmon #18535 — Today at 3:29 PM
+probably this one but idk https://github.com/TeamFrozenCodeFTC/IntoTheDeep-Black-Ice/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/odometry/Odometry.java
+GitHub
+IntoTheDeep-Black-Ice/TeamCode/src/main/java/org/firstinspires/ftc/...
+FTC Robotics Team 18535, Frozen Code - Into the Deep - TeamFrozenCodeFTC/IntoTheDeep-Black-Ice
+IntoTheDeep-Black-Ice/TeamCode/src/main/java/org/firstinspires/ftc/...
+Error: System exception: NullPointerException - Attempt to invoke virtual method 'void org.firstinspires.ftc.teamcode.odometry.GoBildaPinpointDriver.update()' on a null object reference
+Alex — Today at 3:30 PM
+during what part of the path does this occur?
+and does this happen every time
+ᴘʏmon #18535 — Today at 3:30 PM
+instantly when you click init
+Alex — Today at 3:30 PM
+got it
+ᴘʏmon #18535 — Today at 3:30 PM
+every time
+Alex — Today at 3:30 PM
+one second
+ᴘʏmon #18535 — Today at 3:31 PM
+It is BeizerLineTest
+that I am running
+Alex — Today at 3:32 PM
+got it
+ill read through rn
+ᴘʏmon #18535 — Today at 3:32 PM
+i think i kinda know where it is
+the Target class calls Odometry.update
+I bet my Bezier curves are using Target.set
+Alex — Today at 3:34 PM
+my bet is that Odometry.update() is being called somewhere
+before Odometry.init()
+ᴘʏmon #18535 — Today at 3:34 PM
+ya every time I create a new movement it does
+public Movement(double x, double y, double heading) {
+        Target.setTarget(heading, x, y);
+and setTarget calls Odometry.update()
+Alex — Today at 3:34 PM
+oh perfect
+so just make sure to call odometry.init before then
+ᴘʏmon #18535 — Today at 3:34 PM
+and this is a movement
+BezierCurve java = new BezierCurve(
+        new double[][]
+            {{ 1.68073593,  0.29761905},
+            {14.74350649, 23.73376623},
+            {55.08441558, 31.03354978},
+            {81.20995671, 28.72835498},
+            {77.36796537,  0.29761905},
+            {56.23701299,  3.75541126},
+            {34.33766234,  3.75541126}}
+    );
+Alex — Today at 3:35 PM
+btw i was curious why does your bezier curve have so many control points?
+ᴘʏmon #18535 — Today at 3:36 PM
+Image
+Alex — Today at 3:36 PM
+yooo thats a cool python app
+tkinter?
+ᴘʏmon #18535 — Today at 3:36 PM
+i cant exactly do that tho cause it has to be called in the LinearOpMode run right?
+ᴘʏmon #18535 — Today at 3:36 PM
+yep
+Alex — Today at 3:36 PM
+one sec
+ᴘʏmon #18535 — Today at 3:37 PM
+this curve is being made before init
+Alex — Today at 3:37 PM
+what is the initRobot function?
+i can't find its declaration
+Image
+ᴘʏmon #18535 — Today at 3:38 PM
+go to robot class
+it calls Odometry.init
+Alex — Today at 3:38 PM
+why not make it in runOpMode?
+rather than making it outside the function
+ᴘʏmon #18535 — Today at 3:39 PM
+ya i could do that but it was working earlier with it being outside
+Alex — Today at 3:39 PM
+oh weird ok
+well fs test whether it works with it inside
+just to make sure that is actually the issue
+ᴘʏmon #18535 — Today at 3:40 PM
+alr
+Alex — Today at 3:40 PM
+and if it works then I can take a closer look as to why it might've been working earlier
+ᴘʏmon #18535 — Today at 3:42 PM
+it didnt fix it
+Alex — Today at 3:42 PM
+alright
+lets see
+ᴘʏmon #18535 — Today at 3:43 PM
+but now i can see what line itiscoming from
+Alex — Today at 3:43 PM
+oh what line
+ᴘʏmon #18535 — Today at 3:44 PM
+oh wait i put the bezier curve before robotinit
+ya it works now
+Alex — Today at 3:45 PM
+oh LMAO
+ok
+i think thats a decent solution for now
+also
+what is the diff between estimate forward/lateral/x/y braking distance/stopping distance
+theres so many 😭
+ᴘʏmon #18535 — Today at 3:46 PM
+only look at braking distance
+Alex — Today at 3:46 PM
+are the rest unused
+ᴘʏmon #18535 — Today at 3:47 PM
+yes, stopping distance is old and forward and lateral is testing braking distance based on the robots orientation
+like the robot stops faster when moving laterally
+it isnt used yet but might be used in the future
+ohh i know why it worked before
+basically i had a empty movement constructor so that Path class wouldnt have to use super
+Alex — Today at 3:50 PM
+ohhh alr
+ᴘʏmon #18535 — Today at 3:50 PM
+do you know if there is a way to make an empty movement constructor but make it usable only in a certain class?
+Alex — Today at 3:51 PM
+im not sure how to do that
+ᴘʏmon #18535 — Today at 3:54 PM
+alr i just made a private one and then added a static method called createEmpty. that way no one will accidentally use it
+Alex — Today at 3:54 PM
+cool
+ᴘʏmon #18535 — Today at 3:54 PM
+thx so much for helping me find that
+i will put you in the credits when it becomes famous lol
+Alex — Today at 4:01 PM
+LMAOOOO no no this was all you
+but this path follower is very promising
+Alex — Today at 5:06 PM
+i started reading through the movement.java
+and i love how modular it is
+like how you can swap your heading and translational methods, and finished condition so easily
+ᴘʏmon #18535 — Today at 6:01 PM
+another thing i could experiment with is making it so there is zero tuning by having it learn over time
+Unnamed Programmer | 16377 — Today at 6:08 PM
+Isn't that deep reinforcement learning?
+ᴘʏmon #18535 — Today at 6:09 PM
+could be
+ᴘʏmon #18535 — Today at 6:23 PM
+also we called it blackIce because our team name is Frozen Code
+Unnamed Programmer | 16377 — Today at 6:23 PM
+That's really cool

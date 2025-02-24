@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
+// kye_anderson_2009, alexreman45
 public class Movement {
     /**
      * Move the robot through a target point without stopping.
@@ -90,6 +91,7 @@ public class Movement {
      * @see Movement#Movement(double, double, double)
      */
     public Movement(double x, double y) {
+        robot.telemetry.addData("previousHeading", Target.previousHeading);
         Target.setTarget(Target.previousHeading, x, y);
 
         setMovementExit(() -> !Target.isNotWithinErrorMargin(Target.defaultErrorMargin));
@@ -104,6 +106,15 @@ public class Movement {
      */
     public Movement(Path path) {
         this.path = path;
+    }
+
+    // Credit to alexreman45 for supporting and finding bug of NullExpestionError about Bezier Curves
+    /**
+     * <h5>To fix underline, add arguments</h5>
+     * <p>
+     * Creates an empty {@link Movement}.
+     */
+    protected Movement() {
     }
 
     /**
