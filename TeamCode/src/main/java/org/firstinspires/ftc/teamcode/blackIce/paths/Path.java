@@ -40,6 +40,9 @@ public class Path extends Movement {
         return this;
     }
 
+    /**
+     * Make the robot follow the curve.
+     */
     public void runCurve(Movement movementBuild) {
         Robot robot = Robot.robot;
 

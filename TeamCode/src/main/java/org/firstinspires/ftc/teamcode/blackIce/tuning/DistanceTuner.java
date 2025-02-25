@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 // TODO make tele-op not reset slide encoders
 
+/**
+ * Calculates various braking distances at different velocities.
+ * It then uses a quadratic regression algorithm to derive a formula that predicts braking distance
+ * based on the robot's current velocity.
+ */
 public abstract class DistanceTuner extends Robot {
     public List<double[]> run(double heading, int points) {
 //        Odometry.setPosition(heading, 0, 0);
@@ -25,7 +30,7 @@ public abstract class DistanceTuner extends Robot {
             double power = Math.pow((1 - percentageDone), (double) 1/2);
 
             if (i % 2 == 0) {
-                new Movement(48, 0, heading)
+                new Movement(48, 0, heading) // bug where previous heading doesn't work
                     .moveThrough()
                     .setMaxPower(power)
                     .run();

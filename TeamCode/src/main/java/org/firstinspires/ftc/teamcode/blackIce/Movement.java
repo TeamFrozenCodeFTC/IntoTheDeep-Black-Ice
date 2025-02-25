@@ -310,7 +310,6 @@ public class Movement {
     public void run() {
         runTimeout(5);
     }
-
     /**
      * Run the movement with a timeout.
      *

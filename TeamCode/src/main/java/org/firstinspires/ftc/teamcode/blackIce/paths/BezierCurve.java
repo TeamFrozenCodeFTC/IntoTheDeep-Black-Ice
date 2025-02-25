@@ -4,7 +4,17 @@ import org.firstinspires.ftc.teamcode.blackIce.Constants;
 
 import java.util.Arrays;
 
+/**
+ * A Bezier Curve <a href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve">...</a> is a
+ * smooth curve made with control points.
+ */
 public class BezierCurve extends Path {
+
+    /**
+     * Create a Bezier curve from control points.
+     *
+     * @param controlPoints Example: {@code new double[][] {{1, 2}, {2, 3}, ...}}
+     */
     public BezierCurve(double[][] controlPoints) {
         super(BezierCurve.calculateBezierPoints(controlPoints));
     }

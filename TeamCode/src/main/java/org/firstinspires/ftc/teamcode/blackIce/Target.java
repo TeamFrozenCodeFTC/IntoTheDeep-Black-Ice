@@ -19,7 +19,6 @@ public final class Target {
     public static double headingError;
     public static double xError;
     public static double yError;
-    public static double distanceToTarget;
 
     public static double totalDistanceToTarget;
     public static double previousHeading;
@@ -44,6 +43,8 @@ public final class Target {
         heading = targetHeading;
         x = targetX;
         y = targetY;
+
+        totalDistanceToTarget = Util.getVectorMagnitude(previousX - x, previousY - y);
 
         updatePosition();
     }
