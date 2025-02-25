@@ -12,3 +12,4 @@ public class TuningConstants {
 //    public static final BrakingDisplacement BRAKING_DISPLACEMENT =
 //        new BrakingDisplacement(0.00130445, 0.0644448, 0.0179835);
 }
+// TODO use static {} blocks

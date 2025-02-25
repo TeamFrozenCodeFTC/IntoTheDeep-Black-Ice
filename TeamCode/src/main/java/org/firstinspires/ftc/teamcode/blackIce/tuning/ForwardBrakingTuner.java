@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.blackIce.paths.Line;
 @Config
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group = "Tuning")
 public class ForwardBrakingTuner extends DistanceTuner {
-    static public int POINTS = 10;
+    public static int POINTS = 10;
 
     @Override
     public void runOpMode() {
