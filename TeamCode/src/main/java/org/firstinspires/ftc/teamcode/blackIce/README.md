@@ -23,6 +23,9 @@ Why did we develop Black Ice?
 
 # Usage
 
+# Credits
+All code developed by Jacob Ophoven with help of Coach Andy and members of the FTC community.
+
 
 # How Black Ice works
 Black Ice is a efficient and effective dynamic path follower developed by Team #18535, Frozen Code, in the 2025 season and offseason.

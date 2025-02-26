@@ -1,15 +1,18 @@
 package org.firstinspires.ftc.teamcode.autonomous.tests;
 
-import org.firstinspires.ftc.teamcode.Robot;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.blackIce.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.paths.BezierCurve;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
-public class BezierLineTest extends Robot {
+public class BezierLineTest extends LinearOpMode {
     @Override
     public void runOpMode() {
-        initRobot();
+        Robot.init(this);
+
         waitForStart();
 
         Odometry.setPosition(90, 0, 0);

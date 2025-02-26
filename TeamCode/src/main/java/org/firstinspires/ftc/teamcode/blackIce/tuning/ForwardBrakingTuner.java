@@ -2,13 +2,7 @@ package org.firstinspires.ftc.teamcode.blackIce.tuning;
 
 import com.acmerobotics.dashboard.config.Config;
 
-import org.firstinspires.ftc.teamcode.blackIce.paths.Line;
-
-// r = robot, e = end
-// Moves the robot two tiles forward, shown below:
-// |                 |
-// |  r->>>>>>>>>e   |
-// |_________________|
+import org.firstinspires.ftc.teamcode.blackIce.Robot;
 
 /**
  * Tune the robot's forward/backward braking distances.
@@ -23,11 +17,10 @@ import org.firstinspires.ftc.teamcode.blackIce.paths.Line;
 @Config
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group = "Tuning")
 public class ForwardBrakingTuner extends DistanceTuner {
-    public static int POINTS = 10;
-
     @Override
     public void runOpMode() {
-        initRobot();
-        run(0, POINTS);
+        Robot.init(this);
+
+        run(0);
     }
 }

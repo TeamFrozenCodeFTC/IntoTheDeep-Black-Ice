@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class BezierCurve extends Path {
 
     /**
-     * Create a Bezier curve from control points.
+     * Create a {@link BezierCurve} from control points.
      *
      * @param controlPoints Example: {@code new double[][] {{1, 2}, {2, 3}, ...}}
      */

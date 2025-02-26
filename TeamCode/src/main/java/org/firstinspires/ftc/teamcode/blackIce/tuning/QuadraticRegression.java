@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class QuadraticRegression {
+class QuadraticRegression {
     public static double[] quadraticFit(List<double[]> points) {
         int n = points.size();
         double sumX = 0, sumX2 = 0, sumX3 = 0, sumX4 = 0;

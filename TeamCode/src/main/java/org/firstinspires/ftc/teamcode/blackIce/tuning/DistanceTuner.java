@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.blackIce.tuning;
 
-import org.firstinspires.ftc.teamcode.Drive;
-import org.firstinspires.ftc.teamcode.Robot;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
-import org.firstinspires.ftc.teamcode.blackIce.Target;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 import java.util.ArrayList;
@@ -15,8 +16,14 @@ import java.util.List;
  * It then uses a quadratic regression algorithm to derive a formula that predicts braking distance
  * based on the robot's current velocity.
  */
-public abstract class DistanceTuner extends Robot {
-    public List<double[]> run(double heading, int points) {
+public abstract class DistanceTuner extends LinearOpMode {
+    /**
+     * The amount of different velocities the robot calculates the braking distance at.
+     * The braking distance predictions will be more accurate the more points.
+     * */
+    public static int POINTS = 10;
+
+    public List<double[]> run(double heading) {
 //        Odometry.setPosition(heading, 0, 0);
 
         waitForStart();
@@ -25,8 +32,8 @@ public abstract class DistanceTuner extends Robot {
 
         List<double[]> data = new ArrayList<>();
 
-        for (int i = 0; i <= points; i++) {
-            double percentageDone = (double) i / points;
+        for (int i = 0; i <= POINTS; i++) {
+            double percentageDone = (double) i / POINTS;
             double power = Math.pow((1 - percentageDone), (double) 1/2);
 
             if (i % 2 == 0) {
@@ -51,21 +58,25 @@ public abstract class DistanceTuner extends Robot {
             Odometry.update();
             double newDistance = Odometry.x;
 
-            telemetry.addData("startingX", startingX);
-            telemetry.addData("maxVelocity", maxVelocity);
-            telemetry.addData("newDistanceX", newDistance);
+//            telemetry.addData("startingX", startingX);
+//            telemetry.addData("maxVelocity", maxVelocity);
+//            telemetry.addData("newDistanceX", newDistance);
 
             double brakingDistance = Math.abs(newDistance - startingX);
 
             data.add(new double[]{maxVelocity, brakingDistance});
             telemetry.addData(
                 Integer.toString(i), stringify(new double[]{maxVelocity, brakingDistance}));
+
         }
 
         double[] coefficients = QuadraticRegression.quadraticFit(data);
         telemetry.addData(
             "Final Equation",
             String.format("y = %.5fx^2 + %.5fx + %.5f%n", coefficients[2], coefficients[1], coefficients[0]));
+        telemetry.addData(
+            "Plug in these constants to thee TuningConstants Class: ",
+            String.format(coefficients[2] + ", ", coefficients[1] + ", " + coefficients[0]));
 
         telemetry.update();
 

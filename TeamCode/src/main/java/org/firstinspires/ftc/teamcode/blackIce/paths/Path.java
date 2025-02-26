@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.blackIce.paths;
 
-import org.firstinspires.ftc.teamcode.Drive;
-import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.Constants;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.Target;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
@@ -44,7 +45,7 @@ public class Path extends Movement {
      * Make the robot follow the curve.
      */
     public void runCurve(Movement movementBuild) {
-        Robot robot = Robot.robot;
+        Robot robot = Robot.getInstance();
 
         // Set previous Point
         Target.setTarget(Target.previousHeading, points[0][0], points[0][1]);
@@ -81,7 +82,6 @@ public class Path extends Movement {
 
             // Hacky Solution for allowing things to be build for curve
             Target.setTarget(targetHeading, point[0], point[1]);
-            robot.loopUpdate();
             movementBuild.path = null; // otherwise gets stuck in loop
             movementBuild.moveThrough().continuePowerAfter().run();
         }
@@ -99,11 +99,9 @@ public class Path extends Movement {
         }
 
         Target.setTarget(targetHeading, endPoint[0], endPoint[1]);
-        robot.loopUpdate();
         movementBuild.path = null; // otherwise gets stuck in loop
         movementBuild.stopAtPosition().run();
 
         Drive.zeroPower();
     }
 }
-// TODO optimize and make subfolders

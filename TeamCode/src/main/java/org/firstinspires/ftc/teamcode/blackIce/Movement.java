@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
-import static org.firstinspires.ftc.teamcode.Robot.robot;
-
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
@@ -174,10 +171,9 @@ public class Movement {
     /**
      * Set the kind of {@link HeadingCorrection} that is responsible for turning the robot.
      * <h6>Usage</h6>
-     * {@code .setHeadingCorrection(HeadingCorrections.x)}
+     * {@code .setHeadingCorrection(HeadingCorrection.x)}
      * where x is the type of heading correction.
      * <p>
-     * List of types: {@link HeadingCorrections}
      */
     public Movement setHeadingCorrection(HeadingCorrection newHeadingCorrection) {
         headingCorrection = newHeadingCorrection;
@@ -188,10 +184,9 @@ public class Movement {
      * Set the kind of {@link DriveCorrection}
      * that is responsible for moving the robot toward the target.
      * <h6>Usage</h6>
-     * {@code .setDriveCorrection(DriveCorrections.x)}
+     * {@code .setDriveCorrection(DriveCorrection.x)}
      * where x is the type of drive correction.
      * <p>
-     * List of types: {@link DriveCorrections}
      */
     public Movement setDriveCorrection(DriveCorrection newDriveCorrection) {
         driveCorrection = newDriveCorrection;
@@ -234,7 +229,7 @@ public class Movement {
 
         Drive.power(Drive.combineMax(
             Drive.multiply(driveCorrection.calculateDrivePowers(), velocityMult),
-            Drive.multiply(HeadingCorrections.getWheelPowers(headingCorrection), headingMult),
+            Drive.multiply(HeadingCorrection.getWheelPowers(headingCorrection), headingMult),
             maxPower
         ));
     }
@@ -263,8 +258,8 @@ public class Movement {
         double slope = (Target.x == Target.previousX) ? 0 : targetYError / targetXError;
 
         return this
-            .setHeadingCorrection(HeadingCorrections.locked)
-            .setDriveCorrection(DriveCorrections.proportional)
+            .setHeadingCorrection(HeadingCorrection.locked)
+            .setDriveCorrection(DriveCorrection.proportional)
             .continuePowerAfter()
             .setMovementExit(() -> {
                 double predictedXError = Target.xError - Odometry.xBrakingDistance;
@@ -277,7 +272,7 @@ public class Movement {
                 return -xSign * predictedXError <= slope * xSign * predictedYError;
             });
     }
-    
+
     /**
      * Move the robot to target point and stop.
      * <p>
@@ -288,9 +283,9 @@ public class Movement {
      * <li>The robot predicts its position based on the braking distance,
      * allowing the robot maintain full power for as long as possible,
      * only braking at the optimal point. The braking distance also prevents overshooting.</li>
-     * 
+     *
      * @return A {@code Movement} object configured to stop at the target.
-     * 
+     *
      * @see Movement#stopAtPosition
      */
     public Movement stopAtPosition() {
@@ -298,13 +293,13 @@ public class Movement {
             .setMovementExit(() ->
                 Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin)
                     && Odometry.velocity < consideredStoppedVelocity)
-            .setHeadingCorrection(HeadingCorrections.turnOverMovement)
-            .setDriveCorrection(DriveCorrections.stopAtTarget);
+            .setHeadingCorrection(HeadingCorrection.turnOverMovement)
+            .setDriveCorrection(DriveCorrection.stopAtTarget);
     }
 
     /**
      * Run the movement (has a 5 second timeout).
-     * 
+     *
      * @see Movement#runTimeout
      */
     public void run() {
@@ -325,22 +320,24 @@ public class Movement {
         ElapsedTime timer = new ElapsedTime();
 
         timer.reset();
+
+        Robot robot = Robot.getInstance();
         robot.loopUpdate();
         while (
             robot.isNotInterrupted()
-            && !movementExit.condition()
-            && timer.seconds() < timeout
+                && !movementExit.condition()
+                && timer.seconds() < timeout
         ) {
             moveTowardTarget();
 
             //robot.telemetry.addData("VEL", Odometry.velocity);
-            robot.telemetry.addData("x pos", Odometry.x);
-            robot.telemetry.addData("y pos", Odometry.y);
+            robot.opMode.telemetry.addData("x pos", Odometry.x);
+            robot.opMode.telemetry.addData("y pos", Odometry.y);
 //            robot.telemetry.addData("x braking distance", Odometry.xBrakingDistance);
 //            robot.telemetry.addData("y braking distance", Odometry.yBrakingDistance);
 //            robot.telemetry.addData("x vel", builder.robot.odometry.xVelocity);
 //            robot.telemetry.addData("y vel", builder.robot.odometry.yVelocity);
-            robot.telemetry.update();
+            robot.opMode.telemetry.update();
 
             robot.loopUpdate();
         }

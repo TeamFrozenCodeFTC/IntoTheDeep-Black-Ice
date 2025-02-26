@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.odometry;
 
-import static org.firstinspires.ftc.teamcode.Robot.robot;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.blackIce.DriveCorrections;
+import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.Target;
 import org.firstinspires.ftc.teamcode.blackIce.tuning.TuningConstants;
 
@@ -15,8 +18,8 @@ public final class Odometry {
     // Private constructor to prevent instantiation
     private Odometry() {}
 
-    public static void init() {
-        odometry = robot.hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+    public static void init(HardwareMap hardwareMap) {
+        odometry = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
 
         odometry.setOffsets(-36, 0);
         odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -63,14 +66,14 @@ public final class Odometry {
 //        brakingDistance = estimateStoppingDistance();
 
         double[] robotVelocity =
-            DriveCorrections.fieldVectorToRobotVector(new double[]{xVelocity, yVelocity});
+            Drive.fieldVectorToRobotVector(new double[]{xVelocity, yVelocity});
         if (Math.abs(robotVelocity[0]) < 0.01) {
             robotVelocity[0] = 0;
         }
         if (Math.abs(robotVelocity[1]) < 0.01) {
             robotVelocity[1] = 0;
         }
-        double[] brakingDistances = DriveCorrections.robotVectorToFieldVector(new double[]{
+        double[] brakingDistances = Drive.robotVectorToFieldVector(new double[]{
             TuningConstants.FORWARD_BRAKING_DISPLACEMENT.predict(robotVelocity[0]),
             TuningConstants.LATERAL_BRAKING_DISPLACEMENT.predict(robotVelocity[1])
         });

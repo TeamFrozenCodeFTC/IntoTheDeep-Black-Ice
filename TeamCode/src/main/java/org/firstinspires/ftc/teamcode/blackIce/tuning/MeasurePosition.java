@@ -1,17 +1,30 @@
 package org.firstinspires.ftc.teamcode.blackIce.tuning;
 
-import org.firstinspires.ftc.teamcode.Drive;
-import org.firstinspires.ftc.teamcode.Robot;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.LinearSlide;
+import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.Robot;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
+/**
+ * Find the x, y, and heading of a position on the field. Useful for path making.
+ * <p>
+ * Start the robot in the corner of the field facing away from the side wall.
+ */
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group = "Tuning")
-public class MeasurePosition extends Robot {
+public class MeasurePosition extends LinearOpMode {
     @Override
     public void runOpMode() {
-        initRobot();
+        Robot.init(this);
+
         waitForStart();
 
-        sweeperRotator.getController().pwmDisable();
+        //sweeperRotator.getController().pwmDisable();
+//        for (ServoController controller : hardwareMap.getAll(ServoController.class)) {
+//            controller.pwmDisable();
+//        }
+        // plug different servos in different hubs depending on when they need to be disabled
 
         Drive.zeroPowerFloatMode();
 
