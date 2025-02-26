@@ -349,10 +349,12 @@ public class Movement {
 
         if (brakeAfter) {
             Drive.zeroPowerBrakeMode();
-            Drive.zeroPower();
         }
-        else if (!continuePowerAfter) {
+        else {
             Drive.zeroPowerFloatMode();
+        }
+
+        if (!continuePowerAfter) {
             Drive.zeroPower();
         }
     }
