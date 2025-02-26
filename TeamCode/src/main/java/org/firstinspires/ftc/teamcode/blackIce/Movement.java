@@ -305,6 +305,11 @@ public class Movement {
     public void run() {
         runTimeout(5);
     }
+
+    public boolean isCompleted() {
+        return robot.isNotInterrupted()
+                && !movementExit.condition()
+            }
     /**
      * Run the movement with a timeout.
      *
