@@ -10,6 +10,8 @@ Dynamic Adjustments: Reacting to obstacles or changes in the environment in real
 
 ### Requirements: Pinpoint Odometry Processor
 
+By having the robot follow points, this forces the robot to follow the path. Using dervivates like pedro paths adds complexity and adds transitional correction.
+
 Support for Bezier Curves
 
 Black Ice is tailored for teams looking for simple path execution with the option of modular customization.
