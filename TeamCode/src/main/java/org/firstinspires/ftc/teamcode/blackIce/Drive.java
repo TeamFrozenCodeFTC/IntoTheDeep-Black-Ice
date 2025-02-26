@@ -30,7 +30,7 @@ public final class Drive {
         backRightWheel = hardwareMap.get(DcMotor.class, "backRight");
         frontLeftWheel.setDirection(DcMotor.Direction.FORWARD);
 
-        motors = new DcMotor[] {frontLeftWheel, backLeftWheel, frontLeftWheel, backRightWheel};
+        motors = new DcMotor[] {frontLeftWheel, backLeftWheel, frontRightWheel, backRightWheel};
     }
 
     public static void power(double[] powers) {
