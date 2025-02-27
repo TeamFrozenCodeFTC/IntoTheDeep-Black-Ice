@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
 public class BrakingDisplacement {
+// rename to signed quadratic
     double a;
     double b;
     double c;
