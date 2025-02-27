@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 // kye_anderson_2009, alexreman45
-public class Movement {
+public class Movement extends Follower {
     /**
      * Move the robot through a target point without stopping.
      * <p>
@@ -42,20 +43,23 @@ public class Movement {
     public static void stopAtPosition(double x, double y) {
         stopAtPosition(x, y, Target.previousHeading);
     }
-
-    private HeadingCorrection headingCorrection;
-    private DriveCorrection driveCorrection;
-    private MovementExit movementExit;
-
-    private double maxPower = 1;
-    private double maxVelocity = 100; // inch/second
-    private double maxHeadingVelocity = 999; // degrees/second
-    private double consideredStoppedVelocity = 1;
-
-    private boolean brakeAfter = true;
-    private boolean continuePowerAfter = true;
-
-    public Path path = null;
+//
+//    private HeadingCorrection headingCorrection;
+//    private DriveCorrection driveCorrection;
+//    private Condition movementExit;
+//
+//    private double maxPower = 1;
+//    private double maxVelocity = 100; // inch/second
+//    private double maxHeadingVelocity = 999; // degrees/second
+//    private double consideredStoppedVelocity = 1;
+//    private double timeoutSeconds = 5;
+//    private static LinearOpMode opMode;
+//    private ElapsedTime timer;
+//
+//    private boolean brakeAfter = true;
+//    private boolean continuePowerAfter = true;
+//
+//    public Path path = null;
 
     /**
      * Create a new movement. Can be build upon to add more functionality and customization.
@@ -140,6 +144,14 @@ public class Movement {
     }
 
     /**
+     * Set the Movement's timeout in seconds. Default is 5 seconds.
+     */
+    public Movement setTimeoutSeconds(double newTimeoutSeconds) {
+        timeoutSeconds = newTimeoutSeconds;
+        return this;
+    }
+
+    /**
      * Set the maximum velocity that the robot considers at rest.
      * Useful for different accuracies of {@link Movement#stopAtPosition}.
      */
@@ -194,7 +206,7 @@ public class Movement {
     }
 
     /**
-     * Set the kind of {@link MovementExit#condition()}
+     * Set the kind of {@link Condition#condition()}
      * that is responsible for telling the movement when its reached its goal.
      *
      * @param newMovementExit {@code .setMovementExit(() -> {return ...})}
@@ -206,7 +218,7 @@ public class Movement {
      * .setMovementExit(() -> Target.isWithinBrakingErrorMargin() && slide.isRaised)}
      * </code></pre>
      */
-    public Movement setMovementExit(MovementExit newMovementExit) {
+    public Movement setMovementExit(Condition newMovementExit) {
         movementExit = newMovementExit;
         return this;
     }
@@ -221,18 +233,18 @@ public class Movement {
         return this;
     }
 
-    private void moveTowardTarget() {
-        double velocityMult = (Odometry.velocity > maxVelocity)
-            ? (maxVelocity / Odometry.velocity) * 0.5 : 1;
-        double headingMult = (Odometry.headingVelocity > maxHeadingVelocity)
-            ? (maxHeadingVelocity / Odometry.headingVelocity) : 1;
-
-        Drive.power(Drive.combineMax(
-            Drive.multiply(driveCorrection.calculateDrivePowers(), velocityMult),
-            Drive.multiply(HeadingCorrection.getWheelPowers(headingCorrection), headingMult),
-            maxPower
-        ));
-    }
+//    private void moveTowardTarget() {
+//        double velocityMult = (Odometry.velocity > maxVelocity)
+//            ? (maxVelocity / Odometry.velocity) * 0.5 : 1;
+//        double headingMult = (Odometry.headingVelocity > maxHeadingVelocity)
+//            ? (maxHeadingVelocity / Odometry.headingVelocity) : 1;
+//
+//        Drive.power(Drive.combineMax(
+//            Drive.multiply(driveCorrection.calculateDrivePowers(), velocityMult),
+//            Drive.multiply(HeadingCorrection.getWheelPowers(headingCorrection), headingMult),
+//            maxPower
+//        ));
+//    }
 
     /**
      * Move the robot through a target point without stopping at it.
@@ -297,67 +309,121 @@ public class Movement {
             .setDriveCorrection(DriveCorrection.stopAtTarget);
     }
 
-    /**
-     * Run the movement (has a 5 second timeout).
-     *
-     * @see Movement#runTimeout
-     */
-    public void run() {
-        runTimeout(5);
-    }
+//    /**
+//     * Wait for the Movement to be completed.
+//     */
+//    public void waitForMovement() {
+//        waitForMovement(() -> true, () -> {});
+//    }
+//
+//    /**
+//     * Wait for the Movement to be completed.
+//     *
+//     * @param extraCondition False will continue holding the position,
+//     *                       True will allow exit
+//     * <p>
+//     * If no extra condition is needed see {@link Movement#waitForMovement()}
+//     */
+//     public void waitForMovement(Condition extraCondition) {
+//         waitForMovement(extraCondition, () -> {});
+//    }
+//
+//    /**
+//     * Wait for the Movement to be completed with an extraCondition .
+//     *
+//     * @param extraCondition False will continue holding the position,
+//     *                       True will allow exit
+//     * @param updateHardware A function that updates robot hardware. For example,
+//     *                       when a linear slide reaches a certain height, a claw opens.
+//     * <p>
+//     * If updating hardware and no extraCondition is needed see {@link Movement#waitForMovement()}
+//     */
+//    public void waitForMovement(Condition extraCondition, UpdateHardware updateHardware) {
+//        timer.reset();
+//
+//        Target.updatePosition();
+//        while (isNotCompleted() && extraCondition.condition()) {
+//            update();
+//            updateHardware.update();
+//        }
+//    }
+//
+//    /**
+//     * Wait for the Movement to be completed with an extraCondition .
+//     *
+//     * @param updateHardware A function that updates robot hardware. For example,
+//     *                       when a linear slide reaches a certain height, a claw opens.
+//     * <p>
+//     * If updating hardware is not needed see {@link Movement#waitForMovement()}
+//     */
+//    public void waitForMovement(UpdateHardware updateHardware) {
+//        waitForMovement(() -> true, updateHardware);
+//    }
+//
+//    public boolean isNotCompleted() {
+//        return opMode.opModeIsActive()
+//            && !movementExit.condition()
+//            && timer.seconds() < timeoutSeconds;
+//    }
+//
+//    public void update() {
+//        Target.updatePosition();
+//        moveTowardTarget();
+//    }
+//
+//    public static void init(LinearOpMode opMode) {
+//        Movement.opMode = opMode;
+//        Odometry.init(opMode.hardwareMap);
+//        Drive.init(opMode.hardwareMap);
+//    }
 
-    public boolean isCompleted() {
-        return robot.isNotInterrupted()
-                && !movementExit.condition()
-            }
-    /**
-     * Run the movement with a timeout.
-     *
-     * @param timeout The timeout seconds.
-     */
-    public void runTimeout(double timeout) {
-        // Hacky
-        if (path != null) {
-            path.runCurve(this);
-            return;
-        }
-
-        ElapsedTime timer = new ElapsedTime();
-
-        timer.reset();
-
-        Robot robot = Robot.getInstance();
-        robot.loopUpdate();
-        while (
-            robot.isNotInterrupted()
-                && !movementExit.condition()
-                && timer.seconds() < timeout
-        ) {
-            moveTowardTarget();
-
-            //robot.telemetry.addData("VEL", Odometry.velocity);
-            robot.opMode.telemetry.addData("x pos", Odometry.x);
-            robot.opMode.telemetry.addData("y pos", Odometry.y);
-//            robot.telemetry.addData("x braking distance", Odometry.xBrakingDistance);
-//            robot.telemetry.addData("y braking distance", Odometry.yBrakingDistance);
-//            robot.telemetry.addData("x vel", builder.robot.odometry.xVelocity);
-//            robot.telemetry.addData("y vel", builder.robot.odometry.yVelocity);
-            robot.opMode.telemetry.update();
-
-            robot.loopUpdate();
-        }
-
-        if (brakeAfter) {
-            Drive.zeroPowerBrakeMode();
-        }
-        else {
-            Drive.zeroPowerFloatMode();
-        }
-
-        if (!continuePowerAfter) {
-            Drive.zeroPower();
-        }
-    }
+//    /**
+//     * Run the movement with a timeout.
+//     *
+//     * @param timeout The timeout seconds.
+//     */
+//    public void runTimeout(double timeout) {
+//        // Hacky
+//        if (path != null) {
+//            path.runCurve(this);
+//            return;
+//        }
+//
+//        ElapsedTime timer = new ElapsedTime();
+//
+//        timer.reset();
+//
+//        Follower.update();
+//        while (
+//            robot.isNotInterrupted()
+//                && !movementExit.condition()
+//                && timer.seconds() < timeout
+//        ) {
+//            moveTowardTarget();
+//
+//            //robot.telemetry.addData("VEL", Odometry.velocity);
+//            robot.opMode.telemetry.addData("x pos", Odometry.x);
+//            robot.opMode.telemetry.addData("y pos", Odometry.y);
+////            robot.telemetry.addData("x braking distance", Odometry.xBrakingDistance);
+////            robot.telemetry.addData("y braking distance", Odometry.yBrakingDistance);
+////            robot.telemetry.addData("x vel", builder.robot.odometry.xVelocity);
+////            robot.telemetry.addData("y vel", builder.robot.odometry.yVelocity);
+//            robot.opMode.telemetry.update();
+//
+//            robot.loopUpdate();
+//        }
+//
+//        if (brakeAfter) {
+//            Drive.zeroPowerBrakeMode();
+//        }
+//        else {
+//            Drive.zeroPowerFloatMode();
+//        }
+//
+//        if (!continuePowerAfter) {
+//            Drive.zeroPower();
+//        }
+//    }
 }
 //import com.qualcomm.robotcore.hardware.VoltageSensor;
 //        private VoltageSensor myControlHubVoltageSensor;

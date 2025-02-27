@@ -18,6 +18,7 @@ public final class Odometry {
     // Private constructor to prevent instantiation
     private Odometry() {}
 
+    // TODO rename to initialize
     public static void init(HardwareMap hardwareMap) {
         odometry = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
 

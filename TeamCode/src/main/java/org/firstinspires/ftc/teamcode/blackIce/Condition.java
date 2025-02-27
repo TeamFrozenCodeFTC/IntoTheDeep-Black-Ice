@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
-public interface MovementExit {
+public interface Condition {
     boolean condition();
 }
