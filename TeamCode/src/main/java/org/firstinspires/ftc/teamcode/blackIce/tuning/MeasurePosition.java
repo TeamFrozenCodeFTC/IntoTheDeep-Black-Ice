@@ -4,7 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.LinearSlide;
 import org.firstinspires.ftc.teamcode.blackIce.Drive;
-import org.firstinspires.ftc.teamcode.blackIce.Robot;
+
+import org.firstinspires.ftc.teamcode.blackIce.Follower;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 /**
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.odometry.Odometry;
 public class MeasurePosition extends LinearOpMode {
     @Override
     public void runOpMode() {
-        Robot.init(this);
+        Follower.init(this);
 
         waitForStart();
 

@@ -14,7 +14,7 @@ public class Movement extends Follower {
      * To add more customization, use the instance method: {@link Movement#moveThrough()}
      */
     public static void moveThrough(double x, double y, double heading) {
-        new Movement(x, y, heading).moveThrough().run();
+        new Movement(x, y, heading).moveThrough().waitForMovement();
     }
 
     /**
@@ -32,7 +32,7 @@ public class Movement extends Follower {
      * To add more customization, use the instance method: {@link Movement#stopAtPosition()}
      */
     public static void stopAtPosition(double x, double y, double heading) {
-        new Movement(x, y, heading).stopAtPosition().run();
+        new Movement(x, y, heading).stopAtPosition().waitForMovement();
     }
 
     /**
@@ -43,23 +43,6 @@ public class Movement extends Follower {
     public static void stopAtPosition(double x, double y) {
         stopAtPosition(x, y, Target.previousHeading);
     }
-//
-//    private HeadingCorrection headingCorrection;
-//    private DriveCorrection driveCorrection;
-//    private Condition movementExit;
-//
-//    private double maxPower = 1;
-//    private double maxVelocity = 100; // inch/second
-//    private double maxHeadingVelocity = 999; // degrees/second
-//    private double consideredStoppedVelocity = 1;
-//    private double timeoutSeconds = 5;
-//    private static LinearOpMode opMode;
-//    private ElapsedTime timer;
-//
-//    private boolean brakeAfter = true;
-//    private boolean continuePowerAfter = true;
-//
-//    public Path path = null;
 
     /**
      * Create a new movement. Can be build upon to add more functionality and customization.
@@ -82,6 +65,8 @@ public class Movement extends Follower {
         Target.setTarget(heading, x, y);
 
         setMovementExit(() -> !Target.isNotWithinErrorMargin(Target.defaultErrorMargin));
+
+        timer.reset();
     }
 
     /**
@@ -309,121 +294,12 @@ public class Movement extends Follower {
             .setDriveCorrection(DriveCorrection.stopAtTarget);
     }
 
-//    /**
-//     * Wait for the Movement to be completed.
-//     */
-//    public void waitForMovement() {
-//        waitForMovement(() -> true, () -> {});
-//    }
-//
-//    /**
-//     * Wait for the Movement to be completed.
-//     *
-//     * @param extraCondition False will continue holding the position,
-//     *                       True will allow exit
-//     * <p>
-//     * If no extra condition is needed see {@link Movement#waitForMovement()}
-//     */
-//     public void waitForMovement(Condition extraCondition) {
-//         waitForMovement(extraCondition, () -> {});
-//    }
-//
-//    /**
-//     * Wait for the Movement to be completed with an extraCondition .
-//     *
-//     * @param extraCondition False will continue holding the position,
-//     *                       True will allow exit
-//     * @param updateHardware A function that updates robot hardware. For example,
-//     *                       when a linear slide reaches a certain height, a claw opens.
-//     * <p>
-//     * If updating hardware and no extraCondition is needed see {@link Movement#waitForMovement()}
-//     */
-//    public void waitForMovement(Condition extraCondition, UpdateHardware updateHardware) {
-//        timer.reset();
-//
-//        Target.updatePosition();
-//        while (isNotCompleted() && extraCondition.condition()) {
-//            update();
-//            updateHardware.update();
-//        }
-//    }
-//
-//    /**
-//     * Wait for the Movement to be completed with an extraCondition .
-//     *
-//     * @param updateHardware A function that updates robot hardware. For example,
-//     *                       when a linear slide reaches a certain height, a claw opens.
-//     * <p>
-//     * If updating hardware is not needed see {@link Movement#waitForMovement()}
-//     */
-//    public void waitForMovement(UpdateHardware updateHardware) {
-//        waitForMovement(() -> true, updateHardware);
-//    }
-//
-//    public boolean isNotCompleted() {
-//        return opMode.opModeIsActive()
-//            && !movementExit.condition()
-//            && timer.seconds() < timeoutSeconds;
-//    }
-//
-//    public void update() {
-//        Target.updatePosition();
-//        moveTowardTarget();
-//    }
-//
-//    public static void init(LinearOpMode opMode) {
-//        Movement.opMode = opMode;
-//        Odometry.init(opMode.hardwareMap);
-//        Drive.init(opMode.hardwareMap);
-//    }
-
-//    /**
-//     * Run the movement with a timeout.
-//     *
-//     * @param timeout The timeout seconds.
-//     */
-//    public void runTimeout(double timeout) {
-//        // Hacky
-//        if (path != null) {
-//            path.runCurve(this);
-//            return;
-//        }
-//
-//        ElapsedTime timer = new ElapsedTime();
-//
-//        timer.reset();
-//
-//        Follower.update();
-//        while (
-//            robot.isNotInterrupted()
-//                && !movementExit.condition()
-//                && timer.seconds() < timeout
-//        ) {
-//            moveTowardTarget();
-//
-//            //robot.telemetry.addData("VEL", Odometry.velocity);
-//            robot.opMode.telemetry.addData("x pos", Odometry.x);
-//            robot.opMode.telemetry.addData("y pos", Odometry.y);
-////            robot.telemetry.addData("x braking distance", Odometry.xBrakingDistance);
-////            robot.telemetry.addData("y braking distance", Odometry.yBrakingDistance);
-////            robot.telemetry.addData("x vel", builder.robot.odometry.xVelocity);
-////            robot.telemetry.addData("y vel", builder.robot.odometry.yVelocity);
-//            robot.opMode.telemetry.update();
-//
-//            robot.loopUpdate();
-//        }
-//
-//        if (brakeAfter) {
-//            Drive.zeroPowerBrakeMode();
-//        }
-//        else {
-//            Drive.zeroPowerFloatMode();
-//        }
-//
-//        if (!continuePowerAfter) {
-//            Drive.zeroPower();
-//        }
-//    }
+    /**
+     * Wait for the Path to be completed.
+     */
+    public void waitForPath() {
+        path.runCurve(this);
+    }
 }
 //import com.qualcomm.robotcore.hardware.VoltageSensor;
 //        private VoltageSensor myControlHubVoltageSensor;

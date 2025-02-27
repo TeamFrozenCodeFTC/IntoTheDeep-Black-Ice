@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.blackIce.tuning;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.blackIce.Drive;
-import org.firstinspires.ftc.teamcode.blackIce.Robot;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
@@ -40,13 +39,13 @@ public abstract class DistanceTuner extends LinearOpMode {
                 new Movement(48, 0, heading) // bug where previous heading doesn't work
                     .moveThrough()
                     .setMaxPower(power)
-                    .run();
+                    .waitForMovement();
             }
             else {
                 new Movement(0, 0, heading)
                     .moveThrough()
                     .setMaxPower(power)
-                    .run();
+                    .waitForMovement();
             }
 
             Odometry.update();

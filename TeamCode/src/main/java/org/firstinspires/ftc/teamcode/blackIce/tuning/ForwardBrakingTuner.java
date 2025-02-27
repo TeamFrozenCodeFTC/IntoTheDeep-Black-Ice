@@ -2,7 +2,8 @@ package org.firstinspires.ftc.teamcode.blackIce.tuning;
 
 import com.acmerobotics.dashboard.config.Config;
 
-import org.firstinspires.ftc.teamcode.blackIce.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Follower;
+
 
 /**
  * Tune the robot's forward/backward braking distances.
@@ -19,7 +20,7 @@ import org.firstinspires.ftc.teamcode.blackIce.Robot;
 public class ForwardBrakingTuner extends DistanceTuner {
     @Override
     public void runOpMode() {
-        Robot.init(this);
+        Follower.init(this);
 
         run(0);
     }

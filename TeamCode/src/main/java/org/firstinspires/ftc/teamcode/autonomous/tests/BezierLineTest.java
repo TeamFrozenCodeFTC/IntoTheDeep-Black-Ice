@@ -2,36 +2,44 @@ package org.firstinspires.ftc.teamcode.autonomous.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.blackIce.Robot;
+import org.firstinspires.ftc.teamcode.blackIce.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.paths.BezierCurve;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
 public class BezierLineTest extends LinearOpMode {
     @Override
     public void runOpMode() {
-        Robot.init(this);
+        Follower.init(this);
 
         waitForStart();
 
         Odometry.setPosition(90, 0, 0);
 
+        BezierCurve java = new BezierCurve( // was static
+            new double[][]
+                {{ 1.68073593,  0.29761905},
+                    {14.74350649, 23.73376623},
+                    {55.08441558, 31.03354978},
+                    {81.20995671, 28.72835498},
+                    {77.36796537,  0.29761905},
+                    {56.23701299,  3.75541126},
+                    {34.33766234,  3.75541126}}
+        );
+
         new Movement(java)
-            .run();
+            .waitForPath();
+
+//
+//        Movement path = new Movement(new Path(new double[][]{{}}))
+//            .setMaxPower(0.7).setMaxVelocity(6);
+//        path.waitForPath();
 
     }
 
-    static BezierCurve java = new BezierCurve(
-        new double[][]
-            {{ 1.68073593,  0.29761905},
-                {14.74350649, 23.73376623},
-                {55.08441558, 31.03354978},
-                {81.20995671, 28.72835498},
-                {77.36796537,  0.29761905},
-                {56.23701299,  3.75541126},
-                {34.33766234,  3.75541126}}
-    );
+
 
 //    BezierCurve smallCurve = new BezierCurve(
 //        new double[][]{{ 0.91233766,  0.29761905},

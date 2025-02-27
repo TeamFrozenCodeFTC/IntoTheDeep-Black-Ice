@@ -2,24 +2,21 @@ package org.firstinspires.ftc.teamcode.autonomous.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.blackIce.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
-public class ForwardTest2 extends LinearOpMode {
+public class ForwardDriveTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         Follower.init(this);
 
         waitForStart();
 
-        Odometry.setPosition(90, 0, 0);
-
-        Movement move = new Movement(0, 24, 90).stopAtPosition();
-
         while (opModeIsActive()) {
-            move.update();
+            Drive.power(Drive.forward(0.4));
         }
     }
 }

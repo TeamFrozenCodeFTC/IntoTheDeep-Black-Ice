@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -19,10 +21,10 @@ public abstract class Follower {
     double timeoutSeconds = 5;
     private static LinearOpMode opMode;
 
-    private final ElapsedTime timer = new ElapsedTime();
+    final ElapsedTime timer = new ElapsedTime();
 
     boolean brakeAfter = true;
-    boolean continuePowerAfter = true;
+    boolean continuePowerAfter = false;
 
     public Path path = null;
 
@@ -76,6 +78,16 @@ public abstract class Follower {
             update();
             updateHardware.update();
         }
+
+        if (brakeAfter) {
+            Drive.zeroPowerBrakeMode();
+        }
+        else {
+            Drive.zeroPowerFloatMode();
+        }
+        if (!continuePowerAfter) {
+            Drive.zeroPower();
+        }
     }
 
     /**
@@ -101,59 +113,16 @@ public abstract class Follower {
         moveTowardTarget();
     }
 
+    public static MultipleTelemetry telemetry;
+
     public static void init(LinearOpMode opMode) {
         Follower.opMode = opMode;
         Odometry.init(opMode.hardwareMap);
         Drive.init(opMode.hardwareMap);
-    }
 
-//    /**
-//     * Run the movement with a timeout.
-//     *
-//     * @param timeout The timeout seconds.
-//     */
-//    public void runTimeout(double timeout) {
-//        // Hacky
-//        if (path != null) {
-//            path.runCurve(this);
-//            return;
-//        }
-//
-//        ElapsedTime timer = new ElapsedTime();
-//
-//        timer.reset();
-//
-//        Follower.update();
-//        while (
-//            robot.isNotInterrupted()
-//                && !movementExit.condition()
-//                && timer.seconds() < timeout
-//        ) {
-//            moveTowardTarget();
-//
-//            //robot.telemetry.addData("VEL", Odometry.velocity);
-//            robot.opMode.telemetry.addData("x pos", Odometry.x);
-//            robot.opMode.telemetry.addData("y pos", Odometry.y);
-////            robot.telemetry.addData("x braking distance", Odometry.xBrakingDistance);
-////            robot.telemetry.addData("y braking distance", Odometry.yBrakingDistance);
-////            robot.telemetry.addData("x vel", builder.robot.odometry.xVelocity);
-////            robot.telemetry.addData("y vel", builder.robot.odometry.yVelocity);
-//            robot.opMode.telemetry.update();
-//
-//            robot.loopUpdate();
-//        }
-//
-//        if (brakeAfter) {
-//            Drive.zeroPowerBrakeMode();
-//        }
-//        else {
-//            Drive.zeroPowerFloatMode();
-//        }
-//
-//        if (!continuePowerAfter) {
-//            Drive.zeroPower();
-//        }
-//    }
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        telemetry = new MultipleTelemetry(opMode.telemetry, dashboard.getTelemetry());
+    }
 }
 //import com.qualcomm.robotcore.hardware.VoltageSensor;
 //        private VoltageSensor myControlHubVoltageSensor;

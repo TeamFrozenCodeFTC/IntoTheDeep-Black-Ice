@@ -22,19 +22,18 @@ public final class Drive {
         frontLeftWheel.setDirection(DcMotor.Direction.REVERSE);
 
         backLeftWheel = hardwareMap.get(DcMotor.class, "backLeft");
-        frontLeftWheel.setDirection(DcMotor.Direction.FORWARD);
+        backLeftWheel.setDirection(DcMotor.Direction.FORWARD);
 
         frontRightWheel = hardwareMap.get(DcMotor.class, "frontRight");
-        frontLeftWheel.setDirection(DcMotor.Direction.FORWARD);
+        frontRightWheel.setDirection(DcMotor.Direction.FORWARD);
 
         backRightWheel = hardwareMap.get(DcMotor.class, "backRight");
-        frontLeftWheel.setDirection(DcMotor.Direction.FORWARD);
+        backRightWheel.setDirection(DcMotor.Direction.FORWARD);
 
         motors = new DcMotor[] {frontLeftWheel, backLeftWheel, frontRightWheel, backRightWheel};
     }
 
     public static void power(double[] powers) {
-
         frontLeftWheel.setPower(powers[0]);
         backLeftWheel.setPower(powers[1]);
         frontRightWheel.setPower(powers[2]);
@@ -104,14 +103,14 @@ public final class Drive {
     }
 
     public static void brakeFor(double seconds) {
-        Robot robot = Robot.getInstance();
-
-        ElapsedTime timer = new ElapsedTime();
-
-        timer.reset();
-        while (robot.isNotInterrupted() && timer.seconds() < seconds) {
-            zeroPower();
-        }
+//        Robot robot = Robot.getInstance();
+//
+//        ElapsedTime timer = new ElapsedTime();
+//
+//        timer.reset();
+//        while (robot.isNotInterrupted() && timer.seconds() < seconds) {
+//            zeroPower();
+//        }
     }
 
     private static double[] normalize(double[] powers) {

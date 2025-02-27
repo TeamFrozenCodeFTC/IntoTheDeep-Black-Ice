@@ -2,7 +2,7 @@ Black Ice is a **Reactive Path Follower** developed by __FTC Team #18535__, Froz
 
 By incorporating predicting the robot's position, the system provides:
 
-Zero Abirtary, Manual Tuning
+Zero Arbitrary, Manual Tuning
 Modular Customization
 Smoother Transitions: Ensuring less jerky motions for precision-intensive tasks.
 Faster Execution: Reducing time spent in path planning and execution.
