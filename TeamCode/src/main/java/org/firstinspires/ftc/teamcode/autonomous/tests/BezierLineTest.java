@@ -29,6 +29,7 @@ public class BezierLineTest extends LinearOpMode {
                     {56.23701299,  3.75541126},
                     {34.33766234,  3.75541126}}
         );
+
         PathFollower x = new PathFollower(java).setMaxPower(1); // .complete() -> PathFollower?
         Movement y = new Movement(1,2).setMovementExit(() -> true);
 

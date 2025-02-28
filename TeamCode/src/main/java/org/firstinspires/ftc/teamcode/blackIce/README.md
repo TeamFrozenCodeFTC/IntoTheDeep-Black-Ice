@@ -1,4 +1,4 @@
-Black Ice is a **Reactive Path Follower** developed by __FTC Team #18535__, Frozen Code. It is designed to provide more efficient, effective, and high-speed path following by **predicting real-time, directional braking distance**. Unlike traditional path-following libraries that gradually slow the robot down, Black Ice dynamically calculates the optimal braking distance based on the robot’s current speed. This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed. By predicting the robot's position in real time, the robot can navigate curved paths with greater precision, minimizing overshooting and staying on track.
+Black Ice is a **Reactive Path Follower** developed by __FTC Team #18535__, Frozen Code. It is designed to provide more efficient, effective, and high-speed path following by **predicting real-time, directional braking distance**. Unlike traditional path-following libraries that gradually slow the robot down, Black Ice dynamically calculates the optimal braking distance based on the robot’s current speed. This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed. By predicting the robot's position in real time, the robot can also navigate curved paths with greater precision, minimizing overshooting and staying on track.
 
 Unique, key features:
 - Zero Manual or Arbitrary Tuning
@@ -7,10 +7,17 @@ Unique, key features:
 
 Black Ice is tailored for teams with odometry wheels looking for simple, high-speed path execution with the option of modular customization.
 
-## Usage
+# Usage
 ### Requirements: Odometry Wheels / Pinpoint Odometry Processor
 Black Ice intentionally uses the the slippage of the wheels in order to stop faster. This requires separate dead wheels in order to not get off.
 
+## Simple
+Moving the robot to a point and stopping:
+```
+// Moves the robot 24 inches in the y direction
+Movement.stopAtPosition(0, 24, 90);
+```
+![img.png](img.png)
 
 ## Why Did We Develop Black Ice?
 - To intuitively learn, hands-on, how path following works in robotics. We encourage users to experiment by creating their own correction functions or adding new features.
@@ -39,12 +46,6 @@ How is ours is different from others like Roadrunner and Pedro Path? The key dif
 We have just one tuning test that runs the robot at different velocities to brake and calculate the braking distance. With those data points, we used quadratic regression (since stopping distance is proportional to velocity squared) to derive a function that accurately predicts the required braking distance at any speed.
 
 Our drive power formula is purely proportional, subtracting the predicted braking distance from the target position. No arbitrary constants are needed. No integral term is needed, as stationary robots have zero braking distance. No derivative term is required either, since braking distance naturally adjusts to slow the robot precisely when needed.
-
-Pedro Pathing is an advanced Reactive Vector Follower developed by FTC Team 10158 to revolutionize autonomous navigation in robotics. Unlike conventional pathing systems such as RoadRunner, Pedro Pathing leverages Bézier curve generation to produce smoother, faster, and more efficient trajectories. Its primary focus is on enhancing the adaptability of robots during autonomous operation by reacting dynamically to environmental changes, reducing error margins, and ensuring optimal path execution.
-
-By incorporating Bézier curves, the system provides:
-
-Smoother Transitions: Ensuring less jerky motions for precision-intensive tasks. Faster Execution: Reducing time spent in path planning and execution. Dynamic Adjustments: Reacting to obstacles or changes in the environment in real-time. Pedro Pathing is tailored for teams looking to push the boundaries of autonomous efficiency and accuracy. Whether you’re a seasoned team or just getting started with autonomous systems, this documentation will guide you through setting up, tuning, and implementing Pedro Pathing in your projects.
 
 # Credits
 All code developed by Jacob Ophoven with help of Coach Andy and members of the FTC community.
