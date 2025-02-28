@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.blackIce.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.paths.BezierCurve;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
 import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
+import org.firstinspires.ftc.teamcode.blackIce.paths.PathFollower;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
@@ -28,9 +29,21 @@ public class BezierLineTest extends LinearOpMode {
                     {56.23701299,  3.75541126},
                     {34.33766234,  3.75541126}}
         );
+        PathFollower x = new PathFollower(java).setMaxPower(1); // .complete() -> PathFollower?
+        Movement y = new Movement(1,2).setMovementExit(() -> true);
 
-        new Movement(java)
-            .waitForPath();
+
+//        Movement m1 = new Movement(java).brakeAfter();
+//        Movement m2 = new Movement(java);
+//
+//        m1.brakeAfter();
+//
+
+//        java.runCurve();
+//        java.runCurve();
+
+//        m1.waitForPath();
+//        m2.waitForPath();
 
 //
 //        Movement path = new Movement(new Path(new double[][]{{}}))

@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
+public class Movement extends Follower<Movement> {
+    @Override
+    protected Movement getThis() {
+        return this;
+    }
 
-import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
-import org.firstinspires.ftc.teamcode.odometry.Odometry;
-
-// kye_anderson_2009, alexreman45
-public class Movement extends Follower {
     /**
      * Move the robot through a target point without stopping.
      * <p>
@@ -80,18 +78,20 @@ public class Movement extends Follower {
         this(x, y, Target.previousHeading);
     }
 
-    /**
-     * Create a new path movement.
-     * Can be build upon to add more functionality and customization.
-     * Don't forget to call {@code .run()} after you construct your movements.
-     *
-     * @see Movement#Movement(double, double, double)
-     */
-    public Movement(Path path) {
-        this.path = path;
-    }
+//    private PathFollower pathFollower;
 
-    // Credit to alexreman45 for supporting and finding bug of NullExpestionError about Bezier Curves
+//    /**
+//     * Create a new path movement.
+//     * Can be build upon to add more functionality and customization.
+//     * Don't forget to call {@code .run()} after you construct your movements.
+//     *
+//     * @see Movement#Movement(double, double, double)
+//     */
+//    public Movement(Path path) {
+//        PathFollower pathFollower = new PathFollower(path);
+//        this.path = path;
+//    }
+
     /**
      * <h5>To fix underline, add arguments</h5>
      * <p>
@@ -100,123 +100,7 @@ public class Movement extends Follower {
     protected Movement() {
     }
 
-    /**
-     * Turns on zero power brake mode after reaching the target.
-     */
-    public Movement brakeAfter() {
-        brakeAfter = true;
-        continuePowerAfter = false;
-        return this;
-    }
 
-    /**
-     * Turns on zero power float mode after reaching the target.
-     * This makes the robot glide with its momentum.
-     */
-    public Movement floatAfter() {
-        brakeAfter = false;
-        continuePowerAfter = false;
-        return this;
-    }
-
-    /**
-     * Make the robot continue the supplied power to the wheels after reaching the target.
-     */
-    public Movement continuePowerAfter() {
-        brakeAfter = false;
-        continuePowerAfter = true;
-        return this;
-    }
-
-    /**
-     * Set the Movement's timeout in seconds. Default is 5 seconds.
-     */
-    public Movement setTimeoutSeconds(double newTimeoutSeconds) {
-        timeoutSeconds = newTimeoutSeconds;
-        return this;
-    }
-
-    /**
-     * Set the maximum velocity that the robot considers at rest.
-     * Useful for different accuracies of {@link Movement#stopAtPosition}.
-     */
-    public Movement setConsideredStoppedVelocity(double newConsideredStoppedVelocity) {
-        consideredStoppedVelocity = newConsideredStoppedVelocity;
-        return this;
-    }
-
-    /**
-     * Set a maximum velocity the robot can travel (is not perfectly accurate).
-     *
-     * @param newMaxVelocity inches/second (312 rpm goes 40-60 inches/second)
-     */
-    public Movement setMaxVelocity(double newMaxVelocity) {
-        maxVelocity = newMaxVelocity;
-        return this;
-    }
-
-    /**
-     * Set a maximum velocity the robot can turn (is not perfectly accurate).
-     *
-     * @param newMaxHeadingVelocity degrees/second
-     */
-    public Movement setMaxHeadingVelocity(double newMaxHeadingVelocity) {
-        maxHeadingVelocity = newMaxHeadingVelocity;
-        return this;
-    }
-
-    /**
-     * Set the kind of {@link HeadingCorrection} that is responsible for turning the robot.
-     * <h6>Usage</h6>
-     * {@code .setHeadingCorrection(HeadingCorrection.x)}
-     * where x is the type of heading correction.
-     * <p>
-     */
-    public Movement setHeadingCorrection(HeadingCorrection newHeadingCorrection) {
-        headingCorrection = newHeadingCorrection;
-        return this;
-    }
-
-    /**
-     * Set the kind of {@link DriveCorrection}
-     * that is responsible for moving the robot toward the target.
-     * <h6>Usage</h6>
-     * {@code .setDriveCorrection(DriveCorrection.x)}
-     * where x is the type of drive correction.
-     * <p>
-     */
-    public Movement setDriveCorrection(DriveCorrection newDriveCorrection) {
-        driveCorrection = newDriveCorrection;
-        return this;
-    }
-
-    /**
-     * Set the kind of {@link Condition#condition()}
-     * that is responsible for telling the movement when its reached its goal.
-     *
-     * @param newMovementExit {@code .setMovementExit(() -> {return ...})}
-     * (has to return a boolean)
-     *
-     * <h6>Examples</h6>
-     * Continues to hold the position until it is within the error margin and the slide is raised:
-     * <pre><code>
-     * .setMovementExit(() -> Target.isWithinBrakingErrorMargin() && slide.isRaised)}
-     * </code></pre>
-     */
-    public Movement setMovementExit(Condition newMovementExit) {
-        movementExit = newMovementExit;
-        return this;
-    }
-
-    /**
-     * Set the maximum power the robot can move at.
-     *
-     * @param newMaxPower A number 0 to 1. {@code 0.5} -> 50% power
-     */
-    public Movement setMaxPower(double newMaxPower) {
-        maxPower = newMaxPower;
-        return this;
-    }
 
 //    private void moveTowardTarget() {
 //        double velocityMult = (Odometry.velocity > maxVelocity)
@@ -231,75 +115,17 @@ public class Movement extends Follower {
 //        ));
 //    }
 
-    /**
-     * Move the robot through a target point without stopping at it.
-     *
-     * <p>
-     * <h5>How does it work?</h5>
-     * <ul>
-     * <li>This method travels towards the point using a simple proportional control (error * constant).</li>
-     * <li>The robot predicts its position based on the braking distance
-     * for determining if it has passed the target. This allows it to quickly change
-     * direction without overshooting.</li>
-     * <li>To determine if it has passed the target, it constructs a plane
-     * perpendicular to the line connecting the previous target and the new target.</li>
-     * </ul>
-     *
-     * @return A {@code Movement} object configured to move through the target.
-     */
-    public Movement moveThrough() {
-        double targetYError = Target.previousY - Target.y;
-        double targetXError = Target.previousX - Target.x;
-        double xSign = Math.signum(targetXError);
-        double ySign = Math.signum(targetYError);
-        double slope = (Target.x == Target.previousX) ? 0 : targetYError / targetXError;
 
-        return this
-            .setHeadingCorrection(HeadingCorrection.locked)
-            .setDriveCorrection(DriveCorrection.proportional)
-            .continuePowerAfter()
-            .setMovementExit(() -> {
-                double predictedXError = Target.xError - Odometry.xBrakingDistance;
-                double predictedYError = Target.yError - Odometry.yBrakingDistance;
+//    @NonNull
+//    @Override
+//    public Movement clone() {
+//        try {
+//            return (Movement) super.clone();
+//        } catch (CloneNotSupportedException e) {
+//            throw new AssertionError(); // This should never happen since we implement Cloneable
+//        }
+//    }
 
-                if (Target.x == Target.previousX) {
-                    return ySign * predictedYError >= 0;
-                }
-
-                return -xSign * predictedXError <= slope * xSign * predictedYError;
-            });
-    }
-
-    /**
-     * Move the robot to target point and stop.
-     * <p>
-     * <h5>How does it work?</h5>
-     * <ul>
-     * <li>This method travels towards the point
-     * using a simple proportional control (error * constant).</li>
-     * <li>The robot predicts its position based on the braking distance,
-     * allowing the robot maintain full power for as long as possible,
-     * only braking at the optimal point. The braking distance also prevents overshooting.</li>
-     *
-     * @return A {@code Movement} object configured to stop at the target.
-     *
-     * @see Movement#stopAtPosition
-     */
-    public Movement stopAtPosition() {
-        return this
-            .setMovementExit(() ->
-                Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin)
-                    && Odometry.velocity < consideredStoppedVelocity)
-            .setHeadingCorrection(HeadingCorrection.turnOverMovement)
-            .setDriveCorrection(DriveCorrection.stopAtTarget);
-    }
-
-    /**
-     * Wait for the Path to be completed.
-     */
-    public void waitForPath() {
-        path.runCurve(this);
-    }
 }
 //import com.qualcomm.robotcore.hardware.VoltageSensor;
 //        private VoltageSensor myControlHubVoltageSensor;
