@@ -78,7 +78,7 @@ Black Ice has 2 automatic tuning opModes (one forward/backward and one lateral) 
 We use the constants it gives and plug it into a signed-quadratic function (which means that works in both positive and negative numbers). [x is the xVelocity or yVelocity]
 
 $$
-f(x) = \text{sgn}(x) \cdot a \cdot x^2 + b \cdot x + \text{sgn}(x) \cdot c
+f(x) = \( (a \cdot x \cdot \text{abs}(x)) + (b \cdot x) + (\text{sgn}(x) \cdot c) \)
 $$
 ```java
 public double predict(double x) {
