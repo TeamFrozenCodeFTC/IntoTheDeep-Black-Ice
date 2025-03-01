@@ -76,6 +76,7 @@ Here are some ideas for new features:
 ## Predicting the Directional Braking Distance
 Black Ice has 2 automatic tuning opModes (one forward/backward and one lateral) that makes the robot travel at different velocities. Once it reaches a certain velocity, it sets the power to 0 with zero power brake mode on. This locks the wheels and makes the robot stop. It then calculates the distance it took the robot to stop. Once it gets a certain amount of points it uses a quadratic regression algorithm to derive a quadratic formula that predicts the robot's braking distance at any velocity.
 We use the constants it gives and plug it into a signed-quadratic function (which means that works in both positive and negative numbers). [x is the xVelocity or yVelocity]
+
 $$
 f(x) = \text{sgn}(x) \cdot a \cdot x^2 + b \cdot x + \text{sgn}(x) \cdot c
 $$
