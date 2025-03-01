@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 public final class Drive {
+    private Drive() {}
+
     public static DcMotor frontLeftWheel;
     public static DcMotor backLeftWheel;
     public static DcMotor frontRightWheel;

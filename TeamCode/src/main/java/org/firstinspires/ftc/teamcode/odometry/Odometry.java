@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.odometry;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -77,6 +76,7 @@ public final class Odometry {
             TuningConstants.FORWARD_BRAKING_DISPLACEMENT.predict(robotVelocity[0]),
             TuningConstants.LATERAL_BRAKING_DISPLACEMENT.predict(robotVelocity[1])
         });
+        //i am trying to run ftc speed tests but the results are varying from running 1000 loops an average of 5ms per loop to 7ms so I cant tell any changes that I make
         // xBrakingDisplacement, yBrakingDisplacement
 
         xBrakingDistance = brakingDistances[0];

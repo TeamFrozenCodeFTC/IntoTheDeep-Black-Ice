@@ -18,20 +18,24 @@ public class PathFollower extends Follower<PathFollower> {
     private int i = 1;
     private boolean holding = false;
     private boolean completed = false;
-    private Movement movement;
 
-    public void reset() {
+    @Override
+    public PathFollower start() {
         i = 1;
         holding = false;
         completed = false;
 
         Target.setTarget(Target.previousHeading, this.path.points[0][0], this.path.points[0][1]);
+
+        return this;
     }
 
+    @Override
     public void update() {
         if (holding) {
-            super.update();
-            if (!super.isNotCompleted()) {
+            //super.update();
+            m.update();
+            if (!m.isNotCompleted()) {
                 completed = true;
             }
             return;
@@ -67,14 +71,13 @@ public class PathFollower extends Follower<PathFollower> {
             ) + this.path.headingOffset;
         }
 
-        // Hacky Solution for allowing things to be build for curve
-        Target.setTarget(targetHeading, point[0], point[1]);
-        //movementBuild.path = null; // otherwise gets stuck in loop
-        // maybe should not have it wait until the next point?
-        super.moveThrough().waitForMovement();
-        //Movement.moveThrough(point[0], point[1], targetHeading);
-        // Movement.moveThrough(this).waitForMovement();
-        // super.moveThrough().waitForMovement();
+        new Movement(point[0], point[1], targetHeading)
+            .copyProperties(this)
+            .moveThrough()
+            .waitForMovement();
+
+//        Target.setTarget(targetHeading, point[0], point[1]);
+//        super.moveThrough().waitForMovement();
 
         this.i += 1;
         if (i >= this.path.points.length) {
@@ -87,12 +90,17 @@ public class PathFollower extends Follower<PathFollower> {
         return this;
     }
 
+    private Movement m;
+
     private void stopAndHoldEndPoint() {
-        Target.setTarget(this.path.endingHeading, this.path.endPoint[0], this.path.endPoint[1]);
-        //movementBuild.path = null; // otherwise gets stuck in loop
-        super.stopAtPosition();
-        //movement = new Movement(this.path.endPoint[0], this.path.endPoint[1], this.path.endingHeading)
-        //    .stopAtPosition();
+        //Target.setTarget(this.path.endingHeading, this.path.endPoint[0], this.path.endPoint[1]);
+        Follower.telemetry.addData("stopping", 1);
+        Follower.telemetry.update();
+        m = new Movement(this.path.endPoint[0], this.path.endPoint[1], this.path.endingHeading)
+            .copyProperties(this)
+            .stopAtPosition();
+        m.start();
+        //super.stopAtPosition();
         holding = true;
     }
 
@@ -100,7 +108,7 @@ public class PathFollower extends Follower<PathFollower> {
      * Make the robot follow the curve.
      */
     public void waitForPath() {
-        reset();
+        start();
 
         while (!completed) {
             update();

@@ -5,114 +5,58 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
 import org.firstinspires.ftc.teamcode.blackIce.paths.PathFollower;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 public abstract class Follower<SubclassType extends Follower<SubclassType>> {
-    HeadingCorrection headingCorrection;
-    DriveCorrection driveCorrection;
-    Condition movementExit;
+    protected HeadingCorrection headingCorrection;
+    protected DriveCorrection driveCorrection;
+    protected Condition movementExit;
 
-    double maxPower = 1;
-    double maxVelocity = 100; // inch/second
-    double maxHeadingVelocity = 999; // degrees/second
-    double consideredStoppedVelocity = 1;
-    double timeoutSeconds = 5;
+    protected double maxPower = 1;
+    protected double maxVelocity = 100; // inch/second
+    protected double maxHeadingVelocity = 999; // degrees/second
+    protected double consideredStoppedVelocity = 1;
+    protected double timeoutSeconds = 5;
     private static LinearOpMode opMode;
 
     final ElapsedTime timer = new ElapsedTime();
 
-    boolean brakeAfter = true;
-    boolean continuePowerAfter = false;
+    protected boolean brakeAfter = true;
+    protected boolean continuePowerAfter = false;
 
-    public SubclassType copyProperties(SubclassType properties) {
-        properties.brakeAfter = brakeAfter;
-        properties.continuePowerAfter = continuePowerAfter;
-        return properties
-            .setConsideredStoppedVelocity(consideredStoppedVelocity)
-            .setMaxPower(maxPower)
-            .setMaxHeadingVelocity(maxHeadingVelocity)
-            .setTimeoutSeconds(timeoutSeconds)
-            .setMaxVelocity(maxVelocity)
-            .setDriveCorrection(driveCorrection)
-            .setMovementExit(movementExit)
-            .setHeadingCorrection(headingCorrection);
+    public SubclassType copyProperties(Follower<?> properties) {
+        SubclassType this_ = getThis();
+        this_.brakeAfter = properties.brakeAfter;
+        this_.continuePowerAfter = properties.continuePowerAfter;
+        return this_
+            .setConsideredStoppedVelocity(properties.consideredStoppedVelocity)
+            .setMaxPower(properties.maxPower)
+            .setMaxHeadingVelocity(properties.maxHeadingVelocity)
+            .setTimeoutSeconds(properties.timeoutSeconds)
+            .setMaxVelocity(properties.maxVelocity)
+            .setDriveCorrection(properties.driveCorrection)
+            .setMovementExit(properties.movementExit)
+            .setHeadingCorrection(properties.headingCorrection);
     }
-
-    /**
-     * Move the robot through a target point without stopping at it.
-     *
-     * <p>
-     * <h5>How does it work?</h5>
-     * <ul>
-     * <li>This method travels towards the point using a simple proportional control (error * constant).</li>
-     * <li>The robot predicts its position based on the braking distance
-     * for determining if it has passed the target. This allows it to quickly change
-     * direction without overshooting.</li>
-     * <li>To determine if it has passed the target, it constructs a plane
-     * perpendicular to the line connecting the previous target and the new target.</li>
-     * </ul>
-     *
-     * @return A {@code Movement} object configured to move through the target.
-     */
-    public SubclassType moveThrough() {
-        double targetYError = Target.previousY - Target.y;
-        double targetXError = Target.previousX - Target.x;
-        double xSign = Math.signum(targetXError);
-        double ySign = Math.signum(targetYError);
-        double slope = (Target.x == Target.previousX) ? 0 : targetYError / targetXError;
-
-        return getThis()
-            .setHeadingCorrection(HeadingCorrection.locked)
-            .setDriveCorrection(DriveCorrection.proportional)
-            .continuePowerAfter()
-            .setMovementExit(() -> {
-                double predictedXError = Target.xError - Odometry.xBrakingDistance;
-                double predictedYError = Target.yError - Odometry.yBrakingDistance;
-
-                if (Target.x == Target.previousX) {
-                    return ySign * predictedYError >= 0;
-                }
-
-                return -xSign * predictedXError <= slope * xSign * predictedYError;
-            });
-    }
-
-    /**
-     * Move the robot to target point and stop.
-     * <p>
-     * <h5>How does it work?</h5>
-     * <ul>
-     * <li>This method travels towards the point
-     * using a simple proportional control (error * constant).</li>
-     * <li>The robot predicts its position based on the braking distance,
-     * allowing the robot maintain full power for as long as possible,
-     * only braking at the optimal point. The braking distance also prevents overshooting.</li>
-     *
-     * @return A {@code Movement} object configured to stop at the target.
-     *
-     * @see Movement#stopAtPosition
-     */
-    public SubclassType stopAtPosition() {
-        return getThis()
-            .setMovementExit(() ->
-                Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin)
-                    && Odometry.velocity < consideredStoppedVelocity)
-            .setHeadingCorrection(HeadingCorrection.turnOverMovement)
-            .setDriveCorrection(DriveCorrection.stopAtTarget);
-    }
-
 
     private void moveTowardTarget() {
-        double velocityMult = (Odometry.velocity > maxVelocity)
-            ? (maxVelocity / Odometry.velocity) * 0.5 : 1;
-        double headingMult = (Odometry.headingVelocity > maxHeadingVelocity)
-            ? (maxHeadingVelocity / Odometry.headingVelocity) : 1;
+//        double velocityMult = (
+//            maxVelocity < 100
+//                && (Math.abs(Target.xError - Odometry.xBrakingDistance) > 1
+//                || Math.abs(Target.yError - Odometry.yBrakingDistance) > 1))
+//            ? (maxVelocity / Odometry.velocity) / 2 : 1;
+//        double headingMult = (Odometry.headingVelocity > maxHeadingVelocity)
+//            ? (maxHeadingVelocity / Odometry.headingVelocity) : 1;
+//
+//        Follower.telemetry.addData("velocityMult", velocityMult);
+//        Follower.telemetry.addData("maxVel", maxVelocity);
+//        Follower.telemetry.addData("velocity", Odometry.velocity);
+//        Follower.telemetry.update();
 
         Drive.power(Drive.combineMax(
-            Drive.multiply(driveCorrection.calculateDrivePowers(), velocityMult),
-            Drive.multiply(HeadingCorrection.getWheelPowers(headingCorrection), headingMult),
+            driveCorrection.calculateDrivePowers(),
+            HeadingCorrection.getWheelPowers(headingCorrection),
             maxPower
         ));
     }
@@ -141,18 +85,17 @@ public abstract class Follower<SubclassType extends Follower<SubclassType>> {
      *
      * @param extraCondition False will continue holding the position,
      *                       True will allow exit
-     * @param updateHardware A function that updates robot hardware. For example,
+     * @param loopMethod A function gets called every loop. This is useful for things like
      *                       when a linear slide reaches a certain height, a claw opens.
      * <p>
-     * If no updating hardware and no extraCondition is needed see {@link Movement#waitForMovement()}
+     * If no loop method and no extra condition is needed see {@link Movement#waitForMovement()}
      */
-    public void waitForMovement(Condition extraCondition, UpdateHardware updateHardware) {
-        timer.reset();
+    public void waitForMovement(Condition extraCondition, Runnable loopMethod) {
+        start();
 
-        Target.updatePosition();
         while (isNotCompleted() && extraCondition.condition()) {
             update();
-            updateHardware.update();
+            loopMethod.run();
         }
 
         if (brakeAfter) {
@@ -169,13 +112,13 @@ public abstract class Follower<SubclassType extends Follower<SubclassType>> {
     /**
      * Wait for the Movement to be completed with an extraCondition .
      *
-     * @param updateHardware A function that updates robot hardware. For example,
+     * @param loopMethod A function gets called every loop. This is useful for things like
      *                       when a linear slide reaches a certain height, a claw opens.
      * <p>
-     * If updating hardware is not needed see {@link Movement#waitForMovement()}
+     * If loop method is not needed see {@link Movement#waitForMovement()}
      */
-    public void waitForMovement(UpdateHardware updateHardware) {
-        waitForMovement(() -> true, updateHardware);
+    public void waitForMovement(Runnable loopMethod) {
+        waitForMovement(() -> true, loopMethod);
     }
 
     public boolean isNotCompleted() {
@@ -198,6 +141,10 @@ public abstract class Follower<SubclassType extends Follower<SubclassType>> {
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(opMode.telemetry, dashboard.getTelemetry());
+    }
+
+    public static void setUpdate() {
+
     }
 
     /**
@@ -319,6 +266,7 @@ public abstract class Follower<SubclassType extends Follower<SubclassType>> {
     }
 
     protected abstract SubclassType getThis();
+    public abstract SubclassType start();
 }
 
 

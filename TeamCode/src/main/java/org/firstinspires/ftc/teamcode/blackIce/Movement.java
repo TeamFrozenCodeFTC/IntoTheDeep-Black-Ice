@@ -1,6 +1,12 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
+import org.firstinspires.ftc.teamcode.odometry.Odometry;
+
 public class Movement extends Follower<Movement> {
+    private double x;
+    private double y;
+    private double heading;
+
     @Override
     protected Movement getThis() {
         return this;
@@ -60,11 +66,27 @@ public class Movement extends Follower<Movement> {
      * @see Movement#Movement(double, double)
      */
     public Movement(double x, double y, double heading) {
-        Target.setTarget(heading, x, y);
+        this.x = x;
+        this.y = y;
+        this.heading = heading;
 
         setMovementExit(() -> !Target.isNotWithinErrorMargin(Target.defaultErrorMargin));
+    }
 
+    private boolean started = false;
+
+    public Movement start() {
+        started = true;
+        Target.setTarget(this.heading, this.x, this.y);
         timer.reset();
+        return this;
+    }
+
+    @Override
+    public void update() {
+        assert started : "Movement has not started!";
+
+        super.update();
     }
 
     /**
@@ -98,6 +120,70 @@ public class Movement extends Follower<Movement> {
      * Creates an empty {@link Movement}.
      */
     protected Movement() {
+    }
+
+
+    /**
+     * Move the robot through a target point without stopping at it.
+     *
+     * <p>
+     * <h5>How does it work?</h5>
+     * <ul>
+     * <li>This method travels towards the point using a simple proportional control (error * constant).</li>
+     * <li>The robot predicts its position based on the braking distance
+     * for determining if it has passed the target. This allows it to quickly change
+     * direction without overshooting.</li>
+     * <li>To determine if it has passed the target, it constructs a plane
+     * perpendicular to the line connecting the previous target and the new target.</li>
+     * </ul>
+     *
+     * @return A {@code Movement} object configured to move through the target.
+     */
+    public Movement moveThrough() {
+        double targetYError = Target.previousY - Target.y;
+        double targetXError = Target.previousX - Target.x;
+        double xSign = Math.signum(targetXError);
+        double ySign = Math.signum(targetYError);
+        double slope = (Target.x == Target.previousX) ? 0 : targetYError / targetXError;
+
+        return getThis()
+            .setHeadingCorrection(HeadingCorrection.locked)
+            .setDriveCorrection(DriveCorrection.proportional)
+            .continuePowerAfter()
+            .setMovementExit(() -> {
+                double predictedXError = Target.xError - Odometry.xBrakingDistance;
+                double predictedYError = Target.yError - Odometry.yBrakingDistance;
+
+                if (Target.x == Target.previousX) {
+                    return ySign * predictedYError >= 0;
+                }
+
+                return -xSign * predictedXError <= slope * xSign * predictedYError;
+            });
+    }
+
+    /**
+     * Move the robot to target point and stop.
+     * <p>
+     * <h5>How does it work?</h5>
+     * <ul>
+     * <li>This method travels towards the point
+     * using a simple proportional control (error * constant).</li>
+     * <li>The robot predicts its position based on the braking distance,
+     * allowing the robot maintain full power for as long as possible,
+     * only braking at the optimal point. The braking distance also prevents overshooting.</li>
+     *
+     * @return A {@code Movement} object configured to stop at the target.
+     *
+     * @see Movement#stopAtPosition
+     */
+    public Movement stopAtPosition() {
+        return getThis()
+            .setMovementExit(() ->
+                Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin)
+                    && Odometry.velocity < consideredStoppedVelocity)
+            .setHeadingCorrection(HeadingCorrection.locked)
+            .setDriveCorrection(DriveCorrection.stopAtTarget);
     }
 
 

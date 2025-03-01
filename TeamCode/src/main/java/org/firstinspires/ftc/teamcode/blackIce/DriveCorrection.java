@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.blackIce;
 
 import static org.firstinspires.ftc.teamcode.blackIce.Drive.fieldVectorToLocalWheelPowers;
 
+import org.firstinspires.ftc.teamcode.blackIce.tuning.TuningConstants;
 import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
 public interface DriveCorrection {
@@ -13,7 +14,7 @@ public interface DriveCorrection {
 
         // test without this because of early exit
         if (Math.abs(x) < 1) {
-            x = Target.xError;
+            x = Target.xError; // * 3?
         }
         if (Math.abs(y) < 1) {
             y = Target.yError;
@@ -28,8 +29,8 @@ public interface DriveCorrection {
      */
     DriveCorrection stopAtTarget = () -> fieldVectorToLocalWheelPowers(
         new double[]{
-            (Target.xError - Odometry.xBrakingDistance),
-            (Target.yError - Odometry.yBrakingDistance)
+            (Target.xError - Odometry.xBrakingDistance) * TuningConstants.HOLDING_PROPORTIONAL_CONSTANT,
+            (Target.yError - Odometry.yBrakingDistance) * TuningConstants.HOLDING_PROPORTIONAL_CONSTANT
         }
     );
 
@@ -46,7 +47,7 @@ public interface DriveCorrection {
 
     DriveCorrection proportional = () -> fieldVectorToLocalWheelPowers(
         new double[]{
-            Target.xError * 1.5,
-            Target.yError * 1.5,
+            Target.xError * TuningConstants.PROPORTIONAL_CONSTANT,
+            Target.yError * TuningConstants.PROPORTIONAL_CONSTANT,
         });
 }

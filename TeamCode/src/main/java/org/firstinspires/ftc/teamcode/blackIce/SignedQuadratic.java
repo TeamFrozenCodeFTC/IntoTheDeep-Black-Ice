@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
-public class BrakingDisplacement {
+public class SignedQuadratic {
 // rename to signed quadratic
     double a;
     double b;
     double c;
 
-    public BrakingDisplacement(double a, double b, double c) {
+    public SignedQuadratic(double a, double b, double c) {
         this.a = a;
         this.b = b;
         this.c = c;
