@@ -9,6 +9,6 @@ public class TuningConstants {
     public static final SignedQuadratic LATERAL_BRAKING_DISPLACEMENT =
         new SignedQuadratic(0.00165, 0.05054, 0.01029);
 
-    public static final double PROPORTIONAL_CONSTANT = 1.5;
+    public static final double PROPORTIONAL_CONSTANT = 1.5; // should be 999 or set magnitude to 1
     public static final double HOLDING_PROPORTIONAL_CONSTANT = 1;
 }

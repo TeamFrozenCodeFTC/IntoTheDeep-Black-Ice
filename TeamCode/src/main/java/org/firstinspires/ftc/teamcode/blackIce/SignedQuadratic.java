@@ -1,7 +1,15 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
+/**
+ * A piecewise, signed quadratic that can output both positive and negative numbers.
+ * Similar to the graph of {@code x * |x|} or {@code x * abs(x)}.
+ * <p>
+ * Used to predict directional braking distance (aka braking distance can be negative).
+ * <pre>
+ * f(x) = a·x·abs(x) + b·x + c·sgn(x)
+ * </pre>
+ */
 public class SignedQuadratic {
-// rename to signed quadratic
     double a;
     double b;
     double c;
@@ -12,8 +20,13 @@ public class SignedQuadratic {
         this.c = c;
     }
 
+    /**
+     * Predicts directional braking distance (aka braking distance can be negative).
+     * <pre>
+     * f(x) = a·x·abs(x) + b·x + c·sgn(x)
+     * </pre>
+     */
     public double predict(double x) {
-        double sign = Math.signum(x);
-        return (sign * a * Math.pow(x, 2)) + (b * x) + (sign * c);
+        return (a * x * Math.abs(x)) + (b * x) + (Math.signum(x) * c);
     }
 }

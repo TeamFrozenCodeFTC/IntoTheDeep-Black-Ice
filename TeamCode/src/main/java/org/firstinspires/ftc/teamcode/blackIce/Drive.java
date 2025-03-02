@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.odometry.Odometry;
+import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 public final class Drive {
@@ -115,7 +113,7 @@ public final class Drive {
 //        }
     }
 
-    private static double[] normalize(double[] powers) {
+    static double[] normalize(double[] powers) {
         double maxPower = 1.0;
         for (double value : powers) {
             maxPower = Math.max(maxPower, Math.abs(value));

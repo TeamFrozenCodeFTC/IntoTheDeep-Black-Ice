@@ -1,5 +1,56 @@
 Black Ice is a **Reactive Path Follower** developed by __FTC Team #18535__, Frozen Code. It is designed to provide more simple, efficient, effective path following by **predicting real-time, directional braking distance**. Unlike traditional path-following libraries that gradually slow the robot down, Black Ice dynamically calculates the optimal braking distance based on the robot’s current speed. This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed. By predicting the robot's position in real time, the robot can also navigate curved paths with greater precision, minimizing overshooting.
 
+More Predictive than Reactive – Instead of reacting to sudden changes, this model anticipates braking needs.
+✅ Eliminates Overshoot – Prevents aggressive corrections that can cause oscillations.
+✅ Adapts to Different Speeds – Braking distance scales with velocity instead of using a fixed constant.
+
+🛠 Potential Enhancements
+Use a Logistic (Sigmoid) Braking Curve:
+Instead of a linear braking factor, use a smooth nonlinear transition:
+
+brakingFactor
+=
+1
+1
++
+𝑒
+−
+𝑘
+(
+positionError
+−
+𝑑
+stop
+)
+brakingFactor=
+1+e
+−k(positionError−d
+stop
+​
+)
+
+1
+​
+
+This avoids abrupt power drops near the target.
+
+Adaptive Regression Updates:
+Continuously log actual braking distances and adjust a, b, c dynamically.
+
+Velocity Error Integration:
+Add a velocity error term:
+
+𝑘
+𝐷
+×
+(
+targetVelocity
+−
+currentVelocity
+)
+kD×(targetVelocity−currentVelocity)
+for finer control.
+
 and high-speed
 
 Unique, key features:
@@ -50,6 +101,10 @@ new Movement(0, 24, 90)
 ### Bezier Curves
 
 ### Lines
+
+pedro path
+pure pursuit
+roadrunner
 
 current velocity divided by maxVelocity
 

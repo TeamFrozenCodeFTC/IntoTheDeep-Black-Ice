@@ -21,7 +21,7 @@
  *   SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode.odometry;
+package org.firstinspires.ftc.teamcode.blackIce.odometry;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 

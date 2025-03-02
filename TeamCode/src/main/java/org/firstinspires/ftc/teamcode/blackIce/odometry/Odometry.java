@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.odometry;
+package org.firstinspires.ftc.teamcode.blackIce.odometry;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -10,14 +10,18 @@ import org.firstinspires.ftc.teamcode.blackIce.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.Target;
 import org.firstinspires.ftc.teamcode.blackIce.tuning.TuningConstants;
 
+/**
+ * A global class that holds the odometry object and provides methods to update the odometry data.
+ *
+ *
+ */
 public final class Odometry {
     public static GoBildaPinpointDriver odometry;
 
-    // Private constructor to prevent instantiation
+    // Prevents instantiation
     private Odometry() {}
 
-    // TODO rename to initialize
-    public static void init(HardwareMap hardwareMap) {
+    public static void initialize(HardwareMap hardwareMap) {
         odometry = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
 
         odometry.setOffsets(-36, 0);
@@ -44,8 +48,6 @@ public final class Odometry {
     public static double xBrakingDistance;
     public static double yBrakingDistance;
 
-//    public static double brakingDistance;
-
     public static void update() {
         odometry.update();
 
@@ -60,24 +62,14 @@ public final class Odometry {
         velocity = Math.sqrt(Math.pow(Math.abs(xVelocity), 2) + Math.pow(Math.abs(yVelocity), 2));
         headingVelocity = velocities.getHeading(AngleUnit.DEGREES);
 
-//        xBrakingDistance = estimateXStoppingDistance();
-//        yBrakingDistance = estimateYStoppingDistance();
-//        brakingDistance = estimateStoppingDistance();
-
         double[] robotVelocity =
             Drive.fieldVectorToRobotVector(new double[]{xVelocity, yVelocity});
-        if (Math.abs(robotVelocity[0]) < 0.01) {
-            robotVelocity[0] = 0;
-        }
-        if (Math.abs(robotVelocity[1]) < 0.01) {
-            robotVelocity[1] = 0;
-        }
+        robotVelocity[0] = (Math.abs(robotVelocity[0]) < 0.01) ? 0 : robotVelocity[0];
+        robotVelocity[1] = (Math.abs(robotVelocity[1]) < 0.01) ? 0 : robotVelocity[1];
         double[] brakingDistances = Drive.robotVectorToFieldVector(new double[]{
             TuningConstants.FORWARD_BRAKING_DISPLACEMENT.predict(robotVelocity[0]),
             TuningConstants.LATERAL_BRAKING_DISPLACEMENT.predict(robotVelocity[1])
         });
-        //i am trying to run ftc speed tests but the results are varying from running 1000 loops an average of 5ms per loop to 7ms so I cant tell any changes that I make
-        // xBrakingDisplacement, yBrakingDisplacement
 
         xBrakingDistance = brakingDistances[0];
         yBrakingDistance = brakingDistances[1];

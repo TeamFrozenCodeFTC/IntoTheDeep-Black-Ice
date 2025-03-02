@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
-import org.firstinspires.ftc.teamcode.odometry.Odometry;
+import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 public final class Target {

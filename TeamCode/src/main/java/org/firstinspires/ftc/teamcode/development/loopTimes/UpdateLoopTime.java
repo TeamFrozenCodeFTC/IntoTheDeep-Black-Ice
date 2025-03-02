@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.autonomous.tests;
+package org.firstinspires.ftc.teamcode.development.loopTimes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.autonomous.tests.loopTimes.LoopTime;
-import org.firstinspires.ftc.teamcode.blackIce.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
-import org.firstinspires.ftc.teamcode.odometry.Odometry;
+import org.firstinspires.ftc.teamcode.blackIce.MovementBuilder;
+import org.firstinspires.ftc.teamcode.blackIce.Point;
+import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
 public class UpdateLoopTime extends LinearOpMode {
@@ -18,10 +18,8 @@ public class UpdateLoopTime extends LinearOpMode {
 
         Odometry.setPosition(90, 0, 0);
 
-        Movement m = new Movement(0, 0, 90)
-            .stopAtPosition();
-
-        m.start();
+        Movement m = new Point(0, 0, 90)
+            .stopAtPosition().build().start();
 
         LoopTime.getLoopTime(m::update);
     }

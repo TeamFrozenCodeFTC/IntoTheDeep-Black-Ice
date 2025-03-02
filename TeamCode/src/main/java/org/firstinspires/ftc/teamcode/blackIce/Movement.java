@@ -1,278 +1,144 @@
 package org.firstinspires.ftc.teamcode.blackIce;
+//
+//public abstract class Movement {
+//    /**
+//     * Wait for the Movement to be completed.
+//     */
+//    public void waitForMovement() {
+//        waitForMovement(() -> true, () -> {});
+//    }
+//
+//    /**
+//     * Wait for the Movement to be completed.
+//     *
+//     * @param extraCondition False will continue holding the position,
+//     *                       true will allow exit
+//     * <p>
+//     * If no extra condition is needed see {@link Point#waitForMovement()}
+//     */
+//    public void waitForMovement(Condition extraCondition) {
+//        waitForMovement(extraCondition, () -> {});
+//    }
+//
+//    /**
+//     * Wait for the Movement to be completed with an extraCondition .
+//     *
+//     * @param extraCondition False will continue holding the position,
+//     *                       True will allow exit
+//     * @param loopMethod A function gets called every loop. This is useful for things like
+//     *                       when a linear slide reaches a certain height, a claw opens.
+//     * <p>
+//     * If no loop method and no extra condition is needed see {@link Point#waitForMovement()}
+//     */
+//    public void waitForMovement(Condition extraCondition, Runnable loopMethod) {
+//        start();
+//
+//        while (!isFinished() && extraCondition.condition()) {
+//            update();
+//            loopMethod.run();
+//        }
+//
+//        finish();
+//    }
+//
+//    /**
+//     * Wait for the Movement to be completed with an extraCondition .
+//     *
+//     * @param loopMethod A function gets called every loop. This is useful for things like
+//     *                       when a linear slide reaches a certain height, a claw opens.
+//     * <p>
+//     * If loop method is not needed see {@link Point#waitForMovement()}
+//     */
+//    public void waitForMovement(Runnable loopMethod) {
+//        waitForMovement(() -> true, loopMethod);
+//    }
+//
+//    public abstract boolean isFinished();
+//    public abstract Movement start();
+//    public abstract void finish();
+//    public abstract void update();
+//}
 
-import org.firstinspires.ftc.teamcode.odometry.Odometry;
 
-public class Movement extends Follower<Movement> {
-    private double x;
-    private double y;
-    private double heading;
+public class Movement {
+    Condition isFinished;
+    Runnable start;
+    Runnable finish;
+    Runnable update;
 
-    @Override
-    protected Movement getThis() {
-        return this;
+    public Movement(Condition isFinished, Runnable start, Runnable finish, Runnable update) {
+        this.isFinished = isFinished;
+        this.start = start;
+        this.finish = finish;
+        this.update = update;
     }
 
     /**
-     * Move the robot through a target point without stopping.
+     * Wait for the Movement to be completed.
+     */
+    public void waitForMovement() {
+        waitForMovement(() -> true, () -> {});
+    }
+
+    /**
+     * Wait for the Movement to be completed.
+     *
+     * @param extraCondition False will continue holding the position,
+     *                       true will allow exit
      * <p>
-     * To add more customization, use the instance method: {@link Movement#moveThrough()}
+     * If no extra condition is needed see {@link Point#waitForMovement()}
      */
-    public static void moveThrough(double x, double y, double heading) {
-        new Movement(x, y, heading).moveThrough().waitForMovement();
+    public void waitForMovement(Condition extraCondition) {
+        waitForMovement(extraCondition, () -> {});
     }
 
     /**
-     * Move the robot through a target point without stopping (keeps the previous heading)
+     * Wait for the Movement to be completed with an extraCondition .
      *
-     * @see #moveThrough(double, double, double)
-     */
-    public static void moveThrough(double x, double y) {
-        moveThrough(x, y, Target.previousHeading);
-    }
-
-    /**
-     * Move the robot to target point and stops.
+     * @param extraCondition False will continue holding the position,
+     *                       True will allow exit
+     * @param loopMethod A function gets called every loop. This is useful for things like
+     *                       when a linear slide reaches a certain height, a claw opens.
      * <p>
-     * To add more customization, use the instance method: {@link Movement#stopAtPosition()}
+     * If no loop method and no extra condition is needed see {@link Point#waitForMovement()}
      */
-    public static void stopAtPosition(double x, double y, double heading) {
-        new Movement(x, y, heading).stopAtPosition().waitForMovement();
+    public void waitForMovement(Condition extraCondition, Runnable loopMethod) {
+        start();
+
+        while (!isFinished() && extraCondition.condition()) {
+            update();
+            loopMethod.run();
+        }
+
+        finish();
     }
 
     /**
-     * Move the robot to target point and stops (keeps the previous heading).
+     * Wait for the Movement to be completed with an extraCondition .
      *
-     * @see #stopAtPosition(double, double, double)
+     * @param loopMethod A function gets called every loop. This is useful for things like
+     *                       when a linear slide reaches a certain height, a claw opens.
+     * <p>
+     * If loop method is not needed see {@link Point#waitForMovement()}
      */
-    public static void stopAtPosition(double x, double y) {
-        stopAtPosition(x, y, Target.previousHeading);
+    public void waitForMovement(Runnable loopMethod) {
+        waitForMovement(() -> true, loopMethod);
     }
 
-    /**
-     * Create a new movement. Can be build upon to add more functionality and customization.
-     * Don't forget to call {@code .run()} after you construct your movements.
-     * <h6>Usage</h6>
-     * <pre><code>
-     * new Movement(x, y, heading)
-     *     .stopAtPosition() // Starts with stopAtPosition
-     *     .setMaxVelocity(40) // Sets the maximum velocity to 40 inches/second
-     *     // Makes the robot turn instantly instead of over the whole movement
-     *     .setHeadingCorrection(movement.headingCorrections.locked)
-     *     // Makes the robot hold its position until the vertical slide is raised
-     *     .setMovementExit(() -> slide.isRaised())
-     *     .run();
-     * </code></pre>
-     *
-     * @see Movement#Movement(double, double)
-     */
-    public Movement(double x, double y, double heading) {
-        this.x = x;
-        this.y = y;
-        this.heading = heading;
-
-        setMovementExit(() -> !Target.isNotWithinErrorMargin(Target.defaultErrorMargin));
+    public boolean isFinished() {
+        return isFinished.condition();
     }
-
-    private boolean started = false;
 
     public Movement start() {
-        started = true;
-        Target.setTarget(this.heading, this.x, this.y);
-        timer.reset();
+        start.run();
         return this;
     }
 
-    @Override
+    public void finish() {
+        finish.run();
+    }
+
     public void update() {
-        assert started : "Movement has not started!";
-
-        super.update();
+        update.run();
     }
-
-    /**
-     * Create a new movement (uses previous heading).
-     * Can be build upon to add more functionality and customization.
-     * Don't forget to call {@code .run()} after you construct your movements.
-     *
-     * @see Movement#Movement(double, double, double)
-     */
-    public Movement(double x, double y) {
-        this(x, y, Target.previousHeading);
-    }
-
-//    private PathFollower pathFollower;
-
-//    /**
-//     * Create a new path movement.
-//     * Can be build upon to add more functionality and customization.
-//     * Don't forget to call {@code .run()} after you construct your movements.
-//     *
-//     * @see Movement#Movement(double, double, double)
-//     */
-//    public Movement(Path path) {
-//        PathFollower pathFollower = new PathFollower(path);
-//        this.path = path;
-//    }
-
-    /**
-     * <h5>To fix underline, add arguments</h5>
-     * <p>
-     * Creates an empty {@link Movement}.
-     */
-    protected Movement() {
-    }
-
-
-    /**
-     * Move the robot through a target point without stopping at it.
-     *
-     * <p>
-     * <h5>How does it work?</h5>
-     * <ul>
-     * <li>This method travels towards the point using a simple proportional control (error * constant).</li>
-     * <li>The robot predicts its position based on the braking distance
-     * for determining if it has passed the target. This allows it to quickly change
-     * direction without overshooting.</li>
-     * <li>To determine if it has passed the target, it constructs a plane
-     * perpendicular to the line connecting the previous target and the new target.</li>
-     * </ul>
-     *
-     * @return A {@code Movement} object configured to move through the target.
-     */
-    public Movement moveThrough() {
-        double targetYError = Target.previousY - Target.y;
-        double targetXError = Target.previousX - Target.x;
-        double xSign = Math.signum(targetXError);
-        double ySign = Math.signum(targetYError);
-        double slope = (Target.x == Target.previousX) ? 0 : targetYError / targetXError;
-
-        return getThis()
-            .setHeadingCorrection(HeadingCorrection.locked)
-            .setDriveCorrection(DriveCorrection.proportional)
-            .continuePowerAfter()
-            .setMovementExit(() -> {
-                double predictedXError = Target.xError - Odometry.xBrakingDistance;
-                double predictedYError = Target.yError - Odometry.yBrakingDistance;
-
-                if (Target.x == Target.previousX) {
-                    return ySign * predictedYError >= 0;
-                }
-
-                return -xSign * predictedXError <= slope * xSign * predictedYError;
-            });
-    }
-
-    /**
-     * Move the robot to target point and stop.
-     * <p>
-     * <h5>How does it work?</h5>
-     * <ul>
-     * <li>This method travels towards the point
-     * using a simple proportional control (error * constant).</li>
-     * <li>The robot predicts its position based on the braking distance,
-     * allowing the robot maintain full power for as long as possible,
-     * only braking at the optimal point. The braking distance also prevents overshooting.</li>
-     *
-     * @return A {@code Movement} object configured to stop at the target.
-     *
-     * @see Movement#stopAtPosition
-     */
-    public Movement stopAtPosition() {
-        return getThis()
-            .setMovementExit(() ->
-                Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin)
-                    && Odometry.velocity < consideredStoppedVelocity)
-            .setHeadingCorrection(HeadingCorrection.locked)
-            .setDriveCorrection(DriveCorrection.stopAtTarget);
-    }
-
-
-
-//    private void moveTowardTarget() {
-//        double velocityMult = (Odometry.velocity > maxVelocity)
-//            ? (maxVelocity / Odometry.velocity) * 0.5 : 1;
-//        double headingMult = (Odometry.headingVelocity > maxHeadingVelocity)
-//            ? (maxHeadingVelocity / Odometry.headingVelocity) : 1;
-//
-//        Drive.power(Drive.combineMax(
-//            Drive.multiply(driveCorrection.calculateDrivePowers(), velocityMult),
-//            Drive.multiply(HeadingCorrection.getWheelPowers(headingCorrection), headingMult),
-//            maxPower
-//        ));
-//    }
-
-
-//    @NonNull
-//    @Override
-//    public Movement clone() {
-//        try {
-//            return (Movement) super.clone();
-//        } catch (CloneNotSupportedException e) {
-//            throw new AssertionError(); // This should never happen since we implement Cloneable
-//        }
-//    }
-
 }
-//import com.qualcomm.robotcore.hardware.VoltageSensor;
-//        private VoltageSensor myControlHubVoltageSensor;
-//        myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
-// presentVoltage = myControlHubVoltageSensor.getVoltage();
-
-// TODO test clamp and turnToFaceTarget in order to turn and move faster vvv
-//    public void moveTowardTarget() {
-//        double[] headingPowers = driveCorrection.calculateDrivePowers();
-//        double[] drivePowers = HeadingCorrections.getWheelPowers(headingCorrection);
-//        Drive.power(
-//            Util.normalize(new double[]{ // make this a function in robot.drive TODO
-//                Util.clampPower(headingPowers[0] + drivePowers[0]),
-//                Util.clampPower(headingPowers[1] + drivePowers[1]),
-//                Util.clampPower(headingPowers[2] + drivePowers[2]),
-//                Util.clampPower(headingPowers[3] + drivePowers[3])
-//            })
-//        );
-//    }
-// moves faster but not necessarily on the path/accurately
-
-//    public Movement moveThrough() {
-//        return this
-//            .setHeadingCorrection(HeadingCorrections.turnOverMovement)
-//            .setDriveCorrection(DriveCorrections.proportional)
-//            .setMovementExit(() -> {
-//                boolean pastY;
-//                boolean pastX;
-//
-//                if (Target.previousY < Target.y) {
-//                    pastY = Odometry.y > Target.y - Odometry.yBrakingDistance;
-//                }
-//                else if (Target.previousY == Target.y) {
-//                    pastY = true;
-//                }
-//                else {
-//                    pastY = Odometry.y < Target.y - Odometry.yBrakingDistance;
-//                }
-//
-//                if (Target.previousX < Target.x) {
-//                    pastX = Odometry.x > Target.x - Odometry.xBrakingDistance;
-//                }
-//                else if (Target.previousX == Target.x) {
-//                    pastX = true;
-//                }
-//                else {
-//                    pastX = Odometry.x < Target.x - Odometry.xBrakingDistance;
-//                }
-//                return pastY && pastX;
-//
-//                // have parallel to previous point
-//            });
-//    }
-
-//public Movement moveTo(double brakePercent) {
-//    return this
-//        .setHeadingCorrection(HeadingCorrections.turnOverMovement)
-//        .setDriveCorrection(() -> new double[]{
-//            Target.xError - Odometry.xBrakingDistance * brakePercent,
-//            Target.yError - Odometry.yBrakingDistance * brakePercent,
-//        })
-//        .setMovementExit(() ->
-//            Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin));
-//}

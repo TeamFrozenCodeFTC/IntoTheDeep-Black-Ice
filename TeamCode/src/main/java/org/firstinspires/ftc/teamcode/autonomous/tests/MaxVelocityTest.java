@@ -1,15 +1,11 @@
 package org.firstinspires.ftc.teamcode.autonomous.tests;
 
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EDGE_OF_TILE;
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EXTRA_TURN_RADIUS;
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF_OF_ROBOT;
-import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.blackIce.Follower;
-import org.firstinspires.ftc.teamcode.blackIce.Movement;
-import org.firstinspires.ftc.teamcode.odometry.Odometry;
+import org.firstinspires.ftc.teamcode.blackIce.MovementBuilder;
+import org.firstinspires.ftc.teamcode.blackIce.Point;
+import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
 public class MaxVelocityTest extends LinearOpMode {
@@ -21,8 +17,9 @@ public class MaxVelocityTest extends LinearOpMode {
 
         Odometry.setPosition(0, 0, 0);
 
-        new Movement(48, 0, 0)
+        new Point(48, 0, 0)
             .stopAtPosition()
             .setMaxVelocity(30)
+            .build()
             .waitForMovement();
 }}

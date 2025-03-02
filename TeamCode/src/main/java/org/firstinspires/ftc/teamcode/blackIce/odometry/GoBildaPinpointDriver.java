@@ -20,7 +20,7 @@
  *   SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode.odometry;
+package org.firstinspires.ftc.teamcode.blackIce.odometry;
 
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 
