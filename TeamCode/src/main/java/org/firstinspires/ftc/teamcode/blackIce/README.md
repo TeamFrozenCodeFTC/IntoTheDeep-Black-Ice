@@ -5,13 +5,19 @@ Black Ice dynamically calculates the optimal braking distance based on the robot
 This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed.
 By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it happens.
 
+Designed for simple, efficient, effective and high-speed path following with minimum tuning
+(but also supports velocity and acceleration constraints with more tuning).
+When wanting full speed, Black Ice dynamically predicts the optimal braking distance based on the robot's current speed.
+This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed. By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it even happens.
+
+
 turning uses a simple Proportional controller, (can PIDF work for heading too?)
 +support for velocity and acceleration constraints using PIDF controller doesn't have to use full power
 Predictive braking feedforward
 
-More Predictive than Reactive – Instead of reacting to sudden changes, this model anticipates braking needs.
-✅ Eliminates Overshoot – Prevents aggressive corrections that can cause oscillations.
-✅ Adapts to Different Speeds – Braking distance scales with velocity instead of using a fixed constant.
+More Predictive than Reactive – Instead of reacting to sudden changes, Black Ice anticipates braking needs.
+- ✅ Eliminates Overshoot – Prevents aggressive corrections that can cause oscillations.
+- ✅ Adapts to Different Speeds – Braking distance scales with velocity instead of using a fixed constant.
 
 🛠 Potential Enhancements
 Use a Logistic (Sigmoid) Braking Curve:
