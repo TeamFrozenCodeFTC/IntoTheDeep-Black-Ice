@@ -6,7 +6,7 @@ This allows the robot to maintain full power for as long as possible, only begin
 By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it happens.
 
 turning uses a simple Proportional controller, (can PIDF work for heading too?)
-+support for velocity and acceleration constraints using PIDF controller
++support for velocity and acceleration constraints using PIDF controller doesn't have to use full power
 Predictive braking feedforward
 
 More Predictive than Reactive – Instead of reacting to sudden changes, this model anticipates braking needs.
@@ -111,9 +111,9 @@ new Movement(0, 24, 90)
 
 ### Lines
 
-pedro path
-pure pursuit
-roadrunner
+pedro path - requires lots of tuning
+pure pursuit - always goes at full power - no velocity constraints
+roadrunner - doesn't react real-time until near target
 
 current velocity divided by maxVelocity
 
