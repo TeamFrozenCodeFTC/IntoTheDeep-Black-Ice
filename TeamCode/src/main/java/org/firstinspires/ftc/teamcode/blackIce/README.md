@@ -158,6 +158,7 @@ When velocity and acceleration constraints are needed it switches to a PIDF cont
 `kP * velocityError + kD * acceleration + feedforward`
 `feedforward = kStatic + kP * targetVelocity` (incorportate voltage?)
 Create a motion profile based of acceleration and deacceration
+`p = kP * (error - braking) * 1 + kDervivative?`
 
 The braking distance is calculated in real time and the numbers can be negative. The robot will travel at maximum speed until the braking term overpowers the error. This will make the robot stop
 
