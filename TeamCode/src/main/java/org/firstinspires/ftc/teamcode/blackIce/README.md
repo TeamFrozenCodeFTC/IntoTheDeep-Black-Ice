@@ -1,5 +1,12 @@
-Black Ice is a **Reactive Path Follower** developed by __FTC Team #18535__, Frozen Code. It is designed to provide more simple, efficient, effective path following by **predicting real-time, directional braking distance**. Unlike traditional path-following libraries that gradually slow the robot down, Black Ice dynamically calculates the optimal braking distance based on the robot’s current speed. This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed. By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it happens.
+Black Ice is a **Reactive Path Follower** developed by __FTC Team #18535__, Frozen Code.
+It is designed to provide more simple, efficient, effective path following by **predicting real-time, directional braking distance**.
+Unlike traditional path-following libraries that gradually slow the robot down,
+Black Ice dynamically calculates the optimal braking distance based on the robot’s current speed.
+This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed.
+By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it happens.
 
+turning uses a simple Proportional controller, (can PIDF work for heading too?)
++support for velocity and acceleration constraints using PIDF controller
 Predictive braking feedforward
 
 More Predictive than Reactive – Instead of reacting to sudden changes, this model anticipates braking needs.
@@ -63,7 +70,7 @@ Unique, key features:
 Black Ice is tailored for teams with odometry wheels looking for simple, high-speed path execution with the option of modular customization.
 
 # Usage
-### Requirements: Odometry Wheels / Pinpoint Odometry Processor
+### Requirements: Odometry Wheels / Pinpoint Odometry Processor with omni-directional wheels (meacum wheels)
 Black Ice intentionally uses the the slippage of the wheels in order to stop faster. This requires separate dead wheels in order to not get off.
 
 ## Initializing at start of OpMode
