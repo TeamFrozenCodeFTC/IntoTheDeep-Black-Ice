@@ -146,8 +146,7 @@ f(x) = \ a \cdot x \cdot \text{abs}(x) + b \cdot x + c \cdot \text{sgn}(x) \
 $$
 ```java
 public double predict(double x) {
-    double sign = Math.signum(x);
-    return (sign * a * Math.pow(x, 2)) + (b * x) + (sign * c);
+    return (a * x * Math.abs(x)) + (b * x) + (c * Math.signum(x));
 }
 ```
 
