@@ -144,6 +144,7 @@ We use the constants it gives and plug it into a signed-quadratic function (whic
 $$
 f(x) = \ a \cdot x \cdot \text{abs}(x) + b \cdot x + c \cdot \text{sgn}(x) \
 $$
+
 ```java
 public double predict(double x) {
     return (a * x * Math.abs(x)) + (b * x) + (c * Math.signum(x));
@@ -153,12 +154,18 @@ public double predict(double x) {
 ## Stopping at a Position
 `(error - predictedBrakingDistance) * constant`
 `targetPosition - (currentPosition + predictedBrakingDisplacement)`
+When velocity and acceleration constraints are needed it switches to a PIDF controller. 
+`kP * velocityError + kD * acceleration + feedforward`
+`feedforward = kStatic + kP * targetVelocity` (incorportate voltage?)
+Create a motion profile based of acceleration and deacceration
+
 The braking distance is calculated in real time and the numbers can be negative. The robot will travel at maximum speed until the braking term overpowers the error. This will make the robot stop
+
+For moveThrough position set the magnitude to 1 (same thing as we are doing up allow upscaling)
 
 ## Following Paths
 Black Ice traces out points on a Bezier Curve for the robot to follow. This forces the robot to follow the exact path.
 The robot drives at full power towards these points. It knows whether it is past a point if the robot's predicted position is past the plane perpendicular to the line between the two points. 
-
 
 
 By having the robot follow points, this forces the robot to follow the path. Using dervivates like pedro paths adds complexity and adds transitional correction.
