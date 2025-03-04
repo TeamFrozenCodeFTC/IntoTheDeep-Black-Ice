@@ -4,8 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.blackIce.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.Movement;
-import org.firstinspires.ftc.teamcode.blackIce.MovementBuilder;
-import org.firstinspires.ftc.teamcode.blackIce.Point;
+import org.firstinspires.ftc.teamcode.blackIce.MovementBuild;
 import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
@@ -18,7 +17,7 @@ public class StopAtPositionTest extends LinearOpMode {
 
         Odometry.setPosition(90, 0, 0);
 
-        Movement m = new Point(0, 24, 90)
+        Movement m = new MovementBuild(0, 24, 90)
             .stopAtPosition().build();
 
         m.start();

@@ -1,193 +1,109 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
-import androidx.annotation.NonNull;
+import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-
-public abstract class MovementBuilder
-    <SubclassType extends MovementBuilder<SubclassType>>
-    implements Cloneable
-{
-    protected HeadingCorrection headingCorrection;
-    protected DriveCorrection driveCorrection;
-    protected Condition movementExit;
-
-    protected double maxPower = 1;
-    protected double maxVelocity = 100; // inch/second
-    protected double maxHeadingVelocity = 999; // degrees/second
-    protected double consideredStoppedVelocity = 1;
-    protected double timeoutSeconds = 5;
-
-    protected boolean brakeAfter = true;
-    protected boolean continuePowerAfter = false;
-
-    public SubclassType copyProperties(MovementBuilder<?> properties) {
-        SubclassType this_ = getThis();
-        this_.brakeAfter = properties.brakeAfter;
-        this_.continuePowerAfter = properties.continuePowerAfter;
-        return this_
-            .setConsideredStoppedVelocity(properties.consideredStoppedVelocity)
-            .setMaxPower(properties.maxPower)
-            .setMaxHeadingVelocity(properties.maxHeadingVelocity)
-            .setTimeoutSeconds(properties.timeoutSeconds)
-            .setMaxVelocity(properties.maxVelocity)
-            .setDriveCorrection(properties.driveCorrection)
-            .setMovementExit(properties.movementExit)
-            .setHeadingCorrection(properties.headingCorrection);
-    }
-
+public class MovementBuilder {
     /**
-     * Turns on zero power brake mode after reaching the target.
-     */
-    public SubclassType brakeAfter() {
-        brakeAfter = true;
-        continuePowerAfter = false;
-        return getThis();
-    }
-
-    /**
-     * Set the kind of {@link Condition#condition()}
-     * that is responsible for telling the movement when its reached its goal.
+     * Move the robot through a target point without stopping at it.
      *
-     * @param newMovementExit {@code .setMovementExit(() -> {return ...})}
-     * (has to return a boolean)
-     *
-     * <h6>Examples</h6>
-     * Continues to hold the position until it is within the error margin and the slide is raised:
-     * <pre><code>
-     * .setMovementExit(() -> Target.isWithinBrakingErrorMargin() && slide.isRaised)}
-     * </code></pre>
-     */
-    public SubclassType setMovementExit(Condition newMovementExit) {
-        movementExit = newMovementExit;
-        return getThis();
-    }
-
-    /**
-     * Set the kind of {@link HeadingCorrection} that is responsible for turning the robot.
-     * <h6>Usage</h6>
-     * {@code .setHeadingCorrection(HeadingCorrection.x)}
-     * where x is the type of heading correction.
      * <p>
-     */
-    public SubclassType setHeadingCorrection(HeadingCorrection newHeadingCorrection) {
-        headingCorrection = newHeadingCorrection;
-        return getThis();
-    }
-
-    /**
-     * Set the kind of {@link DriveCorrection}
-     * that is responsible for moving the robot toward the target.
-     * <h6>Usage</h6>
-     * {@code .setDriveCorrection(DriveCorrection.x)}
-     * where x is the type of drive correction.
-     * <p>
-     */
-    public SubclassType setDriveCorrection(DriveCorrection newDriveCorrection) {
-        driveCorrection = newDriveCorrection;
-        return getThis();
-    }
-
-    /**
-     * Set the maximum power the robot can move at.
+     * <h5>How does it work?</h5>
+     * <ul>
+     * <li>This method travels towards the point using a simple proportional control (error * constant).</li>
+     * <li>The robot predicts its position based on the braking distance
+     * for determining if it has passed the target. This allows it to quickly change
+     * direction without overshooting.</li>
+     * <li>To determine if it has passed the target, it constructs a plane
+     * perpendicular to the line connecting the previous target and the new target.</li>
+     * </ul>
      *
-     * @param newMaxPower A number 0 to 1. {@code 0.5} -> 50% power
+     * @return A {@code Movement} object configured to move through the target.
      */
-    public SubclassType setMaxPower(double newMaxPower) {
-        maxPower = newMaxPower;
-        return getThis();
-    }
+    public static MovementBuild moveThrough(double x, double y, double heading) {
+        return new MovementBuild(x, y, heading) {
+            @Override
+            protected MovementBuild getThis() {
+                return this;
+            }
 
-    /**
-     * Turns on zero power float mode after reaching the target.
-     * This makes the robot glide with its momentum.
-     */
-    public SubclassType floatAfter() {
-        brakeAfter = false;
-        continuePowerAfter = false;
-        return getThis();
-    }
+            private double xSign;
+            private double ySign;
+            private double slope;
 
-    /**
-     * Make the robot continue the supplied power to the wheels after reaching the target.
-     */
-    public SubclassType continuePowerAfter() {
-        brakeAfter = false;
-        continuePowerAfter = true;
-        return getThis();
-    }
+            protected void start() {
+                double targetYError = Target.previousY - Target.y;
+                double targetXError = Target.previousX - Target.x;
+                xSign = Math.signum(targetXError);
+                ySign = Math.signum(targetYError);
+                slope = (Target.x == Target.previousX) ? 0 : targetYError / targetXError;
 
-    /**
-     * Set the Movement's timeout in seconds. Default is 5 seconds.
-     */
-    public SubclassType setTimeoutSeconds(double newTimeoutSeconds) {
-        timeoutSeconds = newTimeoutSeconds;
-        return getThis();
-    }
+                super.start();
+            }
 
-    /**
-     * Set the maximum velocity that the robot considers at rest.
-     * Useful for different accuracies of {@link Point#stopAtPosition}.
-     */
-    public SubclassType setConsideredStoppedVelocity(double newConsideredStoppedVelocity) {
-        consideredStoppedVelocity = newConsideredStoppedVelocity;
-        return getThis();
-    }
+            @Override
+            boolean isAtGoal() {
+                double predictedXError = Target.xError - Odometry.xBrakingDistance;
+                double predictedYError = Target.yError - Odometry.yBrakingDistance;
 
-    /**
-     * Set a maximum velocity the robot can travel (is not perfectly accurate).
-     *
-     * @param newMaxVelocity inches/second (312 rpm goes 40-60 inches/second)
-     */
-    public SubclassType setMaxVelocity(double newMaxVelocity) {
-        maxVelocity = newMaxVelocity;
-        return getThis();
-    }
+                if (Target.x == Target.previousX) {
+                    return ySign * predictedYError >= 0;
+                }
 
-    /**
-     * Set a maximum velocity the robot can turn (is not perfectly accurate).
-     *
-     * @param newMaxHeadingVelocity degrees/second
-     */
-    public SubclassType setMaxHeadingVelocity(double newMaxHeadingVelocity) {
-        maxHeadingVelocity = newMaxHeadingVelocity;
-        return getThis();
-    }
-
-    protected abstract SubclassType getThis();
-
-    @NonNull
-    @Override
-    public SubclassType clone() {
-        try {
-            @SuppressWarnings("unchecked")
-            SubclassType cloned = (SubclassType) super.clone(); // Create shallow copy
-
-            return cloned;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError(); // This should never happen since we implement Cloneable//            throw new AssertionError(); // This should never happen since we implement Cloneable
+                return -xSign * predictedXError <= slope * xSign * predictedYError;
+            }
         }
+            .setHeadingCorrection(HeadingCorrection.locked)
+            .setDriveCorrection(DriveCorrection.proportional)
+            .continuePowerAfter();
+    }
+
+    /**
+     * Move the robot to target point and stop.
+     * <p>
+     * <h5>How does it work?</h5>
+     * <ul>
+     * <li>This method travels towards the point
+     * using a simple proportional control (error * constant).</li>
+     * <li>The robot predicts its position based on the braking distance,
+     * allowing the robot maintain full power for as long as possible,
+     * only braking at the optimal point. The braking distance also prevents overshooting.</li>
+     *
+     * @return A {@code Movement} object configured to stop at the target.
+     *
+     * @see MovementBuild#stopAtPosition
+     */
+    public static MovementBuild stopAtPosition(double x, double y, double heading) {
+        return new MovementBuild(x, y, heading) {
+            @Override
+            protected MovementBuild getThis() {
+                return this;
+            }
+
+            private double consideredStoppedVelocity = 1;
+
+            /**
+             * Set the maximum velocity that the robot considers at rest.
+             *
+             * @param newConsideredStoppedVelocity (inches/second).
+             * A lower value will make the robot take more time to stop more accurately.
+             * A higher value will make the robot slow down less and carry more of its momentum.
+             * Should be not less than 0.01 inches/second.
+             * <p>
+             * If you don't want the robot to slow down use {@link MoveThrough}
+             */
+            public MovementBuild setConsideredStoppedVelocity(double newConsideredStoppedVelocity) {
+                consideredStoppedVelocity = newConsideredStoppedVelocity;
+                return getThis();
+            }
+
+            @Override
+            boolean isAtGoal() {
+                return Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin)
+                    && Odometry.velocity < consideredStoppedVelocity;
+            }
+        }
+            .setHeadingCorrection(HeadingCorrection.locked)
+            .setDriveCorrection(DriveCorrection.stopAtTarget);
     }
 }
 
-
-//import com.qualcomm.robotcore.hardware.VoltageSensor;
-//        private VoltageSensor myControlHubVoltageSensor;
-//        myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
-// presentVoltage = myControlHubVoltageSensor.getVoltage();
-
-// TODO test clamp and turnToFaceTarget in order to turn and move faster vvv
-//    public void moveTowardTarget() {
-//        double[] headingPowers = driveCorrection.calculateDrivePowers();
-//        double[] drivePowers = HeadingCorrections.getWheelPowers(headingCorrection);
-//        Drive.power(
-//            Util.normalize(new double[]{ // make this a function in robot.drive TODO
-//                Util.clampPower(headingPowers[0] + drivePowers[0]),
-//                Util.clampPower(headingPowers[1] + drivePowers[1]),
-//                Util.clampPower(headingPowers[2] + drivePowers[2]),
-//                Util.clampPower(headingPowers[3] + drivePowers[3])
-//            })
-//        );
-//    }
-// moves faster but not necessarily on the path/accurately

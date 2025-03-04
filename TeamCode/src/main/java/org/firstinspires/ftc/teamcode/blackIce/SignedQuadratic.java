@@ -27,6 +27,6 @@ public class SignedQuadratic {
      * </pre>
      */
     public double predict(double x) {
-        return (a * x * Math.abs(x)) + (b * x) + (Math.signum(x) * c);
+        return (a * x * Math.abs(x)) + (b * x) + (Math.signum(x) * c); // c term?
     }
 }

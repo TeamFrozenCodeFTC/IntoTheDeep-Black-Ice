@@ -28,8 +28,18 @@ public final class Target {
         heading = targetHeading;
         x = targetX;
         y = targetY;
+//
+//        totalDistanceToTarget = Util.getVectorMagnitude(previousX - x, previousY - y);
 
-        totalDistanceToTarget = Util.getVectorMagnitude(previousX - x, previousY - y);
+        updatePosition();
+    }
+
+    public static void setTarget(double targetX, double targetY) {
+        previousX = x;
+        previousY = y;
+
+        x = targetX;
+        y = targetY;
 
         updatePosition();
     }
@@ -39,7 +49,6 @@ public final class Target {
         headingError = Util.simplifyAngle(heading - Odometry.heading);
         xError = x - Odometry.x;
         yError = y - Odometry.y;
-        //distanceToTarget = 100;
     }
 
     public static boolean isNotWithinErrorMargin(ErrorMargin errorMargin) {

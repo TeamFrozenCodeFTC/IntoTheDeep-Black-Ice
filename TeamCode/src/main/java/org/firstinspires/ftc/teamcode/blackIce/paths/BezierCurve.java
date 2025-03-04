@@ -9,6 +9,7 @@ import java.util.Arrays;
  * smooth curve made with control points.
  */
 public class BezierCurve extends Path {
+    final double totalLength;
 
     /**
      * Create a {@link BezierCurve} from control points.
@@ -16,11 +17,15 @@ public class BezierCurve extends Path {
      * @param controlPoints Example: {@code new double[][] {{1, 2}, {2, 3}, ...}}
      */
     public BezierCurve(double[][] controlPoints) {
-        super(BezierCurve.calculateBezierPoints(controlPoints));
+        this(controlPoints, BezierCurve.estimateCurveLength(controlPoints, 1000));
     }
 
-    private static double[][] calculateBezierPoints(double[][] controlPoints) {
-        double totalLength = estimateCurveLength(controlPoints, 100);
+    private BezierCurve(double[][] controlPoints, double totalLength) {
+        super(BezierCurve.calculateBezierPoints(controlPoints, totalLength));
+        this.totalLength = totalLength;
+    }
+
+    private static double[][] calculateBezierPoints(double[][] controlPoints, double totalLength) {
         int numPoints = Math.max(1, (int) (totalLength / Constants.Curve.INCHES_PER_POINT));
 
         double[][] curvePoints = new double[numPoints + 1][2];

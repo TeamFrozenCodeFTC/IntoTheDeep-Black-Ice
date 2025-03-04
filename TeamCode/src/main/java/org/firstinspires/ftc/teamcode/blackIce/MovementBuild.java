@@ -2,54 +2,50 @@ package org.firstinspires.ftc.teamcode.blackIce;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
-
-public class Point extends MovementBuilder<Point> {
+public abstract class MovementBuild extends BaseMovementBuild<MovementBuild> {
     private double x;
     private double y;
     private double heading;
     private final ElapsedTime timer = new ElapsedTime();
 
-    @Override
-    protected Point getThis() {
-        return this;
-    }
+    private boolean brakeAfter = true;
+    private boolean continuePowerAfter = false;
 
-    /**
-     * Move the robot through a target point without stopping.
-     * <p>
-     * To add more customization, use the instance method: {@link Point#moveThrough()}
-     */
-    public static void moveThrough(double x, double y, double heading) {
-        new Point(x, y, heading).moveThrough().build().waitForMovement();
-    }
-
-    /**
-     * Move the robot through a target point without stopping (keeps the previous heading)
-     *
-     * @see #moveThrough(double, double, double)
-     */
-    public static void moveThrough(double x, double y) {
-        moveThrough(x, y, Target.previousHeading);
-    }
-
-    /**
-     * Move the robot to target point and stops.
-     * <p>
-     * To add more customization, use the instance method: {@link Point#stopAtPosition()}
-     */
-    public static void stopAtPosition(double x, double y, double heading) {
-        new Point(x, y, heading).stopAtPosition().build().waitForMovement();
-    }
-
-    /**
-     * Move the robot to target point and stops (keeps the previous heading).
-     *
-     * @see #stopAtPosition(double, double, double)
-     */
-    public static void stopAtPosition(double x, double y) {
-        stopAtPosition(x, y, Target.previousHeading);
-    }
+//    /**
+//     * Move the robot through a target point without stopping.
+//     * <p>
+//     * To add more customization, use the instance method: {@link Point#moveThrough()}
+//     */
+//    public static void moveThrough(double x, double y, double heading) {
+//        new Point(x, y, heading).moveThrough().build().waitForMovement();
+//    }
+//
+//    /**
+//     * Move the robot through a target point without stopping (keeps the previous heading)
+//     *
+//     * @see #moveThrough(double, double, double)
+//     */
+//    public static void moveThrough(double x, double y) {
+//        moveThrough(x, y, Target.previousHeading);
+//    }
+//
+//    /**
+//     * Move the robot to target point and stops.
+//     * <p>
+//     * To add more customization, use the instance method: {@link Point#stopAtPosition()}
+//     */
+//    public static void stopAtPosition(double x, double y, double heading) {
+//        new Point(x, y, heading).stopAtPosition().build().waitForMovement();
+//    }
+//
+//    /**
+//     * Move the robot to target point and stops (keeps the previous heading).
+//     *
+//     * @see #stopAtPosition(double, double, double)
+//     */
+//    public static void stopAtPosition(double x, double y) {
+//        stopAtPosition(x, y, Target.previousHeading);
+//    }
 
     /**
      * Create a new movement. Can be built upon to add more functionality and customization.
@@ -66,23 +62,39 @@ public class Point extends MovementBuilder<Point> {
      *     .run();
      * </code></pre>
      *
-     * @see Point#Point(double, double)
+     * Default is stopAtPosition
+     *
+     * @see MovementBuild#MovementBuild(double, double)
      */
-    public Point(double x, double y, double heading) {
+    public MovementBuild(double x, double y, double heading) {
         this.x = x;
         this.y = y;
         this.heading = heading;
-
-        setMovementExit(() -> !Target.isNotWithinErrorMargin(Target.defaultErrorMargin));
     }
 
-    public Point(Point copyFrom) {
-        this.x = copyFrom.x;
-        this.y = copyFrom.y;
-        this.heading = copyFrom.heading;
+    private boolean keepPreviousHeading = false;
 
-        this.copyProperties(copyFrom);
+    /**
+     * Create a new movement (uses previous heading).
+     * Can be build upon to add more functionality and customization.
+     * Don't forget to call {@code .run()} after you construct your movements.
+     *
+     * @see MovementBuild#MovementBuild(double, double, double)
+     */
+    public MovementBuild(double x, double y) {
+        this.x = x;
+        this.y = y;
+        this.keepPreviousHeading = true;
     }
+
+    // have positions reusable?
+//    public Point(Point copyFrom) {
+//        this.x = copyFrom.x;
+//        this.y = copyFrom.y;
+//        this.heading = copyFrom.heading;
+//
+//        this.copyProperties(copyFrom);
+//    }
 
     public Movement build() {
         return new Movement(this::isFinished, this::start, this::finish, this::update);
@@ -105,13 +117,22 @@ public class Point extends MovementBuilder<Point> {
         moveTowardTarget();
     }
 
-    private void start() {
-        Target.setTarget(heading, x, y);
+    void start() {
+        if (keepPreviousHeading) {
+            Target.setTarget(x, y);
+        }
+        else {
+            Target.setTarget(heading, x, y);
+        }
         timer.reset();
     }
 
+    abstract boolean isAtGoal();
+
     private boolean isFinished() {
-        return !Follower.opMode.opModeIsActive() || movementExit.condition() || timer.seconds() >= timeoutSeconds;
+        return !Follower.opMode.opModeIsActive()
+            || (movementExit.condition() && isAtGoal())
+            || timer.seconds() >= timeoutSeconds;
     }
 
     private void moveTowardTarget() {
@@ -150,89 +171,42 @@ public class Point extends MovementBuilder<Point> {
         ));
     }
 
-
-    /**
-     * Create a new movement (uses previous heading).
-     * Can be build upon to add more functionality and customization.
-     * Don't forget to call {@code .run()} after you construct your movements.
-     *
-     * @see Point#Point(double, double, double)
-     */
-    public Point(double x, double y) {
-        this(x, y, Target.previousHeading);
-    }
-
     /**
      * <h5>To fix underline, add arguments</h5>
      * <p>
-     * Creates an empty {@link Point}.
+     * Creates an empty {@link MovementBuild}.
      */
-    protected Point() {
-    }
-
-
-    /**
-     * Move the robot through a target point without stopping at it.
-     *
-     * <p>
-     * <h5>How does it work?</h5>
-     * <ul>
-     * <li>This method travels towards the point using a simple proportional control (error * constant).</li>
-     * <li>The robot predicts its position based on the braking distance
-     * for determining if it has passed the target. This allows it to quickly change
-     * direction without overshooting.</li>
-     * <li>To determine if it has passed the target, it constructs a plane
-     * perpendicular to the line connecting the previous target and the new target.</li>
-     * </ul>
-     *
-     * @return A {@code Movement} object configured to move through the target.
-     */
-    public Point moveThrough() {
-        double targetYError = Target.previousY - Target.y;
-        double targetXError = Target.previousX - Target.x;
-        double xSign = Math.signum(targetXError);
-        double ySign = Math.signum(targetYError);
-        double slope = (Target.x == Target.previousX) ? 0 : targetYError / targetXError;
-
-        return getThis()
-            .setHeadingCorrection(HeadingCorrection.locked)
-            .setDriveCorrection(DriveCorrection.proportional)
-            .continuePowerAfter()
-            .setMovementExit(() -> {
-                double predictedXError = Target.xError - Odometry.xBrakingDistance;
-                double predictedYError = Target.yError - Odometry.yBrakingDistance;
-
-                if (Target.x == Target.previousX) {
-                    return ySign * predictedYError >= 0;
-                }
-
-                return -xSign * predictedXError <= slope * xSign * predictedYError;
-            });
+    protected MovementBuild() {
     }
 
     /**
-     * Move the robot to target point and stop.
-     * <p>
-     * <h5>How does it work?</h5>
-     * <ul>
-     * <li>This method travels towards the point
-     * using a simple proportional control (error * constant).</li>
-     * <li>The robot predicts its position based on the braking distance,
-     * allowing the robot maintain full power for as long as possible,
-     * only braking at the optimal point. The braking distance also prevents overshooting.</li>
-     *
-     * @return A {@code Movement} object configured to stop at the target.
-     *
-     * @see Point#stopAtPosition
+     * Turns on zero power float mode after reaching the target.
+     * This makes the robot glide with its momentum.
      */
-    public Point stopAtPosition() {
-        return getThis()
-            .setMovementExit(() ->
-                Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin)
-                    && Odometry.velocity < consideredStoppedVelocity)
-            .setHeadingCorrection(HeadingCorrection.locked)
-            .setDriveCorrection(DriveCorrection.stopAtTarget);
+    public MovementBuild floatAfter() {
+        brakeAfter = false;
+        continuePowerAfter = false;
+        return getThis();
     }
+
+    /**
+     * Turns on zero power brake mode after reaching the target.
+     */
+    public MovementBuild brakeAfter() {
+        brakeAfter = true;
+        continuePowerAfter = false;
+        return getThis();
+    }
+
+    /**
+     * Make the robot continue the supplied power to the wheels after reaching the target.
+     */
+    public MovementBuild continuePowerAfter() {
+        brakeAfter = false;
+        continuePowerAfter = true;
+        return getThis();
+    }
+
 
 
 //    @NonNull
