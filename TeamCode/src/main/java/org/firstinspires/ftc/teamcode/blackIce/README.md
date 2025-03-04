@@ -1,4 +1,4 @@
-Black Ice is a **Reactive Path Follower** developed by __FTC Team #18535__, Frozen Code.
+Black Ice is a **Reactive and Predictive Path Follower** developed by __FTC Team #18535__, Frozen Code.
 It is designed to provide more simple, efficient, effective path following by **predicting real-time, directional braking distance**.
 Unlike traditional path-following libraries that gradually slow the robot down,
 Black Ice dynamically calculates the optimal braking distance based on the robot’s current speed.
