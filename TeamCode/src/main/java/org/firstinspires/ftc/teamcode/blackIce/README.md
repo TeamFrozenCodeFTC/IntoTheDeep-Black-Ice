@@ -1,10 +1,23 @@
-Black Ice is a **Reactive Path Follower** developed by __FTC Team #18535__, Frozen Code. It is designed to provide more simple, efficient, effective path following by **predicting real-time, directional braking distance**. Unlike traditional path-following libraries that gradually slow the robot down, Black Ice dynamically calculates the optimal braking distance based on the robot’s current speed. This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed. By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it happens.
+Black Ice is a **Reactive Path Follower** developed by __FTC Team #18535__, Frozen Code.
+It is designed to provide more simple, efficient, effective path following by **predicting real-time, directional braking distance**.
+Unlike traditional path-following libraries that gradually slow the robot down,
+Black Ice dynamically calculates the optimal braking distance based on the robot’s current speed.
+This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed.
+By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it happens.
 
+Designed for simple, efficient, effective and high-speed path following with minimum tuning
+(but also supports velocity and acceleration constraints with more tuning).
+When wanting full speed, Black Ice dynamically predicts the optimal braking distance based on the robot's current speed.
+This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed. By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it even happens.
+
+
+turning uses a simple Proportional controller, (can PIDF work for heading too?)
++support for velocity and acceleration constraints using PIDF controller doesn't have to use full power
 Predictive braking feedforward
 
-More Predictive than Reactive – Instead of reacting to sudden changes, this model anticipates braking needs.
-✅ Eliminates Overshoot – Prevents aggressive corrections that can cause oscillations.
-✅ Adapts to Different Speeds – Braking distance scales with velocity instead of using a fixed constant.
+More Predictive than Reactive – Instead of reacting to sudden changes, Black Ice anticipates braking needs.
+- ✅ Eliminates Overshoot – Prevents aggressive corrections that can cause oscillations.
+- ✅ Adapts to Different Speeds – Braking distance scales with velocity instead of using a fixed constant.
 
 🛠 Potential Enhancements
 Use a Logistic (Sigmoid) Braking Curve:
@@ -63,7 +76,7 @@ Unique, key features:
 Black Ice is tailored for teams with odometry wheels looking for simple, high-speed path execution with the option of modular customization.
 
 # Usage
-### Requirements: Odometry Wheels / Pinpoint Odometry Processor
+### Requirements: Odometry Wheels / Pinpoint Odometry Processor with omni-directional wheels (meacum wheels)
 Black Ice intentionally uses the the slippage of the wheels in order to stop faster. This requires separate dead wheels in order to not get off.
 
 ## Initializing at start of OpMode
@@ -104,9 +117,9 @@ new Movement(0, 24, 90)
 
 ### Lines
 
-pedro path
-pure pursuit
-roadrunner
+pedro path - requires lots of tuning
+pure pursuit - always goes at full power - no velocity constraints
+roadrunner - doesn't react real-time until near target
 
 current velocity divided by maxVelocity
 
@@ -135,24 +148,31 @@ Black Ice has 2 automatic tuning opModes (one forward/backward and one lateral) 
 We use the constants it gives and plug it into a signed-quadratic function (which means that works in both positive and negative numbers). [x is the xVelocity or yVelocity]
 
 $$
-f(x) = \( (a \cdot x \cdot \text{abs}(x)) + (b \cdot x) + (\text{sgn}(x) \cdot c) \)
+f(x) = \ a \cdot x \cdot \text{abs}(x) + b \cdot x + c \cdot \text{sgn}(x) \
 $$
+
 ```java
 public double predict(double x) {
-    double sign = Math.signum(x);
-    return (sign * a * Math.pow(x, 2)) + (b * x) + (sign * c);
+    return (a * x * Math.abs(x)) + (b * x) + (c * Math.signum(x));
 }
 ```
 
 ## Stopping at a Position
 `(error - predictedBrakingDistance) * constant`
 `targetPosition - (currentPosition + predictedBrakingDisplacement)`
+When velocity and acceleration constraints are needed it switches to a PIDF controller. 
+`kP * velocityError + kD * acceleration + feedforward`
+`feedforward = kStatic + kP * targetVelocity` (incorportate voltage?)
+Create a motion profile based of acceleration and deacceration
+`p = kP * (error - braking) * 1 + kDervivative?`
+
 The braking distance is calculated in real time and the numbers can be negative. The robot will travel at maximum speed until the braking term overpowers the error. This will make the robot stop
+
+For moveThrough position set the magnitude to 1 (same thing as we are doing up allow upscaling)
 
 ## Following Paths
 Black Ice traces out points on a Bezier Curve for the robot to follow. This forces the robot to follow the exact path.
 The robot drives at full power towards these points. It knows whether it is past a point if the robot's predicted position is past the plane perpendicular to the line between the two points. 
-
 
 
 By having the robot follow points, this forces the robot to follow the path. Using dervivates like pedro paths adds complexity and adds transitional correction.
