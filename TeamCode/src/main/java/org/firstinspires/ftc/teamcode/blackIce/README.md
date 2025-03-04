@@ -95,20 +95,26 @@ Black Ice intentionally uses the the slippage of the wheels in order to stop fas
 Follower.init(this);
 ```
 
-## Simple Point-to-Point Movements
+## Point-to-Point Movements
 All of these methods are blocking, meaning they wait until the robot has reached its position.
 If you want non-blocking methods or want to incorporate hardware during movements see [link](#More-Advanced-Modular-Movements).
 Moving the robot to a point and stop:
 ```java
 // Moves the robot 24 inches in the y direction at a heading of 90 degrees and stops.
-Movement.stopAtPosition(0, 24, 90);
+Movement myMovement = MovementBuilder.stopAtPosition(0, 24, 90).build();
+myMovement.waitForMovement();
+// OR
+myMovement.start();
+while (!myMovement.isFinished()) {
+    myMovement.update();
+}
 ```
 ![img.png](img.png)
 
 Moving the robot through a point:
 ```java
 // Moves the robot 12 inches in x direction and 24 inches in the y direction at a heading of 0 degrees
-Movement.moveThrough(12, 24, 0);
+Movement myMovement = MovementBuilder.moveThrough(12, 24, 0).build();
 ```
 
 ## More Advanced Modular Movements
