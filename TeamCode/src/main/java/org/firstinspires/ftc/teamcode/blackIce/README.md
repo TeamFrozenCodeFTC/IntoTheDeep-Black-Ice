@@ -5,6 +5,8 @@ Black Ice dynamically calculates the optimal braking distance based on the robot
 This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed.
 By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it happens.
 
+Black Ice has the ability to maintain full for as long as possible, only beginning to brake at the precise moment needed.   to dynamically calculates the optimal braking distance based on the robot’s current speed.
+
 Designed for simple, efficient, effective and high-speed path following with minimum tuning
 (but also supports velocity and acceleration constraints with more tuning).
 When wanting full speed, Black Ice dynamically predicts the optimal braking distance based on the robot's current speed.
