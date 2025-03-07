@@ -5,6 +5,8 @@ Black Ice dynamically calculates the optimal braking distance based on the robot
 This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed.
 By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it happens.
 
+TODO transitional correction, priotize corrections
+
 Black Ice is a **Reactive and Predictive Path Follower** developed by __FTC Team #18535__, Frozen Code.
 It is designed for simple, efficient, effective and high-speed path following with minimum tuning. 
 Black Ice predicts error before it even happens by **predicting real-time, directional braking distance**.
