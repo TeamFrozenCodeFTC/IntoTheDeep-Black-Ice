@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.blackIce.Follower;
 public class ForwardBrakingTuner extends DistanceTuner {
     @Override
     public void runOpMode() {
-        Follower.init(this);
+        Follower.initAuto(this);
 
         run(0);
     }

@@ -1,23 +1,39 @@
-package org.firstinspires.ftc.teamcode.blackIce;
+package org.firstinspires.ftc.teamcode.blackIce.movement;
 
 import androidx.annotation.NonNull;
 
+import org.firstinspires.ftc.teamcode.blackIce.Condition;
+import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.DriveCorrection;
+import org.firstinspires.ftc.teamcode.blackIce.Function;
+import org.firstinspires.ftc.teamcode.blackIce.HeadingCorrection;
+import org.firstinspires.ftc.teamcode.blackIce.Vector;
 
+/**
+ * Handles all of the ".set" build methods and data for Movements and Paths.
+ */
 public abstract class BaseMovementBuild
     <SubclassType extends BaseMovementBuild<SubclassType>>
     implements Cloneable
 {
     protected abstract Movement build();
 
-    protected HeadingCorrection headingCorrection;
-    protected DriveCorrection driveCorrection;
-    protected Condition movementExit = () -> false;
+    private HeadingCorrection headingCorrection;
+    private DriveCorrection driveCorrection;
+    protected Condition movementExit = () -> true; // TODO
 
     protected double maxPower = 1;
     protected double maxTurnPower = 1;
-    protected double maxVelocity = 100; // inch/second
+    protected double maxVelocity = 100; // inch/second // get deceleration rates
     protected double maxHeadingVelocity = 999; // degrees/second
     protected double timeoutSeconds = 5;
+
+    protected boolean brakeAfter = false;
+    protected boolean continuePowerAfter = false;
+
+    private Runnable totalCorrection;
+    private Function<double[], double[]> drivePowerScaling =
+        (drivePowers) -> drivePowers;
 
     /**
      * Copy the properties of another MovementBuild.
@@ -26,6 +42,8 @@ public abstract class BaseMovementBuild
      */
     public SubclassType copyProperties(BaseMovementBuild<?> properties) {
         SubclassType this_ = getThis();
+        this_.brakeAfter = properties.brakeAfter;
+        this_.continuePowerAfter = properties.brakeAfter;
         return this_
             .setMaxPower(properties.maxPower)
             .setMaxHeadingVelocity(properties.maxHeadingVelocity)
@@ -33,7 +51,91 @@ public abstract class BaseMovementBuild
             .setMaxVelocity(properties.maxVelocity)
             .setDriveCorrection(properties.driveCorrection)
             .setMovementExit(properties.movementExit)
-            .setHeadingCorrection(properties.headingCorrection);
+            .setHeadingCorrection(properties.headingCorrection)
+            .setTotalCorrection(properties.totalCorrection)
+            .setDrivePowerScaling(properties.drivePowerScaling);
+    }
+
+    /**
+     * Turns on zero power float mode after reaching the target.
+     * This makes the robot glide with its momentum.
+     */
+    public SubclassType setToFloatAfter() {
+        brakeAfter = false;
+        continuePowerAfter = false;
+        return getThis();
+    }
+
+    /**
+     * Turns on zero power brake mode and brakes after reaching the target.
+     */
+    public SubclassType setToBrakeAfter() {
+        brakeAfter = true;
+        continuePowerAfter = false;
+        return getThis();
+    }
+
+    /**
+     * Make the robot continue the supplied power to the wheels after reaching the target.
+     */
+    public SubclassType setToContinuePowerAfter() {
+        brakeAfter = false;
+        continuePowerAfter = true;
+        return getThis();
+    }
+
+    /**
+     * Get the scaled drive power correction.
+     */
+    public double[] getDrivePowerCorrection() {
+        return drivePowerScaling.run(driveCorrection.calculateDrivePowers());
+    }
+
+    public double[] getHeadingPowerCorrection() {
+        return Drive.turnCounterclockwise(headingCorrection.calculateTurnPower());
+    }
+
+    /**
+     * Moves toward the target.
+     */
+    public void moveTowardTarget() {
+        totalCorrection.run();
+    }
+
+    /**
+     * Set the function that combines drive correction and heading correction.
+     *
+     * <pre><code>
+     * // Example: Scales the the drive power so that at least one wheel is working at full power.
+     * .setTotalWheelPowers(() -> Drive.power(
+     *     Drive.combineMax(
+     *         getDriveCorrection(),
+     *         Drive.turnCounterclockwise(headingCorrection.calculateTurnPower()),
+     *         1
+     *     )
+     * ))
+     * </code></pre>
+     */
+    public SubclassType setTotalCorrection(Runnable function) {
+        totalCorrection = function;
+        return getThis();
+    }
+
+    /**
+     * Set the function for scaling the wheel powers.
+     * <pre><code>
+     * // Example: Scales the the drive power so that at least one wheel is working at full power.
+     * .setDrivePowerScaling(wheelPowers -> Vector.scaleToMax(driveDirection, 1))
+     * // General Format:
+     * .setDrivePowerScaling((double[FL, BL, FR, BR] wheelPowers) -> {return Vector.scale(...)})
+     * // the wheelPower arrays usually look something like {2.3, 5.5, 5.5, 2.3} so it is important
+     * // to scale them or else all the wheels would go at full power.
+     * </code></pre>
+     * See {@link Vector} class for common scaling methods.
+     */
+    public SubclassType setDrivePowerScaling(Function<double[], double[]> function) {
+        drivePowerScaling = function;
+        return getThis();
     }
 
     /**

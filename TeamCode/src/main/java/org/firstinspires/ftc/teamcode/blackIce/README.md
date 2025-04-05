@@ -4,7 +4,7 @@ Unlike traditional path-following libraries that gradually slow the robot down,
 Black Ice dynamically calculates the optimal braking distance based on the robot’s current speed.
 This allows the robot to maintain full power for as long as possible, only beginning to brake at the precise moment needed.
 By predicting the robot's position in real time, it can also navigate curved paths because it predicts error before it happens.
-
+![img_2.png](img_2.png)
 convert
 ```
 updateOdometry

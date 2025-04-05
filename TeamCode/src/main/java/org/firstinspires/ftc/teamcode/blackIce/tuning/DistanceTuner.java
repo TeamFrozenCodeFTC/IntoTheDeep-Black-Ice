@@ -3,8 +3,7 @@ package org.firstinspires.ftc.teamcode.blackIce.tuning;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.blackIce.Drive;
-import org.firstinspires.ftc.teamcode.blackIce.MovementBuild;
-import org.firstinspires.ftc.teamcode.blackIce.MovementBuilder;
+import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuilder;
 import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 
 import java.util.ArrayList;

@@ -20,6 +20,14 @@ public class SignedQuadratic {
         this.c = c;
     }
 
+    // pedro path uses zero power deceleration and then multiples it by a constant
+    // braking deceleration -> predicting distance
+
+    // TODO progressive braking distance
+    // TODO remove c term
+
+    // needs single x term to account for constant braking force coefficient
+
     /**
      * Predicts directional braking distance (aka braking distance can be negative).
      * <pre>

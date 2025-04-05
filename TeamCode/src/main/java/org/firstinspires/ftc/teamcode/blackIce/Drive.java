@@ -114,7 +114,7 @@ public final class Drive {
     }
 
     static double[] normalize(double[] powers) {
-        double maxPower = 1.0;
+        double maxPower = 1; // WAS 0 WAS 1 (for only downscaling)
         for (double value : powers) {
             maxPower = Math.max(maxPower, Math.abs(value));
         }
@@ -158,24 +158,42 @@ public final class Drive {
         return robotVectorToLocalWheelPowers(fieldVectorToRobotVector(vector));
     }
 
+    /**
+     * Takes a field-relative vector and converts it into wheel powers
+     * that would make the robot move in the direction of the field vector.
+     * <p>
+     * Does this by rotating the vector relative to the robot heading where it adds up the lateral
+     * and forwards/backwards.
+     */
+    public static double[] fieldVectorToLocalWheelPowers(double vectorX, double vectorY) {
+        return robotVectorToLocalWheelPowers(fieldVectorToRobotVector(vectorX, vectorY));
+    }
+
     public static double[] fieldVectorToRobotVector(double[] fieldVector) {
         // positive heading is counterclockwise
-        double heading = Math.toRadians(Odometry.heading);
-        double cos = Math.cos(heading);
-        double sin = Math.sin(heading);
-        double localForwards = (fieldVector[0] * cos + fieldVector[1] * sin); // clockwise rotation
-        double localSlide = (-fieldVector[0] * sin + fieldVector[1] * cos);
+//        double heading = Math.toRadians(Odometry.heading);
+//        double cos = Math.cos(heading);
+//        double sin = Math.sin(heading);
+        double localForwards = (fieldVector[0] * Target.headingCos + fieldVector[1] * Target.headingSin); // clockwise rotation
+        double localSlide = (-fieldVector[0] * Target.headingSin + fieldVector[1] * Target.headingCos);
 
         return new double[]{localForwards, localSlide};
     }
 
-    public static double[] robotVectorToFieldVector(double[] robotVector) {
+    public static double[] fieldVectorToRobotVector(double fieldX, double fieldY) {
+        double localForwards = (fieldX * Target.headingCos + fieldY * Target.headingSin); // clockwise rotation
+        double localSlide = (-fieldX * Target.headingSin + fieldY * Target.headingCos);
+
+        return new double[]{localForwards, localSlide};
+    }
+
+    public static double[] robotVectorToFieldVector(double[] robotVector) { // TODO convert double[] to two doubles
         // Positive heading is counterclockwise
-        double heading = Math.toRadians(Odometry.heading);
-        double cos = Math.cos(heading);
-        double sin = Math.sin(heading);
-        double fieldX = (robotVector[0] * cos - robotVector[1] * sin); // Counterclockwise rotation
-        double fieldY = (robotVector[0] * sin + robotVector[1] * cos);
+//        double heading = Math.toRadians(Odometry.heading);
+//        double cos = Math.cos(heading);
+//        double sin = Math.sin(heading);
+        double fieldX = (robotVector[0] * Target.headingCos - robotVector[1] * Target.headingSin); // Counterclockwise rotation
+        double fieldY = (robotVector[0] * Target.headingSin + robotVector[1] * Target.headingCos);
 
         return new double[]{fieldX, fieldY};
     }
@@ -184,9 +202,12 @@ public final class Drive {
         double localForwards = robotVector[0];
         double localSlide = robotVector[1];
 
+        double upRightDirection = localForwards+localSlide;
+        double downLeftDirection = localForwards-localSlide;
+
         return Util.normalize(new double[]
-            {localForwards-localSlide, localForwards+localSlide,
-                localForwards+localSlide, localForwards-localSlide}
+            {downLeftDirection, upRightDirection,
+             upRightDirection,  downLeftDirection}
         );
     }
 }

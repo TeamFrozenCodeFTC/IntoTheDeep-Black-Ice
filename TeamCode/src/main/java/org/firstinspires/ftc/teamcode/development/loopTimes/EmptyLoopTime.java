@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.blackIce.Target;
 public class EmptyLoopTime extends LinearOpMode {
     @Override
     public void runOpMode() {
-        Follower.init(this);
+        Follower.initAuto(this);
 
         waitForStart();
 

@@ -5,7 +5,6 @@ public class Util {
         return Math.max(-1, Math.min(x, 1));
     }
 
-    // only downscales, doesn't upscale the vector
     public static double[] normalize(double[] a) {
         double maxPower = 1.0;
         for (double value : a) {
@@ -27,6 +26,6 @@ public class Util {
     }
 
     public static double getVectorMagnitude(double x, double y) {
-        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        return Math.sqrt(x * x + y * y);
     }
 }

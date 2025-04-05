@@ -1,55 +1,26 @@
-package org.firstinspires.ftc.teamcode.blackIce;
+package org.firstinspires.ftc.teamcode.blackIce.movement;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.blackIce.Condition;
+import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.Follower;
+import org.firstinspires.ftc.teamcode.blackIce.Target;
+
+/**
+ * Handles Point to Point Movements
+ */
 public abstract class MovementBuild extends BaseMovementBuild<MovementBuild> {
-    private double x;
-    private double y;
+    private final double x;
+    private final double y;
     private double heading;
+
     private final ElapsedTime timer = new ElapsedTime();
-
-    private boolean brakeAfter = true;
-    private boolean continuePowerAfter = false;
-
-//    /**
-//     * Move the robot through a target point without stopping.
-//     * <p>
-//     * To add more customization, use the instance method: {@link Point#moveThrough()}
-//     */
-//    public static void moveThrough(double x, double y, double heading) {
-//        new Point(x, y, heading).moveThrough().build().waitForMovement();
-//    }
-//
-//    /**
-//     * Move the robot through a target point without stopping (keeps the previous heading)
-//     *
-//     * @see #moveThrough(double, double, double)
-//     */
-//    public static void moveThrough(double x, double y) {
-//        moveThrough(x, y, Target.previousHeading);
-//    }
-//
-//    /**
-//     * Move the robot to target point and stops.
-//     * <p>
-//     * To add more customization, use the instance method: {@link Point#stopAtPosition()}
-//     */
-//    public static void stopAtPosition(double x, double y, double heading) {
-//        new Point(x, y, heading).stopAtPosition().build().waitForMovement();
-//    }
-//
-//    /**
-//     * Move the robot to target point and stops (keeps the previous heading).
-//     *
-//     * @see #stopAtPosition(double, double, double)
-//     */
-//    public static void stopAtPosition(double x, double y) {
-//        stopAtPosition(x, y, Target.previousHeading);
-//    }
 
     /**
      * Create a new movement. Can be built upon to add more functionality and customization.
      * Don't forget to call {@code .run()} after you construct your movements.
+     *
      * <h6>Usage</h6>
      * <pre><code>
      * new Movement(x, y, heading)
@@ -63,6 +34,8 @@ public abstract class MovementBuild extends BaseMovementBuild<MovementBuild> {
      * </code></pre>
      *
      * Default is stopAtPosition
+     *
+     * @param heading optional double
      *
      * @see MovementBuild#MovementBuild(double, double)
      */
@@ -87,15 +60,6 @@ public abstract class MovementBuild extends BaseMovementBuild<MovementBuild> {
         this.keepPreviousHeading = true;
     }
 
-    // have positions reusable?
-//    public Point(Point copyFrom) {
-//        this.x = copyFrom.x;
-//        this.y = copyFrom.y;
-//        this.heading = copyFrom.heading;
-//
-//        this.copyProperties(copyFrom);
-//    }
-
     public Movement build() {
         return new Movement(this::isFinished, this::start, this::finish, this::update);
     }
@@ -112,12 +76,22 @@ public abstract class MovementBuild extends BaseMovementBuild<MovementBuild> {
         }
     }
 
+    protected boolean holdEndPosition = false; // OR USE A CONDITION
+
     private void update() {
         Target.updatePosition();
+        finished = !Follower.opMode.opModeIsActive() // TODO more conditions ^^ holdEnd!!
+            || isAtGoal.condition()
+            || timer.seconds() >= timeoutSeconds;
+
+        if (finished) {// && !holdEndPosition
+            return;
+        }
+
         moveTowardTarget();
     }
 
-    void start() {
+    public void start() {
         if (keepPreviousHeading) {
             Target.setTarget(x, y);
         }
@@ -125,88 +99,41 @@ public abstract class MovementBuild extends BaseMovementBuild<MovementBuild> {
             Target.setTarget(heading, x, y);
         }
         timer.reset();
+
+        finished = isAtGoal.condition();
+//        finished = !Follower.opMode.opModeIsActive() // TODO more conditions ^^ holdEnd
+//            || isAtGoal.condition()
+//            || timer.seconds() >= timeoutSeconds;
     }
 
-    abstract boolean isAtGoal();
+    public Condition isAtGoal;
+
+    protected boolean finished = false;
 
     private boolean isFinished() {
-        return !Follower.opMode.opModeIsActive()
-            || (movementExit.condition() && isAtGoal())
-            || timer.seconds() >= timeoutSeconds;
+        return finished;
     }
 
-    private void moveTowardTarget() {
-//        double velocityMult = (
-//            maxVelocity < 100
-//                && (Math.abs(Target.xError - Odometry.xBrakingDistance) > 1
-//                || Math.abs(Target.yError - Odometry.yBrakingDistance) > 1))
-//            ? (maxVelocity / Odometry.velocity) / 2 : 1;
-//        double headingMult = (Odometry.headingVelocity > maxHeadingVelocity)
-//            ? (maxHeadingVelocity / Odometry.headingVelocity) : 1;
-//
-//        Follower.telemetry.addData("velocityMult", velocityMult);
-//        Follower.telemetry.addData("maxVel", maxVelocity);
-//        Follower.telemetry.addData("velocity", Odometry.velocity);
-//        Follower.telemetry.update();
 
-        // if it is not braking (error-brake greater than zero)
-        // 0.02 * velocity_error * abs(velocity_error)
+    //    /**
+//     * Copy the properties of another MovementBuild.
+//     * <p>
+//     * Note: only copies point-to-point properties, not path properties.
+//     */
+//    public MovementBuild copyProperties(MovementBuild properties) {
+//        MovementBuild this_ = getThis();
+//        this_.brakeAfter = properties.brakeAfter;
+//        this_.continuePowerAfter = properties.continuePowerAfter;
+//        return super.copyProperties(properties);
+//    }
 
-//        power = kP * adjusted_error
-//        print(power)
-//        if abs(power) > 1:
-//        power += 0.02 * velocity_error * abs(velocity_error)
-//    else:
-//        power += 0.0005 * (0 - current_velocity) * abs(current_velocity)
-
-        // if it is not braking (error-brake greater than zero)
-        // 0.02 * velocity_error * abs(velocity_error)
-
-//        power = kP * adjusted_error
-
-        Drive.power(Drive.combineMax(
-            driveCorrection.calculateDrivePowers(),
-            HeadingCorrection.getWheelPowers(headingCorrection),
-            maxPower
-        ));
-    }
-
-    /**
-     * <h5>To fix underline, add arguments</h5>
-     * <p>
-     * Creates an empty {@link MovementBuild}.
-     */
-    protected MovementBuild() {
-    }
-
-    /**
-     * Turns on zero power float mode after reaching the target.
-     * This makes the robot glide with its momentum.
-     */
-    public MovementBuild floatAfter() {
-        brakeAfter = false;
-        continuePowerAfter = false;
-        return getThis();
-    }
-
-    /**
-     * Turns on zero power brake mode after reaching the target.
-     */
-    public MovementBuild brakeAfter() {
-        brakeAfter = true;
-        continuePowerAfter = false;
-        return getThis();
-    }
-
-    /**
-     * Make the robot continue the supplied power to the wheels after reaching the target.
-     */
-    public MovementBuild continuePowerAfter() {
-        brakeAfter = false;
-        continuePowerAfter = true;
-        return getThis();
-    }
-
+//    /**
+//     * <h5>To fix underline, add arguments</h5>
+//     * <p>
+//     * Creates an empty {@link MovementBuild}.
+//     */
+//    protected MovementBuild(Class<? extends MovementBuild> aClass) {
+//    }
 
 
 //    @NonNull
@@ -282,4 +209,21 @@ public abstract class MovementBuild extends BaseMovementBuild<MovementBuild> {
 //        })
 //        .setMovementExit(() ->
 //            Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin));
+//}
+//TODO for StopAtPosition
+//protected double consideredStoppedVelocity = 1;
+//
+///**
+// * Set the maximum velocity that the robot considers at rest.
+// *
+// * @param newConsideredStoppedVelocity (inches/second).
+// * A lower value will make the robot take more time to stop more accurately.
+// * A higher value will make the robot slow down less and carry more of its momentum.
+// * Should be not less than 0.01 inches/second.
+// * <p>
+// * If you don't want the robot to slow down use {@link MoveThrough}
+// */
+//public MovementBuild setConsideredStoppedVelocity(double newConsideredStoppedVelocity) {
+//    consideredStoppedVelocity = newConsideredStoppedVelocity;
+//    return getThis();
 //}

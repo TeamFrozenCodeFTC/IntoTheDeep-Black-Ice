@@ -17,7 +17,7 @@ public class Line extends BezierCurve {
      */
     public Line(double endX, double endY) {
         super(new double[][] {
-            {Target.previousX, Target.previousY},
+            {Target.previousX, Target.previousY}, //TODO cannot do, previous needs be used in build function
             {endX, endY}
         });
     }

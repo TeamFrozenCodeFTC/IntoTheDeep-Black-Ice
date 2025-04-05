@@ -1,13 +1,16 @@
 package org.firstinspires.ftc.teamcode.blackIce.paths;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.blackIce.Constants;
 import org.firstinspires.ftc.teamcode.blackIce.Drive;
-import org.firstinspires.ftc.teamcode.blackIce.BaseMovementBuild;
-import org.firstinspires.ftc.teamcode.blackIce.MovementBuild;
-import org.firstinspires.ftc.teamcode.blackIce.MovementBuilder;
-import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.DriveCorrection;
+import org.firstinspires.ftc.teamcode.blackIce.Follower;
+import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuild;
+import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuilder;
+import org.firstinspires.ftc.teamcode.blackIce.movement.Movement;
 import org.firstinspires.ftc.teamcode.blackIce.Target;
 import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
@@ -15,14 +18,16 @@ import org.firstinspires.ftc.teamcode.util.Util;
 /**
  * Takes a path of points and calculates the desired heading at each point.
  */
-public class Path extends BaseMovementBuild<Path> {
-    final double[][] points;
+public class Path implements Cloneable {
+    public final double[][] points;
     double[] headings;
 
     double[] endPoint;
     double endingHeading;
 
     boolean stopAtEndOfPath = true;
+    MovementProperties moveThroughProperties = (x) -> x;
+    MovementProperties stopAtEndProperties = (x) -> x;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -35,23 +40,27 @@ public class Path extends BaseMovementBuild<Path> {
             this.points[points.length - 1][0],
             this.points[points.length - 1][1]
         };
-//        this.headings = setConstantHeading(0);
         this.headings = calculateHeadings(0);
-        this.endingHeading = this.headings[headings.length - 1];
     }
 
     // TODO try derivatives of the path to get the heading (make sure to not force path continuity)
+    // may arise with problems such as transitional correction,
+    // and uneven speeds/inaccurate variable t on parameter paths with
+    // might have to resolve checking if past a point but that is basically what the system is
+    // already doing.
     private double[] calculateHeadings(double headingOffset) {
-        double[] headings = new double[this.points.length];
+        double[] headings = new double[this.points.length - 1];
 
-        for (int i = 0; i < this.points.length; i++) {
+        for (int i = 0; i < this.points.length - 1; i++) {
             double[] point = this.points[i];
 
             double[] pointHeading;
-            if (i + Constants.Curve.LOOK_AHEAD_POINTS_FOR_HEADING >= this.points.length) {
+
+            int lookAheadIndex = i + Constants.Curve.LOOK_AHEAD_POINTS_FOR_HEADING;
+            if (lookAheadIndex >= this.points.length) {
                 pointHeading = this.endPoint;
             } else {
-                pointHeading = this.points[i + Constants.Curve.LOOK_AHEAD_POINTS_FOR_HEADING];
+                pointHeading = this.points[lookAheadIndex];
             }
 
             headings[i] = Math.toDegrees(
@@ -74,9 +83,6 @@ public class Path extends BaseMovementBuild<Path> {
 
     /**
      * Make the robot continue its momentum at the end of the path.
-     * <p>
-     * Note: if continued to update after the path has finished,
-     * the robot will overshoot the end position.
      */
     public Path moveThroughPath() {
         stopAtEndOfPath = false;
@@ -91,6 +97,16 @@ public class Path extends BaseMovementBuild<Path> {
         return this;
     }
 
+    public Path setPathProperties(MovementProperties setProperties) {
+        moveThroughProperties = setProperties;
+        return this;
+    }
+
+    public Path setEndPointHoldProperties(MovementProperties setProperties) {
+        stopAtEndProperties = setProperties;
+        return this;
+    }
+
     /**
      * Make the robot have a offset heading along the path.
      */
@@ -100,12 +116,29 @@ public class Path extends BaseMovementBuild<Path> {
     }
 
     /**
-     * Make the robot smoothly transition from one heading to another.
+     * Make the robot smoothly transition from one heading to another along the path.
      */
     public Path setLinearHeadingInterpolation(double startingHeading, double endingHeading) {
+        return setLinearHeadingInterpolation(startingHeading, endingHeading, 1.00);
+    }
+
+    /**
+     * Make the robot smoothly transition from one heading to another along the path.
+     *
+     * @param finishByPercent The percent of the path to finish the rotation.
+     *                       .80 would make the robot turn for 80% of the path.
+     */
+    public Path setLinearHeadingInterpolation(
+        double startingHeading,
+        double endingHeading,
+        double finishByPercent
+    ) {
         headings = new double[this.points.length];
+
         for (int i = 0; i < this.points.length; i++) {
-            double t = (double) i / (this.points.length - 1);
+            int numPointsMinusOne = this.points.length - 1;
+            double adjustedFinish = (1 - finishByPercent) * numPointsMinusOne;
+            double t = Math.min(1, (double) i / (numPointsMinusOne - adjustedFinish));
             headings[i] = startingHeading + t * (endingHeading - startingHeading);
         }
         return this;
@@ -124,6 +157,9 @@ public class Path extends BaseMovementBuild<Path> {
             return;
         }
 
+        Follower.telemetry.addData("i", i);
+        Follower.telemetry.update();
+
         Target.updatePosition();
 
         double[] point = this.points[i];
@@ -135,30 +171,41 @@ public class Path extends BaseMovementBuild<Path> {
             return;
         }
 
-        MovementBuilder.moveThrough(point[0], point[1], this.headings[i])
-            .copyProperties(this)
-            .build()
-            .waitForMovement();
+//        double[] pointAhead;
+//        if (i + 2 >= this.points.length) {
+//            pointAhead = this.endPoint;
+//        }
+//        else {
+//            pointAhead = this.points[i + 1];
+//        }
+
+        MovementBuild x = moveThroughProperties.setProperties(
+            MovementBuilder.moveThrough(point[0], point[1], this.headings[i])
+        )
+            .setDriveCorrection(DriveCorrection.fullPower);
+        x.isAtGoal = () -> {
+            boolean isPastPoint = (Target.y - Odometry.y - Odometry.yBrakingDistance)
+                * Target.yDelta
+                + (Target.x - Odometry.x - Odometry.xBrakingDistance)
+                * Target.xDelta < 0;
+
+            return isPastPoint;
+//                if (Vector.getMagnitude(xPower, yPower) < 1) {
+//                    break;
+//                }
+        };
+        x.build().waitForMovement(); // TODO build these before running
 
         this.i += 1;
-        if (i >= this.points.length) {
+        if (i >= this.points.length - 1) { // -1
             startHoldingEndPosition();
         }
     }
 
-    @Override
-    protected Path getThis() {
-        return this;
-    }
-
-    private MovementBuild endPosition;
     private Movement holdEndPosition;
 
     private void startHoldingEndPosition() {
-        holdEndPosition = endPosition.copyProperties(this).build();
         holdEndPosition.start();
-        // TODO cannot copy all properties? make .copyProperties copy all properties depending on
-        // both types
 
         holdingEndPosition = true;
     }
@@ -170,19 +217,23 @@ public class Path extends BaseMovementBuild<Path> {
     public Movement build() {
         this.endingHeading = this.headings[headings.length - 1];
 
+        Follower.telemetry.addData("ending Heading", endingHeading);
+        Follower.telemetry.update();
+
         if (stopAtEndOfPath) {
-            endPosition = MovementBuilder.stopAtPosition(
+            holdEndPosition = stopAtEndProperties.setProperties(
+                MovementBuilder.stopAtPosition(
                 endPoint[0],
                 endPoint[1],
                 endingHeading
-            );
+            )).setToContinuePowerAfter().build();
         }
         else {
-            endPosition = MovementBuilder.moveThrough(
+            holdEndPosition = MovementBuilder.moveThrough(
                 endPoint[0],
                 endPoint[1],
                 endingHeading
-            );
+            ).setToContinuePowerAfter().build();
         }
         return new Movement(() -> finished, this::start, this::finish, this::update);
     }
@@ -200,9 +251,13 @@ public class Path extends BaseMovementBuild<Path> {
         Drive.zeroPower();
     }
 
-//    @Override
-//    public Path copyProperties(MovementBuild<?> build) {
-//        return super.copyProperties(build)
-//            .setConstantHeading()
-//    }
+    @NonNull
+    @Override
+    public Path clone() {
+        try {
+            return (Path) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }

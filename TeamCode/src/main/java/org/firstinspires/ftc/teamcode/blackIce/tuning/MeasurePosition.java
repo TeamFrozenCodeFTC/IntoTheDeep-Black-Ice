@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 public class MeasurePosition extends LinearOpMode {
     @Override
     public void runOpMode() {
-        Follower.init(this);
+        Follower.initAuto(this);
 
         waitForStart();
 

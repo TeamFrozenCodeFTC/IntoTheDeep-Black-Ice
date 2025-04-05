@@ -4,7 +4,7 @@ import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.util.Util;
 
 public final class Target {
-    public static ErrorMargin defaultErrorMargin = new ErrorMargin(1, 1, 3);
+    public static ErrorMargin defaultErrorMargin = new ErrorMargin(.5, .5, 3);
 
     public static double heading;
     public static double x;
@@ -22,16 +22,9 @@ public final class Target {
 
     public static void setTarget(double targetHeading, double targetX, double targetY) {
         previousHeading = heading;
-        previousX = x;
-        previousY = y;
-
         heading = targetHeading;
-        x = targetX;
-        y = targetY;
-//
-//        totalDistanceToTarget = Util.getVectorMagnitude(previousX - x, previousY - y);
 
-        updatePosition();
+        setTarget(targetX, targetY);
     }
 
     public static void setTarget(double targetX, double targetY) {
@@ -41,14 +34,28 @@ public final class Target {
         x = targetX;
         y = targetY;
 
+        xDelta = x - previousX;
+        yDelta = y - previousY;
+
         updatePosition();
     }
+
+    static double headingCos;
+    static double headingSin;
+
+    // Target - previousTarget
+    public static double yDelta;
+    public static double xDelta;
 
     public static void updatePosition() {
         Odometry.update();
         headingError = Util.simplifyAngle(heading - Odometry.heading);
         xError = x - Odometry.x;
         yError = y - Odometry.y;
+
+        double headingRadians = Math.toRadians(Odometry.heading);
+        headingCos = Math.cos(headingRadians);
+        headingSin = Math.sin(headingRadians);
     }
 
     public static boolean isNotWithinErrorMargin(ErrorMargin errorMargin) {

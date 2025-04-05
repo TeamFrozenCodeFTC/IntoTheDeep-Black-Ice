@@ -22,13 +22,46 @@ public interface DriveCorrection {
         return fieldVectorToLocalWheelPowers(new double[]{x, y});
     };
 
+//    double lastError = 0; // put this in Target
+//    double lastTime = 0;
     /**
      * Stop at the target using proportional control and predicting braking distance.
      * {@code (error * predictedBrakingDisplacement) * constant}
      */
-    DriveCorrection stopAtTarget = () -> {
-        double xPower = (Target.xError - Odometry.xBrakingDistance) * TuningConstants.HOLDING_PROPORTIONAL_CONSTANT;
-        double yPower = (Target.yError - Odometry.yBrakingDistance) * TuningConstants.HOLDING_PROPORTIONAL_CONSTANT;
+    DriveCorrection velocityConstraints = () -> {
+        double xPower = (Target.xError);
+        double yPower = (Target.yError);
+
+        Follower.telemetry.addData("velocity", Odometry.velocity);
+        Follower.telemetry.update();
+//
+//        double currentTime = System.nanoTime() / 1_000_000_000.0;
+//        if (lastTime == 0) { // First run, no previous time
+//            lastTime = currentTime;
+//            lastError = (40 - Odometry.velocity);
+//            return 0;
+//        }
+//
+//        double deltaTime = currentTime - lastTime;
+//        double rateOfChange = ( (40 - Odometry.velocity) - lastError) / deltaTime;
+//
+//        lastTime = currentTime;
+//        lastError =  (40 - Odometry.velocity);
+
+        //Vector.setMagnitude(xPower, yPower, 30 - Odometry.velocity); // only downscale
+        //Vector.setMagnitude(xPower, yPower, 30 / Odometry.velocity); // only downscale
+//        Vector.scaleToMax(xPower, yPower, (30 - Odometry.xVelocity) * 0.05); // only downscale
+        return fieldVectorToLocalWheelPowers(
+            Vector.scaleToMax(xPower, yPower,
+                Math.max(0, (40 - Odometry.velocity) * 0.5) + 40 * 0.4 + 0.1)); // only downscale
+        // at 0 velocity xPower and yPower max is 30
+        // at 29 velocity xPower and yPower max is 1
+        // at 31 velocity xPower and yPower max is -1
+
+        //
+
+        // 0.5, 0
+
 
         // deceleration -30 inches/second^2
         // velocity inches/second
@@ -39,7 +72,7 @@ public interface DriveCorrection {
 
         // set magnitude to velocityError
 
-        double currentMag = Math.sqrt(xPower * xPower + yPower * yPower);
+//        double currentMag = Math.sqrt(xPower * xPower + yPower * yPower);
 
         // TODO add derivative term PIDF
 
@@ -53,28 +86,75 @@ public interface DriveCorrection {
 //            yPower = yPower * scale;
 //        }
 
-        return fieldVectorToLocalWheelPowers(
-            new double[]{
-                xPower,
-                yPower
-            }
-        );
+        // Set xError and yError vector's magnitude to velocityError
+
+//        return fieldVectorToLocalWheelPowers(
+//            new double[]{
+//                xPower,
+//                yPower
+//            }
+//        );
     };
 
-//    public static DriveCorrection stopAtTargetLateral = () -> {
-//        double[] robotVector = fieldVectorToRobotVector(new double[]{
-//            Target.xError, // - robot.odometry.xBrakingDistance) / ((double) 1 /4),  // try multiplying this whole thing
-//            Target.yError  // - robot.odometry.yBrakingDistance) / ((double) 1 /4),// / (1/4) inch error margin
-//        });
-//        return robotVectorToLocalWheelPowers(new double[] {
-//            robotVector[0] - Odometry.forwardBrakingDistance,
-//            robotVector[1] - Odometry.lateralBrakingDistance,
-//        });
-//    };
+    /**
+     * Stop at the target using proportional control and predicting real-time braking distance.
+     * <p>
+     * {@code (error - predictedBrakingDistance) * constant}
+     * (Note: brakingDistance is directional, meaning it can be negative).
+     */
+    DriveCorrection stopAtTarget = () -> fieldVectorToLocalWheelPowers(
+        new double[]{
+            (Target.xError - Odometry.xBrakingDistance) * TuningConstants.HOLDING_PROPORTIONAL_CONSTANT,
+            (Target.yError - Odometry.yBrakingDistance) * TuningConstants.HOLDING_PROPORTIONAL_CONSTANT
+        }
+    );
 
     DriveCorrection proportional = () -> fieldVectorToLocalWheelPowers(
         new double[]{
             Target.xError * TuningConstants.PROPORTIONAL_CONSTANT,
             Target.yError * TuningConstants.PROPORTIONAL_CONSTANT,
         });
+    //
+
+//    /**
+//     * Drives toward the target at full power.
+//     * <p>
+//     * Uses {@link Vector#scaleToMax} meaning at least lateral or forward power will 1.
+//     */
+//    DriveCorrection fullPower = () -> fieldVectorToLocalWheelPowers(
+//        Vector.scaleToMax( // or normalize vector? (powers would end up like (0.447,0.894))
+//            Target.xError * Math.abs(Odometry.yBrakingDistance),
+//            Target.yError * Math.abs(Odometry.xBrakingDistance),
+//            1
+//        )
+//    );
+
+    DriveCorrection fullPowerWithBrakingCorrectionUpScale = () -> Drive.fieldVectorToLocalWheelPowers(
+        Vector.scaleToMax(
+            (Target.xError - Odometry.xBrakingDistance),
+            (Target.yError - Odometry.yBrakingDistance),
+            1
+        )
+    );
+
+    DriveCorrection fullPower = () -> Drive.fieldVectorToLocalWheelPowers(
+        Vector.scaleToMax( // downscale?
+            (Target.xError),
+            (Target.yError),
+            1
+        )
+    );
+
+
+    /**
+     * Drives toward the target at full power.
+     * <p>
+     * The magnitude of the drive vector will be one.
+     */
+    DriveCorrection fullPowerNormalized = () -> fieldVectorToLocalWheelPowers(
+        Vector.setMagnitudeToOne(
+            Target.xError,
+            Target.yError
+        )
+    );
 }

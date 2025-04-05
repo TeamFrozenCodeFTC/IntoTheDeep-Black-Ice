@@ -2,11 +2,8 @@ package org.firstinspires.ftc.teamcode.autonomous.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.blackIce.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.Follower;
-import org.firstinspires.ftc.teamcode.blackIce.MovementBuild;
-import org.firstinspires.ftc.teamcode.blackIce.MovementBuilder;
-import org.firstinspires.ftc.teamcode.blackIce.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.movement.Movement;
 import org.firstinspires.ftc.teamcode.blackIce.paths.BezierCurve;
 import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 
@@ -18,27 +15,21 @@ public class BezierLineTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Follower.init(this);
+        Follower.initAuto(this);
         buildMovements();
 
         waitForStart();
 
         Odometry.setPosition(90, 0, 0);
 
-        Drive.zeroPowerFloatMode();
-        somePosition.waitForMovement();
-
-
-        //path.waitForMovement();
+        path.waitForMovement();
     }
 
-    static MovementBuild somePositionBuild = MovementBuilder.stopAtPosition(0, 48, 90);
-    static Movement somePosition = somePositionBuild.build();
-
-
-
-    private static final Movement m = MovementBuilder.stopAtPosition(0, 48, 90)
-        .build();
+//    static MovementBuild somePositionBuild = MovementBuilder.stopAtPosition(0, 48, 90);
+//    static Movement somePosition = somePositionBuild.build();
+//
+//    private static final Movement m = MovementBuilder.stopAtPosition(0, 48, 90)
+//        .build();
 
     // Recommended to build all movements and paths outside of runOpMode and as `static final`
     // and with private keyword if not needed anywhere else

@@ -12,8 +12,6 @@ import org.firstinspires.ftc.teamcode.blackIce.tuning.TuningConstants;
 
 /**
  * A global class that holds the odometry object and provides methods to update the odometry data.
- *
- *
  */
 public final class Odometry {
     public static GoBildaPinpointDriver odometry;
@@ -77,15 +75,19 @@ public final class Odometry {
 
     public static void setPosition(double startingHeading, double startingX, double startingY) {
         odometry.setPosition(new Pose2D(
-                DistanceUnit.INCH,
-                startingX,
-                startingY,
-                AngleUnit.DEGREES,
-                startingHeading
+            DistanceUnit.INCH,
+            startingX,
+            startingY,
+            AngleUnit.DEGREES,
+            startingHeading
         ));
-        Target.previousHeading = startingHeading;
-        Target.previousX = startingX;
-        Target.previousY = startingY;
+        Target.x = startingX;
+        Target.y = startingY; // this is being set to the previousY by setTarget
+        Target.heading = startingHeading;
+//        Target.previousHeading = startingHeading;
+//        Target.previousX = startingX;
+//        Target.previousY = startingY;
+        Target.updatePosition(); //?
     }
 
     public static void setHeading(double newHeading) {

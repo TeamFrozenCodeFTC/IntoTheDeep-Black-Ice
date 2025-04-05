@@ -1,5 +1,12 @@
-package org.firstinspires.ftc.teamcode.blackIce;
+package org.firstinspires.ftc.teamcode.blackIce.movement;
 
+import org.firstinspires.ftc.teamcode.blackIce.Condition;
+import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
+
+/**
+ * Returned by calling `.build()` on a {@link MovementBuild} or {@link Path}
+ * Only Handles abstract looping and updating, no core logic.
+ */
 public class Movement {
     private final Condition isFinished;
     private final Runnable start;

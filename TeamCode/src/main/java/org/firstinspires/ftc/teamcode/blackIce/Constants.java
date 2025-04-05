@@ -12,7 +12,7 @@ public class Constants {
     }
 
     public static class Curve {
-        public static double INCHES_PER_POINT = 3;
+        public static double INCHES_PER_POINT = 2;
         public static int LOOK_AHEAD_POINTS_FOR_HEADING = 2; // Looks ahead x points to turn in that direction
     }
 
