@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.blackIce.tuning.TuningConstants;
  * A global class that holds the odometry object and provides methods to update the odometry data.
  */
 public final class Odometry {
-    public final static GoBildaPinpointDriver odometry;
+    public static GoBildaPinpointDriver odometry;
 
     // Prevents instantiation
     private Odometry() {}

@@ -16,8 +16,8 @@ import java.util.function.BooleanSupplier;
  * Also has global setting methods.
  */
 public class Follower {
-    public final static MultipleTelemetry telemetry;
-    public final static LinearOpMode opMode;
+    public static MultipleTelemetry telemetry;
+    public static LinearOpMode opMode;
 
     public static void waitUntil(BooleanSupplier condition) {
         while (opMode.opModeIsActive() && !condition.getAsBoolean()) {
