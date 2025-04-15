@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuild;
  * <p>
  * Example:
  * <pre><code>
- *     path.moveThroughProperties.setProperties((movement) -> movement.setMaxVelocity(...)))}
+ *     path.pathMovementProperties.setProperties((movement) -> movement.setMaxVelocity(...)))}
  * </code></pre>
  */
 public interface MovementProperties {

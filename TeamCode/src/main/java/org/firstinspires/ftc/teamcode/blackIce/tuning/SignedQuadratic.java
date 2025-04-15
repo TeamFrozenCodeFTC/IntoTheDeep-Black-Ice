@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.blackIce;
+package org.firstinspires.ftc.teamcode.blackIce.tuning;
 
 /**
  * A piecewise, signed quadratic that can output both positive and negative numbers.
@@ -34,7 +34,7 @@ public class SignedQuadratic {
      * f(x) = a·x·abs(x) + b·x + c·sgn(x)
      * </pre>
      */
-    public double predict(double x) {
-        return (a * x * Math.abs(x)) + (b * x) + (Math.signum(x) * c); // c term?
+    public double predict(double n) {
+        return (a * n * Math.abs(n)) + (b * n) + (Math.signum(n) * c); // c term?
     }
 }

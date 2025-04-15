@@ -5,29 +5,28 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.blackIce.Constants;
-import org.firstinspires.ftc.teamcode.blackIce.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.DriveCorrection;
 import org.firstinspires.ftc.teamcode.blackIce.Follower;
-import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuild;
 import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuilder;
 import org.firstinspires.ftc.teamcode.blackIce.movement.Movement;
 import org.firstinspires.ftc.teamcode.blackIce.Target;
 import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
-import org.firstinspires.ftc.teamcode.util.Util;
 
 /**
- * Takes a path of points and calculates the desired heading at each point.
+ * Takes a path of points, calculates the desired heading at each point,
+ * and creates a Path made of Movements to each point which follow the path.
  */
 public class Path implements Cloneable {
+    public boolean stopAtEndOfPath = true;
+
+    private MovementProperties pathMovementProperties = (x) -> x;
+    private MovementProperties endPointMovementProperties = (x) -> x;
+
     public final double[][] points;
     double[] headings;
 
     double[] endPoint;
     double endingHeading;
-
-    boolean stopAtEndOfPath = true;
-    MovementProperties moveThroughProperties = (x) -> x;
-    MovementProperties stopAtEndProperties = (x) -> x;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -43,11 +42,6 @@ public class Path implements Cloneable {
         this.headings = calculateHeadings(0);
     }
 
-    // TODO try derivatives of the path to get the heading (make sure to not force path continuity)
-    // may arise with problems such as transitional correction,
-    // and uneven speeds/inaccurate variable t on parameter paths with
-    // might have to resolve checking if past a point but that is basically what the system is
-    // already doing.
     private double[] calculateHeadings(double headingOffset) {
         double[] headings = new double[this.points.length - 1];
 
@@ -84,26 +78,46 @@ public class Path implements Cloneable {
     /**
      * Make the robot continue its momentum at the end of the path.
      */
-    public Path moveThroughPath() {
+    public Path setToContinueMomentumAfter() {
         stopAtEndOfPath = false;
         return this;
     }
 
     /**
-     * Make the robot stop at the end of the path.
+     * Make the robot stop at the end of the path (this is the default).
      */
-    public Path stopAtEndOfPath() {
+    public Path setToStopAtEndOfPath() {
         stopAtEndOfPath = true;
         return this;
     }
 
+    /**
+     * Set specific movement properties of the Path.
+     * <pre><code>
+     * .setPathProperties((movement) -> movement
+     *     .setMaxVelocity(...)
+     *     .setMaxPower(...)
+     *     // Many other methods
+     * )
+     * </code></pre>
+     */
     public Path setPathProperties(MovementProperties setProperties) {
-        moveThroughProperties = setProperties;
+        pathMovementProperties = setProperties;
         return this;
     }
 
+    /**
+     * Set specific movement properties for stopping and holding the end of Path.
+     * <pre><code>
+     * .setEndPointHoldProperties((movement) -> movement
+     *     .setMaxVelocity(...)
+     *     .setMaxPower(...)
+     *     // Many other methods
+     * )
+     * </code></pre>
+     */
     public Path setEndPointHoldProperties(MovementProperties setProperties) {
-        stopAtEndProperties = setProperties;
+        endPointMovementProperties = setProperties;
         return this;
     }
 
@@ -148,7 +162,7 @@ public class Path implements Cloneable {
     private boolean holdingEndPosition = false;
     private boolean finished = false;
 
-    private void update() {
+    private void updatePath() {
         if (holdingEndPosition) {
             if (holdEndPosition.isFinished()) {
                 finished = true;
@@ -162,39 +176,24 @@ public class Path implements Cloneable {
 
         Target.updatePosition();
 
-        double[] point = this.points[i];
-
         double inchesLeftOnPath = (this.points.length - i) * Constants.Curve.INCHES_PER_POINT;
-        if (inchesLeftOnPath < Util.getVectorMagnitude(
-            Odometry.xBrakingDistance, Odometry.yBrakingDistance) + 2) {
+//        if (inchesLeftOnPath < Util.getVectorMagnitude(
+//            Odometry.xBrakingDistance, Odometry.yBrakingDistance) + 2) {
+//            startHoldingEndPosition();
+//            return;
+//        }
+
+        boolean endPointIsWithinBrakingDistance = Odometry.pointIsWithinBrakingDistance(
+            this.endPoint[0],
+            this.endPoint[1]
+        );
+
+        if (inchesLeftOnPath < 24 && endPointIsWithinBrakingDistance) {
             startHoldingEndPosition();
             return;
         }
 
-//        double[] pointAhead;
-//        if (i + 2 >= this.points.length) {
-//            pointAhead = this.endPoint;
-//        }
-//        else {
-//            pointAhead = this.points[i + 1];
-//        }
-
-        MovementBuild x = moveThroughProperties.setProperties(
-            MovementBuilder.moveThrough(point[0], point[1], this.headings[i])
-        )
-            .setDriveCorrection(DriveCorrection.fullPower);
-        x.isAtGoal = () -> {
-            boolean isPastPoint = (Target.y - Odometry.y - Odometry.yBrakingDistance)
-                * Target.yDelta
-                + (Target.x - Odometry.x - Odometry.xBrakingDistance)
-                * Target.xDelta < 0;
-
-            return isPastPoint;
-//                if (Vector.getMagnitude(xPower, yPower) < 1) {
-//                    break;
-//                }
-        };
-        x.build().waitForMovement(); // TODO build these before running
+        movements[i].waitForMovement();
 
         this.i += 1;
         if (i >= this.points.length - 1) { // -1
@@ -210,6 +209,32 @@ public class Path implements Cloneable {
         holdingEndPosition = true;
     }
 
+    private Movement[] movements;
+
+    private void buildMovements() {
+        movements = new Movement[this.points.length - 1];
+
+        for (int i = 1; i < this.points.length; i++) {
+            double[] point = this.points[i];
+            movements[i - 1] = pathMovementProperties.setProperties(
+                    MovementBuilder.moveThrough(point[0], point[1], this.headings[i - 1])
+                )
+                .setDriveCorrection(DriveCorrection.fullPower)
+                .setIsAtGoal(() -> {
+                    boolean isPastPoint = (Target.y - Odometry.y - Odometry.yBrakingDistance)
+                        * Target.yDelta
+                        + (Target.x - Odometry.x - Odometry.xBrakingDistance)
+                        * Target.xDelta < 0;
+
+                    return isPastPoint;
+                    //                if (Vector.getMagnitude(xPower, yPower) < 1) {
+                    //                    break;
+                    //                }
+                })
+                .build();
+        }
+    }
+
     /**
      * Finish building the path. This should be the last method called.
      * If you want to inherit methods
@@ -217,38 +242,54 @@ public class Path implements Cloneable {
     public Movement build() {
         this.endingHeading = this.headings[headings.length - 1];
 
-        Follower.telemetry.addData("ending Heading", endingHeading);
-        Follower.telemetry.update();
+        buildMovements();
+        buildEndPointMovement();
 
+        return new Movement() {
+            @Override
+            public boolean isFinished() {
+                return finished;
+            }
+
+            @Override
+            public Movement start() {
+                i = 1;
+                holdingEndPosition = false;
+                finished = false;
+                Target.setTarget(Target.previousHeading, Path.this.points[0][0], Path.this.points[0][1]); //?
+                timer.reset();
+                return this;
+            }
+
+            @Override
+            public void finish() {
+                holdEndPosition.finish();
+            }
+
+            @Override
+            public void update() {
+                updatePath();
+            }
+        };
+    }
+
+    private void buildEndPointMovement() {
         if (stopAtEndOfPath) {
-            holdEndPosition = stopAtEndProperties.setProperties(
+            holdEndPosition = endPointMovementProperties.setProperties(
                 MovementBuilder.stopAtPosition(
-                endPoint[0],
-                endPoint[1],
-                endingHeading
-            )).setToContinuePowerAfter().build();
+                    endPoint[0],
+                    endPoint[1],
+                    endingHeading
+                )).build();
         }
         else {
-            holdEndPosition = MovementBuilder.moveThrough(
-                endPoint[0],
-                endPoint[1],
-                endingHeading
-            ).setToContinuePowerAfter().build();
+            holdEndPosition = pathMovementProperties.setProperties(
+                MovementBuilder.moveThrough(
+                    endPoint[0],
+                    endPoint[1],
+                    endingHeading
+                )).setToContinuePowerAfter().build();
         }
-        return new Movement(() -> finished, this::start, this::finish, this::update);
-    }
-
-    private void start() {
-        i = 1;
-        holdingEndPosition = false;
-        finished = false;
-        Target.setTarget(Target.previousHeading, Path.this.points[0][0], Path.this.points[0][1]); //?
-        timer.reset();
-    }
-
-    private void finish() {
-        Drive.zeroPowerBrakeMode();
-        Drive.zeroPower();
     }
 
     @NonNull

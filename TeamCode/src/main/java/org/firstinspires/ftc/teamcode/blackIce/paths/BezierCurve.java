@@ -4,25 +4,28 @@ import org.firstinspires.ftc.teamcode.blackIce.Constants;
 
 import java.util.Arrays;
 
+// TODO Is there a way to get the tangent line from any point to the bezier curve?
+// Without approximating?
+
+// Having points designated to cross and check when past the point,
+// without calculating the closest point, Increases loop speeds, but also Increases risk of drift
+
 /**
- * A Bezier Curve <a href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve">...</a> is a
- * smooth curve made with control points.
+ * A <a href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bezier Curve</a> is a
+ * smooth, continuous curve made with control points.
+ * Approximates the curve with a number of points based off {@link Constants.Curve#INCHES_PER_POINT}
  */
 public class BezierCurve extends Path {
-    final double totalLength;
-
     /**
      * Create a {@link BezierCurve} from control points.
      *
      * @param controlPoints Example: {@code new double[][] {{1, 2}, {2, 3}, ...}}
      */
     public BezierCurve(double[][] controlPoints) {
-        this(controlPoints, BezierCurve.estimateCurveLength(controlPoints, 1000));
-    }
-
-    private BezierCurve(double[][] controlPoints, double totalLength) {
-        super(BezierCurve.calculateBezierPoints(controlPoints, totalLength));
-        this.totalLength = totalLength;
+        super(BezierCurve.calculateBezierPoints(
+            controlPoints,
+            BezierCurve.estimateCurveLength(controlPoints, 1000))
+        );
     }
 
     private static double[][] calculateBezierPoints(double[][] controlPoints, double totalLength) {

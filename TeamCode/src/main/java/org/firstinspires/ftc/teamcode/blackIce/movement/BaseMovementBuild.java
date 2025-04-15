@@ -2,12 +2,13 @@ package org.firstinspires.ftc.teamcode.blackIce.movement;
 
 import androidx.annotation.NonNull;
 
+import org.firstinspires.ftc.teamcode.blackIce.CombineCorrectionPowers;
 import org.firstinspires.ftc.teamcode.blackIce.Condition;
-import org.firstinspires.ftc.teamcode.blackIce.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.DriveCorrection;
 import org.firstinspires.ftc.teamcode.blackIce.Function;
 import org.firstinspires.ftc.teamcode.blackIce.HeadingCorrection;
 import org.firstinspires.ftc.teamcode.blackIce.Vector;
+import org.firstinspires.ftc.teamcode.blackIce.drive.DrivePowers;
 
 /**
  * Handles all of the ".set" build methods and data for Movements and Paths.
@@ -20,7 +21,7 @@ public abstract class BaseMovementBuild
 
     private HeadingCorrection headingCorrection;
     private DriveCorrection driveCorrection;
-    protected Condition movementExit = () -> true; // TODO
+    protected Condition isAtGoal = () -> true;
 
     protected double maxPower = 1;
     protected double maxTurnPower = 1;
@@ -31,8 +32,8 @@ public abstract class BaseMovementBuild
     protected boolean brakeAfter = false;
     protected boolean continuePowerAfter = false;
 
-    private Runnable totalCorrection;
-    private Function<double[], double[]> drivePowerScaling =
+    private CombineCorrectionPowers totalCorrection;
+    private Function<DrivePowers, DrivePowers> drivePowerScaling =
         (drivePowers) -> drivePowers;
 
     /**
@@ -50,7 +51,7 @@ public abstract class BaseMovementBuild
             .setTimeoutSeconds(properties.timeoutSeconds)
             .setMaxVelocity(properties.maxVelocity)
             .setDriveCorrection(properties.driveCorrection)
-            .setMovementExit(properties.movementExit)
+            .setIsAtGoal(properties.isAtGoal)
             .setHeadingCorrection(properties.headingCorrection)
             .setTotalCorrection(properties.totalCorrection)
             .setDrivePowerScaling(properties.drivePowerScaling);
@@ -84,22 +85,22 @@ public abstract class BaseMovementBuild
         return getThis();
     }
 
-    /**
-     * Get the scaled drive power correction.
-     */
-    public double[] getDrivePowerCorrection() {
+    private DrivePowers getDrivePowerCorrection() {
         return drivePowerScaling.run(driveCorrection.calculateDrivePowers());
     }
 
-    public double[] getHeadingPowerCorrection() {
-        return Drive.turnCounterclockwise(headingCorrection.calculateTurnPower());
+    private DrivePowers getHeadingPowerCorrection() {
+        return DrivePowers.turnCounterclockwise(headingCorrection.calculateTurnPower());
     }
 
     /**
      * Moves toward the target.
      */
     public void moveTowardTarget() {
-        totalCorrection.run();
+        totalCorrection.combineCorrectionPowers(
+            getDrivePowerCorrection(),
+            getHeadingPowerCorrection()
+        ).applyPowers();
     }
 
     /**
@@ -116,7 +117,7 @@ public abstract class BaseMovementBuild
      * ))
      * </code></pre>
      */
-    public SubclassType setTotalCorrection(Runnable function) {
+    public SubclassType setTotalCorrection(CombineCorrectionPowers function) {
         totalCorrection = function;
         return getThis();
     }
@@ -133,25 +134,16 @@ public abstract class BaseMovementBuild
      * </code></pre>
      * See {@link Vector} class for common scaling methods.
      */
-    public SubclassType setDrivePowerScaling(Function<double[], double[]> function) {
+    public SubclassType setDrivePowerScaling(Function<DrivePowers, DrivePowers> function) {
         drivePowerScaling = function;
         return getThis();
     }
 
     /**
-     * Set an extra {@link Condition} that that has to be satisfied before the movement can exit.
-     *
-     * @param newMovementExit {@code .setMovementExit(() -> {return ...})} (has to return a boolean)
-     * The movement will continue holding while the condition is false.
-     * Returning true will allow the movement to exit.
-     *
-     * <h6>Examples</h6>
-     * Continues to hold the position until linear slide is raised:
-     * <p>
-     * {@code .setMovementExit(() -> {return linearSlide.isRaised()})}
+     * Set the {@link Condition} that tells when the movement is finished.
      */
-    public SubclassType setMovementExit(Condition newMovementExit) {
-        movementExit = newMovementExit;
+    public SubclassType setIsAtGoal(Condition condition) {
+        isAtGoal = condition;
         return getThis();
     }
 
@@ -181,20 +173,20 @@ public abstract class BaseMovementBuild
     }
 
     /**
+     * Set the Movement's timeout in seconds. Default is 5 seconds.
+     */
+    public SubclassType setTimeoutSeconds(double newTimeoutSeconds) {
+        timeoutSeconds = newTimeoutSeconds;
+        return getThis();
+    }
+
+    /**
      * Set the maximum power the robot can move at.
      *
      * @param newMaxPower A number 0 to 1. {@code 0.5} -> 50% power
      */
     public SubclassType setMaxPower(double newMaxPower) {
         maxPower = newMaxPower;
-        return getThis();
-    }
-
-    /**
-     * Set the Movement's timeout in seconds. Default is 5 seconds.
-     */
-    public SubclassType setTimeoutSeconds(double newTimeoutSeconds) {
-        timeoutSeconds = newTimeoutSeconds;
         return getThis();
     }
 
@@ -229,7 +221,7 @@ public abstract class BaseMovementBuild
 
             return cloned;
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError(); // This should never happen since we implement Cloneable//            throw new AssertionError(); // This should never happen since we implement Cloneable
+            throw new AssertionError();
         }
     }
 }

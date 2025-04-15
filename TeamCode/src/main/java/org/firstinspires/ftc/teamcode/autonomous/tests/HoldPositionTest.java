@@ -4,34 +4,24 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.blackIce.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.movement.Movement;
+import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuild;
+import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuilder;
 import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 import org.firstinspires.ftc.teamcode.blackIce.paths.BezierCurve;
 
-// WORKING VERSION
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
-public class NewTest extends LinearOpMode {
-
-
+public class HoldPositionTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         Follower.initAuto(this);
 
-        final Movement path = new BezierCurve(
-            new double[][]
-                {{ 1.68073593,  0.29761905},
-                    {14.74350649, 23.73376623},
-                    {55.08441558, 31.03354978},
-                    {81.20995671, 28.72835498},
-                    {77.36796537,  0.29761905},
-                    {56.23701299,  3.75541126},
-                    {34.33766234,  3.75541126}}
-        ).build();
+        Odometry.setPosition(0, 0, 0);
+
+        final Movement m = MovementBuilder.stopAtPosition(0, 0, 0).build();
 
         waitForStart();
 
-        Odometry.setPosition(90, 0, 0);
-
-        path.waitUntil(() -> false);
+        m.waitUntil(() -> false);
 
         Follower.telemetry.addData("finished", 0);
         Follower.telemetry.update();

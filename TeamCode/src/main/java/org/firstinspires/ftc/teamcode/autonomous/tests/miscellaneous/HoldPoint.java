@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.autonomous.tests;
+package org.firstinspires.ftc.teamcode.autonomous.tests.miscellaneous;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.drive.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.Follower;
-import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuild;
+import org.firstinspires.ftc.teamcode.blackIce.drive.DrivePowers;
+import org.firstinspires.ftc.teamcode.blackIce.movement.Movement;
 import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuilder;
 import org.firstinspires.ftc.teamcode.blackIce.Target;
 import org.firstinspires.ftc.teamcode.blackIce.Vector;
@@ -22,17 +23,15 @@ public class HoldPoint extends LinearOpMode {
 
         Drive.zeroPowerFloatMode();
 
-        MovementBuild movement = MovementBuilder.moveThrough(0,0,90)
-            .setDriveCorrection(
-                () -> Vector.scaleToMax(Drive.fieldVectorToLocalWheelPowers(
-                    new double[] {
-                        (Target.xError - Odometry.xBrakingDistance),
-                        (Target.yError - Odometry.yBrakingDistance)
-                    }
-                ), 1)
-            );
+//        Movement movement = MovementBuilder.moveThrough(0,0,90)
+//            .setDriveCorrection(
+//                () -> DrivePowers.scaleToMax(DriveVectors.fieldVectorToLocalWheelPowers(
+//                        (Target.xError - Odometry.xBrakingDistance),
+//                        (Target.yError - Odometry.yBrakingDistance)
+//                ), 1)
+//            ).build();
 
-        movement.start();
+        //movement.start();
         while (opModeIsActive()) {
             Target.updatePosition();
             Follower.telemetry.addData("odometryX", Odometry.x);

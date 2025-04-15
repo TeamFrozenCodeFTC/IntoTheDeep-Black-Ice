@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous.tests;
+package org.firstinspires.ftc.teamcode.autonomous.tests.miscellaneous;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -33,7 +33,7 @@ public class BezierLineTest extends LinearOpMode {
 
     // Recommended to build all movements and paths outside of runOpMode and as `static final`
     // and with private keyword if not needed anywhere else
-    private static final Movement path = new BezierCurve(
+    private static final Movement path = new BezierCurve( // TODO why does this error
         new double[][]
             {{ 1.68073593,  0.29761905},
                 {14.74350649, 23.73376623},
@@ -45,13 +45,3 @@ public class BezierLineTest extends LinearOpMode {
     ).build();
 
 }
-
-// after last tournament,
-// - we added the goals of creating bezier curves
-// - differentiating forward vs lateral braking distance, (+ adding quadratic regression into java)
-// - documenting our code for others
-
-// 2/21/2025 - made bezier curves work by updating moveThrough function to incorporate
-// lines parallel --- to the previous point instead of L's or |__
-
-// now make constants better and tune

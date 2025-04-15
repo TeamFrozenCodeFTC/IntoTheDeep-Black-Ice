@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.blackIce.movement;
 
-import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.Vector;
+import org.firstinspires.ftc.teamcode.blackIce.drive.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.DriveCorrection;
 import org.firstinspires.ftc.teamcode.blackIce.HeadingCorrection;
 import org.firstinspires.ftc.teamcode.blackIce.Target;
-import org.firstinspires.ftc.teamcode.blackIce.Vector;
+import org.firstinspires.ftc.teamcode.blackIce.drive.DrivePowers;
 import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 
 public class MovementBuilder {
@@ -33,27 +34,39 @@ public class MovementBuilder {
 
             {
                 setHeadingCorrection(HeadingCorrection.locked);
+//                setDriveCorrection(() ->
+//                    DriveVectors.fieldVectorToLocalWheelPowers(
+//                        (Target.xError - Odometry.xBrakingDistance),
+//                        (Target.yError - Odometry.yBrakingDistance)
+//                    )
+//                );
                 setDriveCorrection(() ->
-                    Drive.fieldVectorToLocalWheelPowers(
+                    DrivePowers.fromFieldVector(
                         (Target.xError - Odometry.xBrakingDistance),
                         (Target.yError - Odometry.yBrakingDistance)
                     )
                 );
-                setTotalCorrection(() -> Drive.power(
-                    Drive.combineMax(
-                        getDrivePowerCorrection(),
-                        getHeadingPowerCorrection(),
-                        1
-                    )
-                ));
+//                setTotalCorrection(() -> Drive.power(
+//                    DrivePowers.normalizeDown(DrivePowers.combine(
+//                        getDrivePowerCorrection(),
+//                        getHeadingPowerCorrection()
+//                    ))
+//                ));
+                setTotalCorrection((driveCorrection, headingCorrection) ->
+                    driveCorrection
+                        .add(headingCorrection)
+                        .normalizeDown()
+                );
 
                 // Makes robot move always full power
-                setDrivePowerScaling(drivePowers -> Vector.scaleToMax(drivePowers, 1));
+                setDrivePowerScaling(drivePowers
+                    -> drivePowers.scaleMaxTo(1));
 
                 setToContinuePowerAfter();
 
-                isAtGoal = () -> {
-                    boolean isPastPoint = (Target.yError - Odometry.yBrakingDistance)
+                setIsAtGoal(() -> {
+                    boolean isPastPoint;
+                    isPastPoint = (Target.yError - Odometry.yBrakingDistance)
                         * Target.yDelta
                         + (Target.xError - Odometry.xBrakingDistance)
                         * Target.xDelta < 0;
@@ -63,7 +76,7 @@ public class MovementBuilder {
 //                if (Vector.getMagnitude(xPower, yPower) < 1) {
 //                    break;
 //                }
-                };
+                });
             }
         };
     }
@@ -88,16 +101,27 @@ public class MovementBuilder {
             }
 
             {
-                isAtGoal = () -> Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin)
-                    && Odometry.velocity < consideredStoppedVelocity;
+                // Makes update function continue supply power to wheels after finished
+                // to hold the end position
+                holdEndPositionAfterFinish = true;
 
-                setTotalCorrection(() -> Drive.power(
-                    Drive.combineMax(
-                        getDrivePowerCorrection(),
-                        getHeadingPowerCorrection(),
-                        1
-                    )
-                ));
+                setIsAtGoal(
+                    () -> Target.isWithinBrakingErrorMargin(Target.defaultErrorMargin)
+                    && Odometry.velocity < consideredStoppedVelocity
+                );
+
+//                setTotalCorrection(() -> Drive.power(
+//                    DrivePowers.normalizeDown(DrivePowers.combine(
+//                        getDrivePowerCorrection(),
+//                        getHeadingPowerCorrection()
+//                    ))
+//                ));
+
+                setTotalCorrection((driveCorrection, headingCorrection) ->
+                    driveCorrection
+                        .add(headingCorrection)
+                        .normalizeDown()
+                );
 
                 setHeadingCorrection(HeadingCorrection.locked);
                 setDriveCorrection(DriveCorrection.stopAtTarget);
@@ -118,7 +142,7 @@ public class MovementBuilder {
      * only braking at the optimal point. The braking distance also prevents overshooting.</li>
      *
      * @return A {@code Movement} object configured to stop at the target.
-     * @see MovementBuild#stopAtPosition
+     * @see MovementBuilder#stopAtPosition
      */
     public static MovementBuild stopAtPosition(double x, double y, double heading) {
         return stopAtPosition(x, y, heading, 1);

@@ -2,8 +2,7 @@ package org.firstinspires.ftc.teamcode.blackIce.movement;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.blackIce.Condition;
-import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.drive.Drive;
 import org.firstinspires.ftc.teamcode.blackIce.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.Target;
 
@@ -61,58 +60,59 @@ public abstract class MovementBuild extends BaseMovementBuild<MovementBuild> {
     }
 
     public Movement build() {
-        return new Movement(this::isFinished, this::start, this::finish, this::update);
+        return new Movement() {
+            @Override
+            public boolean isFinished() {
+                return finished;
+            }
+
+            @Override
+            public Movement start() {
+                if (keepPreviousHeading) {
+                    Target.setTarget(x, y);
+                }
+                else {
+                    Target.setTarget(heading, x, y);
+                }
+                timer.reset();
+
+                finished = isAtGoal.condition(); // opModeIsActive()?
+                return this;
+            }
+
+            @Override
+            public void finish() {
+                if (brakeAfter) {
+                    Drive.zeroPowerBrakeMode();
+                }
+                else {
+                    Drive.zeroPowerFloatMode();
+                }
+                if (!continuePowerAfter) {
+                    Drive.zeroPower();
+                }
+            }
+
+            @Override
+            public void update() {
+                Target.updatePosition();
+                finished = !Follower.opMode.opModeIsActive()
+                    || isAtGoal.condition()
+                    || timer.seconds() >= timeoutSeconds;
+
+                if (finished && !holdEndPositionAfterFinish) {
+                    return;
+                }
+
+                moveTowardTarget();
+            }
+        };
     }
 
-    private void finish() {
-        if (brakeAfter) {
-            Drive.zeroPowerBrakeMode();
-        }
-        else {
-            Drive.zeroPowerFloatMode();
-        }
-        if (!continuePowerAfter) {
-            Drive.zeroPower();
-        }
-    }
-
-    protected boolean holdEndPosition = false; // OR USE A CONDITION
-
-    private void update() {
-        Target.updatePosition();
-        finished = !Follower.opMode.opModeIsActive() // TODO more conditions ^^ holdEnd!!
-            || isAtGoal.condition()
-            || timer.seconds() >= timeoutSeconds;
-
-        if (finished) {// && !holdEndPosition
-            return;
-        }
-
-        moveTowardTarget();
-    }
-
-    public void start() {
-        if (keepPreviousHeading) {
-            Target.setTarget(x, y);
-        }
-        else {
-            Target.setTarget(heading, x, y);
-        }
-        timer.reset();
-
-        finished = isAtGoal.condition();
-//        finished = !Follower.opMode.opModeIsActive() // TODO more conditions ^^ holdEnd
-//            || isAtGoal.condition()
-//            || timer.seconds() >= timeoutSeconds;
-    }
-
-    public Condition isAtGoal;
+    protected boolean holdEndPositionAfterFinish = false;
 
     protected boolean finished = false;
 
-    private boolean isFinished() {
-        return finished;
-    }
 
 
     //    /**

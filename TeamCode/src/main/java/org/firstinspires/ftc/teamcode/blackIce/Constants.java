@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.blackIce;
 
-public class Constants {
+public final class Constants {
     public static class Measurement {
         public static final int TILE = 24;
         public static final int ROBOT = 18;
@@ -12,7 +12,8 @@ public class Constants {
     }
 
     public static class Curve {
-        public static double INCHES_PER_POINT = 2;
+        public static double INCHES_PER_POINT = 2; // The distance between each point in the curve
+        // (the robot update speed may not be able to keep up with low numbers)
         public static int LOOK_AHEAD_POINTS_FOR_HEADING = 2; // Looks ahead x points to turn in that direction
     }
 

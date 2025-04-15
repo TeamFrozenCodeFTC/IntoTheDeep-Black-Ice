@@ -1,43 +1,45 @@
 package org.firstinspires.ftc.teamcode.blackIce.movement;
 
 import org.firstinspires.ftc.teamcode.blackIce.Condition;
+import org.firstinspires.ftc.teamcode.blackIce.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
 
 /**
  * Returned by calling `.build()` on a {@link MovementBuild} or {@link Path}
  * Only Handles abstract looping and updating, no core logic.
  */
-public class Movement {
-    private final Condition isFinished;
-    private final Runnable start;
-    private final Runnable finish;
-    private final Runnable update;
-
-    public Movement(Condition isFinished, Runnable start, Runnable finish, Runnable update) {
-        this.isFinished = isFinished;
-        this.start = start;
-        this.finish = finish;
-        this.update = update;
-    }
+public abstract class Movement {
+    // HACK: This class is abstract and uses anonymous classes
+    // to avoid boilerplate of {@code Runnable.run()}
 
     /**
-     * Wait for the Movement to be completed with an extra condition and method that gets called
-     * every loop.
-     *
-     * @param extraCondition An extra {@link Condition} that that has to be satisfied before
-     *                      the movement can exit.
-     *                      The movement will continue holding while the condition is false.
-     *                      Returning true will allow the movement to exit.
-     * @param loopMethod A function gets called every loop. This is useful for things like
-     *                       when a linear slide reaches a certain height, a claw opens.
-     * <p>
-     * If no loop method and no extra condition is needed see {@link Movement#waitForMovement()}
+     * Gets called once in every loop.
      */
-    public void waitForMovement(Condition extraCondition, Runnable loopMethod) {
+    public static Runnable globalLoopMethod = () -> {};
+
+    /**
+     * Used for stopping macros in tele-op.
+     * Usually a gamepad button like {@code () -> gamepad1.x}
+     * When true, the movement will cancel.
+     */
+    public static Condition macroCancelCondition = () ->
+        Follower.opMode.gamepad1.left_stick_y != 0
+            || Follower.opMode.gamepad1.right_stick_y != 0;
+    // only y sticks, for performance?
+    // if want only when >20% instead of != 0% have to use absolute value
+
+    private Condition waitUntilCondition = () -> true;
+    private Runnable loopMethod = () -> {};
+
+    /**
+     * Wait for the Movement to be completed.
+     */
+    public void waitForMovement() {
         start();
 
-        while (!isFinished() && extraCondition.condition()) {
+        while ((!isFinished() || !waitUntilCondition.condition()) && !macroCancelCondition.condition()) {
             update();
+            globalLoopMethod.run();
             loopMethod.run();
         }
 
@@ -45,50 +47,54 @@ public class Movement {
     }
 
     /**
-     * Wait for the Movement to be completed.
+     * Wait for the conditionMethod to be true and Movement to be completed.
+     * Holds the end position until the condition is true.
+     *
+     * @param holdEndUntilTrue Holds the end position until the condition is true.
+     * <pre><code>
+     * .waitUntil(() -> slideIsRaised())
+     * // Will hold the end position until the slide is raised.
+     * </code></pre>
+     * <p>
+     * If no end-holding condition is needed see {@link Movement#waitForMovement()}
      */
-    public void waitForMovement() {
-        waitForMovement(() -> true, () -> {});
+    public void waitUntil(Condition holdEndUntilTrue) {
+        waitUntilCondition = holdEndUntilTrue;
+        waitForMovement();
     }
 
     /**
-     * Wait for the Movement to be completed.
+     * Add a loop method to the movement.
      *
-     * @param extraCondition False will continue holding the position,
-     *                       true will allow exit
+     * @param newLoopMethod A function that gets called every loop. This is useful for things like
+     *                       when a linear slide reaches a certain height, a claw is suppose to open.
      * <p>
-     * If no extra condition is needed see {@link MovementBuild#waitForMovement()}
+     * If a loop method is not needed, {@link Movement#waitForMovement()} will simply start the Movement
+     * normally.
      */
-    public void waitForMovement(Condition extraCondition) {
-        waitForMovement(extraCondition, () -> {});
+    public void withLoop(Runnable newLoopMethod) {
+        loopMethod = newLoopMethod;
+        waitForMovement();
     }
 
     /**
-     * Wait for the Movement to be completed with an extraCondition .
-     *
-     * @param loopMethod A function gets called every loop. This is useful for things like
-     *                       when a linear slide reaches a certain height, a claw opens.
-     * <p>
-     * If loop method is not needed see {@link MovementBuild#waitForMovement()}
+     * Whether the movement is finished or not. Includes {@code opModeIsActive()} check.
      */
-    public void waitForMovement(Runnable loopMethod) {
-        waitForMovement(() -> true, loopMethod);
-    }
+    public abstract boolean isFinished();
 
-    public boolean isFinished() {
-        return isFinished.condition();
-    }
+    /**
+     * Start the movement. Necessary inorder for {@link Movement#update} to work properly.
+     */
+    public abstract Movement start();
 
-    public Movement start() {
-        start.run();
-        return this;
-    }
+    /**
+     * Finish the movement. Ends wheel powers.
+     */
+    public abstract void finish();
 
-    public void finish() {
-        finish.run();
-    }
-
-    public void update() {
-        update.run();
-    }
+    /**
+     * Update the robot's position and move the robot towards its target.
+     * This can also be called for holding positions.
+     */
+    public abstract void update();
 }

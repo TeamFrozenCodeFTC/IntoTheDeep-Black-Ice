@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.teleOp.lastSeason;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.blackIce.Drive;
+import org.firstinspires.ftc.teamcode.blackIce.drive.DrivePowers;
 import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
 
 public class NewDriveControls {
@@ -104,26 +104,31 @@ public class NewDriveControls {
             speedFactor = 1;
         }
 
-        Drive.power(
-            Drive.multiply(
-                Drive.combine(
-                    pivot(),
-                    controllerRelativeMovement()
-                ),
-                speedFactor
-            )
-        );
+        controllerRelativeMovement()
+            .add(pivot())
+            .scaleMaxTo(speedFactor)
+            .applyPowers();
+
+//        Drive.power(
+//            DrivePowers.scaleToMax(
+//                DrivePowers.combine(
+//                    pivot(),
+//                    controllerRelativeMovement()
+//                ),
+//                speedFactor
+//            )
+//        );
     }
 
-    private double[] pivot() {
+    private DrivePowers pivot() {
         double power = powerEquation(robot.gamepad1.right_stick_x) * 0.7;
 
-        return Drive.turnClockwise(power);
+        return DrivePowers.turnClockwise(power);
     }
 
     boolean firstInput = false;
 
-    private double[] controllerRelativeMovement() {
+    private DrivePowers controllerRelativeMovement() {
         double xStick = powerEquation(robot.gamepad1.left_stick_x);
         double yStick = -powerEquation(robot.gamepad1.left_stick_y);
 
@@ -134,6 +139,6 @@ public class NewDriveControls {
             robot.timer.reset();
         }
 
-        return Drive.fieldVectorToLocalWheelPowers(new double[] {xStick, yStick});
+        return DrivePowers.fromFieldVector(xStick, yStick);
     }
 }

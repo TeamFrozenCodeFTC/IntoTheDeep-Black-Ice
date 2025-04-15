@@ -16,6 +16,7 @@ public class NewControls extends Robot2 {
 
     @Override
     public void runOpMode() {
+        // TODO: priotize turning heading in tele-op over movement
         initRobot();
 
         clawLeft.getController().pwmDisable();

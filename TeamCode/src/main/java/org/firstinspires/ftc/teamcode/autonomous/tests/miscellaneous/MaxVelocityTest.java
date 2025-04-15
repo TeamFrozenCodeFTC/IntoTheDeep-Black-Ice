@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous.tests;
+package org.firstinspires.ftc.teamcode.autonomous.tests.miscellaneous;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -30,10 +30,10 @@ public class MaxVelocityTest extends LinearOpMode {
         Follower.telemetry.addData("odo y", Odometry.y);
         Follower.telemetry.update();
 
-        MovementBuilder.moveThrough(48, 0, 0)
-            .setMaxVelocity(40)
-            .setDriveCorrection(DriveCorrection.velocityConstraints)
-            .setToBrakeAfter()
-            .build()
-            .waitForMovement();
+//        MovementBuilder.moveThrough(48, 0, 0)
+//            .setMaxVelocity(40)
+//            .setDriveCorrection(DriveCorrection.velocityConstraints)
+//            .setToBrakeAfter()
+//            .build()
+//            .waitForMovement();
 }}

@@ -17,7 +17,6 @@ public final class Target {
     public static double xError;
     public static double yError;
 
-    public static double totalDistanceToTarget;
     public static double previousHeading;
 
     public static void setTarget(double targetHeading, double targetX, double targetY) {
@@ -40,8 +39,8 @@ public final class Target {
         updatePosition();
     }
 
-    static double headingCos;
-    static double headingSin;
+    public static double headingCos;
+    public static double headingSin;
 
     // Target - previousTarget
     public static double yDelta;
