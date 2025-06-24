@@ -1,304 +1,584 @@
 package org.firstinspires.ftc.teamcode.blackIce.paths;
 
-import androidx.annotation.NonNull;
-
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.blackIce.Constants;
-import org.firstinspires.ftc.teamcode.blackIce.DriveCorrection;
-import org.firstinspires.ftc.teamcode.blackIce.Follower;
-import org.firstinspires.ftc.teamcode.blackIce.movement.MovementBuilder;
-import org.firstinspires.ftc.teamcode.blackIce.movement.Movement;
-import org.firstinspires.ftc.teamcode.blackIce.Target;
-import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
+import org.firstinspires.ftc.teamcode.blackIce.action.lambda.Condition;
+import org.firstinspires.ftc.teamcode.blackIce.action.lambda.Action;
+import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Pose;
+import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
+import org.firstinspires.ftc.teamcode.blackIce.paths.segments.PathSegment;
 
 /**
- * Takes a path of points, calculates the desired heading at each point,
- * and creates a Path made of Movements to each point which follow the path.
+ * A Path that follows path segments (can be extended with actions).
+ * Caries state and individual parameters.
+ * Should be stateless, pathExecutor should have state.
+ * Immutable data - segments
+ * Mutable behavior - actions
  */
-public class Path implements Cloneable {
-    public boolean stopAtEndOfPath = true;
-
-    private MovementProperties pathMovementProperties = (x) -> x;
-    private MovementProperties endPointMovementProperties = (x) -> x;
-
-    public final double[][] points;
-    double[] headings;
-
-    double[] endPoint;
-    double endingHeading;
-
-    private final ElapsedTime timer = new ElapsedTime();
-
-    /**
-     * Create a path of points the robot follows.
-     */
-    public Path(double[][] points) {
-        this.points = points;
-        this.endPoint = new double[] {
-            this.points[points.length - 1][0],
-            this.points[points.length - 1][1]
-        };
-        this.headings = calculateHeadings(0);
-    }
-
-    private double[] calculateHeadings(double headingOffset) {
-        double[] headings = new double[this.points.length - 1];
-
-        for (int i = 0; i < this.points.length - 1; i++) {
-            double[] point = this.points[i];
-
-            double[] pointHeading;
-
-            int lookAheadIndex = i + Constants.Curve.LOOK_AHEAD_POINTS_FOR_HEADING;
-            if (lookAheadIndex >= this.points.length) {
-                pointHeading = this.endPoint;
-            } else {
-                pointHeading = this.points[lookAheadIndex];
-            }
-
-            headings[i] = Math.toDegrees(
-                Math.atan2(pointHeading[1] - point[1], pointHeading[0] - point[0])
-            ) + headingOffset;
+public class Path extends PathConfig<Path> {
+    public static final double NO_TIMEOUT = -1.0;
+    
+    private final PathSegment[] segments;
+    private final PathSegment lastSegment;
+    
+    private final Vector endPoint;
+    
+    public final double length;
+    
+    public Path(PathConfig<?> startingConfig, PathSegment... segments) {
+        super(startingConfig);
+        
+        if (segments == null || segments.length == 0) {
+            throw new IllegalArgumentException("Path must have at least one segment.");
         }
-        return headings;
-    }
-
-    /**
-     * Make the robot have a constant heading along the path.
-     */
-    public Path setConstantHeading(double newConstantHeading) {
-        headings = new double[this.points.length];
-        for (int i = 0; i < this.points.length; i++) {
-            headings[i] = newConstantHeading;
+        
+        this.segments = segments;
+        this.lastSegment = this.segments[this.segments.length - 1];
+        this.endPoint = lastSegment.getEndPoint();
+        double total = 0;
+        for (PathSegment pathSegment : segments) {
+            total += pathSegment.length();
         }
-        return this;
+        this.length = total;
     }
-
-    /**
-     * Make the robot continue its momentum at the end of the path.
-     */
-    public Path setToContinueMomentumAfter() {
-        stopAtEndOfPath = false;
-        return this;
-    }
-
-    /**
-     * Make the robot stop at the end of the path (this is the default).
-     */
-    public Path setToStopAtEndOfPath() {
-        stopAtEndOfPath = true;
-        return this;
-    }
-
-    /**
-     * Set specific movement properties of the Path.
-     * <pre><code>
-     * .setPathProperties((movement) -> movement
-     *     .setMaxVelocity(...)
-     *     .setMaxPower(...)
-     *     // Many other methods
-     * )
-     * </code></pre>
-     */
-    public Path setPathProperties(MovementProperties setProperties) {
-        pathMovementProperties = setProperties;
-        return this;
-    }
-
-    /**
-     * Set specific movement properties for stopping and holding the end of Path.
-     * <pre><code>
-     * .setEndPointHoldProperties((movement) -> movement
-     *     .setMaxVelocity(...)
-     *     .setMaxPower(...)
-     *     // Many other methods
-     * )
-     * </code></pre>
-     */
-    public Path setEndPointHoldProperties(MovementProperties setProperties) {
-        endPointMovementProperties = setProperties;
-        return this;
-    }
-
-    /**
-     * Make the robot have a offset heading along the path.
-     */
-    public Path setHeadingOffset(double newHeadingOffset) {
-        headings = calculateHeadings(newHeadingOffset);
-        return this;
-    }
-
-    /**
-     * Make the robot smoothly transition from one heading to another along the path.
-     */
-    public Path setLinearHeadingInterpolation(double startingHeading, double endingHeading) {
-        return setLinearHeadingInterpolation(startingHeading, endingHeading, 1.00);
-    }
-
-    /**
-     * Make the robot smoothly transition from one heading to another along the path.
-     *
-     * @param finishByPercent The percent of the path to finish the rotation.
-     *                       .80 would make the robot turn for 80% of the path.
-     */
-    public Path setLinearHeadingInterpolation(
-        double startingHeading,
-        double endingHeading,
-        double finishByPercent
-    ) {
-        headings = new double[this.points.length];
-
-        for (int i = 0; i < this.points.length; i++) {
-            int numPointsMinusOne = this.points.length - 1;
-            double adjustedFinish = (1 - finishByPercent) * numPointsMinusOne;
-            double t = Math.min(1, (double) i / (numPointsMinusOne - adjustedFinish));
-            headings[i] = startingHeading + t * (endingHeading - startingHeading);
+    
+    public Path(PathSegment... segments) {
+        super();
+        
+        if (segments == null || segments.length == 0) {
+            throw new IllegalArgumentException("Path must have at least one segment.");
         }
-        return this;
+        
+        this.segments = segments;
+        this.lastSegment = this.segments[this.segments.length - 1];
+        this.endPoint = lastSegment.getEndPoint();
+        double total = 0;
+        for (PathSegment pathSegment : segments) {
+            total += pathSegment.length();
+        }
+        this.length = total;
+    }
+    
+    public Path copy() {
+        return new Path(this, getSegments());
+    }
+    public Path withConfig(PathConfig<?> startingConfig) {
+        return new Path(startingConfig, getSegments());
+    }
+    
+    public PathSegment[] getSegments() {
+        return segments.clone();
+    }
+    
+    public double getNumberOfSegments() {
+        return segments.length;
     }
 
-    private int i = 1;
-    private boolean holdingEndPosition = false;
-    private boolean finished = false;
-
-    private void updatePath() {
-        if (holdingEndPosition) {
-            if (holdEndPosition.isFinished()) {
-                finished = true;
-            }
-            holdEndPosition.update();
-            return;
-        }
-
-        Follower.telemetry.addData("i", i);
-        Follower.telemetry.update();
-
-        Target.updatePosition();
-
-        double inchesLeftOnPath = (this.points.length - i) * Constants.Curve.INCHES_PER_POINT;
-//        if (inchesLeftOnPath < Util.getVectorMagnitude(
-//            Odometry.xBrakingDistance, Odometry.yBrakingDistance) + 2) {
-//            startHoldingEndPosition();
-//            return;
-//        }
-
-        boolean endPointIsWithinBrakingDistance = Odometry.pointIsWithinBrakingDistance(
-            this.endPoint[0],
-            this.endPoint[1]
+    public Pose getEndPose() {
+        return new Pose(
+            endPoint,
+            getHeadingInterpolator().interpolate(lastSegment.getEndSegmentPoint())
         );
-
-        if (inchesLeftOnPath < 24 && endPointIsWithinBrakingDistance) {
-            startHoldingEndPosition();
-            return;
-        }
-
-        movements[i].waitForMovement();
-
-        this.i += 1;
-        if (i >= this.points.length - 1) { // -1
-            startHoldingEndPosition();
-        }
     }
+    
+    // todo timeouts
 
-    private Movement holdEndPosition;
-
-    private void startHoldingEndPosition() {
-        holdEndPosition.start();
-
-        holdingEndPosition = true;
+    private final ActionLoop actionLoop = new ActionLoop();
+    
+    /**
+     * Continue this path and hold the end pose until the condition is true. This method sets the
+     * "stopAtEnd" equal to true inorder to hold the end pose.
+     * <pre><code>
+     * .holdUntil(() -> robot.getLiftPosition() > 100) // hold until lift is above 100
+     * </code></pre>
+     * If the condition is true before the path is finished, the robot will continue until it
+     * reaches the end of the path.
+     */
+    public Path holdUntil(Condition condition) {
+        stopAtEnd();
+        actionLoop.canFinishWhen(condition);
+        return this;
     }
-
-    private Movement[] movements;
-
-    private void buildMovements() {
-        movements = new Movement[this.points.length - 1];
-
-        for (int i = 1; i < this.points.length; i++) {
-            double[] point = this.points[i];
-            movements[i - 1] = pathMovementProperties.setProperties(
-                    MovementBuilder.moveThrough(point[0], point[1], this.headings[i - 1])
-                )
-                .setDriveCorrection(DriveCorrection.fullPower)
-                .setIsAtGoal(() -> {
-                    boolean isPastPoint = (Target.y - Odometry.y - Odometry.yBrakingDistance)
-                        * Target.yDelta
-                        + (Target.x - Odometry.x - Odometry.xBrakingDistance)
-                        * Target.xDelta < 0;
-
-                    return isPastPoint;
-                    //                if (Vector.getMagnitude(xPower, yPower) < 1) {
-                    //                    break;
-                    //                }
-                })
-                .build();
-        }
+    
+    /**
+     * Immediately cancel this path when the condition is true.
+     * <pre><code>
+     * .cancelWhen(() -> robot.getLiftPosition() > 100) // stop when lift is above 100
+     * </code></pre>
+     */
+    public Path cancelWhen(Condition condition) {
+        actionLoop.cancelWhen(condition);
+        return this;
+    }
+    
+    /**
+     * Calls the given action every loop while this path is being followed.
+     * <pre><code>
+     * .whileFollowing(() -> myLift.updatePosition()) // update lift position while following
+     * </code></pre>
+     */
+    public Path whileFollowing(Action action) {
+        actionLoop.onLoop(action);
+        return this;
     }
 
     /**
-     * Finish building the path. This should be the last method called.
-     * If you want to inherit methods
+     * Executes the action once the condition is true.
+     * <pre><code>
+     * path.doOnceWhen(slide::isRaised, () -> telemetry.addLine("Slide has raised!"));
+     * </code></pre>
      */
-    public Movement build() {
-        this.endingHeading = this.headings[headings.length - 1];
-
-        buildMovements();
-        buildEndPointMovement();
-
-        return new Movement() {
-            @Override
-            public boolean isFinished() {
-                return finished;
-            }
-
-            @Override
-            public Movement start() {
-                i = 1;
-                holdingEndPosition = false;
-                finished = false;
-                Target.setTarget(Target.previousHeading, Path.this.points[0][0], Path.this.points[0][1]); //?
-                timer.reset();
-                return this;
-            }
-
-            @Override
-            public void finish() {
-                holdEndPosition.finish();
-            }
-
-            @Override
-            public void update() {
-                updatePath();
-            }
-        };
+    public Path doOnceWhen(Condition condition, Action executable) {
+        final boolean[] hasRan = {false};
+        return this
+            .onStart(() -> hasRan[0] = false)
+            .whileFollowing(() -> {
+                if (!hasRan[0] && condition.isTrue()) {
+                    hasRan[0] = true;
+                    executable.execute();
+                }
+            });
     }
 
-    private void buildEndPointMovement() {
-        if (stopAtEndOfPath) {
-            holdEndPosition = endPointMovementProperties.setProperties(
-                MovementBuilder.stopAtPosition(
-                    endPoint[0],
-                    endPoint[1],
-                    endingHeading
-                )).build();
-        }
-        else {
-            holdEndPosition = pathMovementProperties.setProperties(
-                MovementBuilder.moveThrough(
-                    endPoint[0],
-                    endPoint[1],
-                    endingHeading
-                )).setToContinuePowerAfter().build();
-        }
+    /**
+     * Executes the action every loop the condition is true.
+     * <pre><code>
+     * path.doWhen(gamepad1::a, slide::raise); // raise slide when A is pressed
+     * </code></pre>
+     */
+    public Path doWhen(Condition condition, Action executable) {
+        return this.whileFollowing(() -> executable.executeWhen(condition.isTrue()));
+    }
+    
+    /**
+     * Cancel the path when the condition is true, and execute the action.
+     * path.(gamepad1::x, gamepad1::rumble); // rumble the controller when X is pressed
+     */
+    public Path cancelWhen(Condition condition, Action action) {
+        actionLoop.cancelWhen(condition, action);
+        return this;
     }
 
-    @NonNull
-    @Override
-    public Path clone() {
-        try {
-            return (Path) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+    /**
+     * Finish the path early when the condition is true.
+     * <pre><code>
+     * path.earlyFinishWhen(pos.x > 60);
+     * </code></pre>
+     */
+    public Path earlyFinishWhen(Condition condition) {
+        actionLoop.earlyExitWhen(condition);
+        return this;
+    }
+
+    /**
+     * Finish the path early when the condition is true and execute an action.
+     * <pre><code>
+     * path.earlyFinishWhen(pos.x > 60, () -> telemetry.addLine("early finish"));
+     * </code></pre>
+     */
+    public Path earlyFinishWhen(Condition condition, Action action) {
+        actionLoop.earlyExitWhen(condition, action);
+        return this;
+    }
+
+    /**
+     * Add an action to be executed when the path starts.
+     */
+    public Path onStart(Action action) {
+        actionLoop.onStart(action);
+        return this;
+    }
+
+    /**
+     * Add an action when the path successfully finishes. This includes early exits
+     * but not cancellations.
+     */
+    public Path onFinish(Action action) { //have separate isAtEndOfPath() method
+        actionLoop.onFinish(action);
+        return this;
+    }
+    
+    /**
+     * Add an action when the path is canceled, either by an opMode stop, or other conditions like macro
+     * cancelling buttons.
+     */
+    public Path onCancel(Action action) {
+        actionLoop.onCancel(action);
+        return this;
+    }
+    
+    /**
+     * Add an action to be executed when the path successfully finishing or is canceled.
+     */
+    public Path onExit(Action action) {
+        actionLoop.onExit(action);
+        return this;
+    }
+    
+    public ActionLoop getActionLoop() {
+        return actionLoop;
     }
 }
+
+//package org.firstinspires.ftc.teamcode.blackIce.paths;
+//
+//import org.firstinspires.ftc.teamcode.blackIce.geometry.Vector;
+//import org.firstinspires.ftc.teamcode.blackIce.kinematics.Kinematics;
+//import org.firstinspires.ftc.teamcode.blackIce.motion.MotionState;
+//import org.firstinspires.ftc.teamcode.blackIce.geometry.Pose;
+//import org.firstinspires.ftc.teamcode.blackIce.math.MathFunctions;
+//import org.firstinspires.ftc.teamcode.blackIce.paths.segments.SegmentPoint;
+//import org.firstinspires.ftc.teamcode.blackIce.paths.segments.PathSegment;
+//import org.firstinspires.ftc.teamcode.blackIce.tuning.TuningConstants;
+//
+//import java.util.function.DoubleSupplier;
+//import java.util.function.Function;
+//
+///**
+// * A Path that follows path segments (can be extended with actions).
+// * Caries state and individual parameters.
+// * Should be stateless, pathExecutor should have state.
+// */
+//@Deprecated
+//public class Path extends PathConfigurable<Path> {
+//    final PathSegment[] segments;
+//    private int currentSegmentIndex = 0;
+//    private final double length;
+//    private final PathSegment lastSegment;
+//    private PathSegment currentSegment;
+//
+//    private final Follower follower;
+//    private MotionState motionState;
+//
+//    double currentSegmentT = 0;
+//    double predictedSegmentT = 0.01;
+//
+//    SegmentPoint closestCurvePointToStoppedPosition;
+//    private boolean isBraking = false;
+//    private boolean isFinished = false;
+//
+//    public Path(PathConfigurable<?> copyFrom, PathSegment... segments) {
+//        super(copyFrom);
+//        this.segments = segments;
+//        this.follower = Follower.getInstance();
+//        this.motionState = follower.getMotionState();
+//        setPathActions();
+//
+//        double length = 0;
+//        for (int i = 0; i < segments.length; i++) {
+//            length += segments[i].length();
+//        }
+//        this.length = length;
+//        this.lastSegment = this.segments[this.segments.length - 1];
+//        this.currentSegment = this.segments[currentSegmentIndex];
+//    }
+//
+//    // TODO create a builder that puts in a bunch of precalculated lines into a Path
+//    // it shouldn't stray away from the path because it should just keep skipping the current Segment
+//    // it wont go to the next loop if the robot skips a point
+//
+//
+////    public Path(PathSegment curve, Path copyFrom) {
+////        super(copyFrom);
+////        this.segments = curve;
+////        this.follower = Follower.getInstance();
+////        this.motionState = follower.getMotionState();
+////    }
+//
+//    private void setPathActions() {
+//        this.withInitialize(this::reset)
+//            .withLoop(this::update)
+//            .withCondition(() -> isFinished);
+//    }
+//
+//
+////    public Path(PathSegment curve) {
+////        this(curve, new PathConfigurable<>());
+////    }
+//
+////    public Path copy() {
+////        return new Path(segments, this);
+////    }
+//
+////    public Path withConfigFrom(PathConfigurable<?> config) {
+////        return new Path(segments, config);
+////    }
+//
+//    /**
+//     * Matches the robot's velocity to the progress of another action.
+//     * For example if you wanted the robot to reach the end of the path at the same time
+//     * as a lift, you could use this method to match the velocity of the robot to the progress.
+//     * <pre><code>
+//     * .matchVelocityWithProgress(
+//     *     () -> currentLiftPosition / targetLiftPosition, // progress of lift
+//     *     60 // maxVelocity
+//     *  )</code></pre>
+//     */
+//    @Deprecated // FIXME - if lift is raised, velocity = 0
+////    public Path matchVelocityWithProgress(DoubleSupplier getProgress, double maxVelocity) {
+////        return this.withLoop(() -> setTargetVelocity(maxVelocity
+////                * (1 - getProgress.getAsDouble())));
+////    }
+//    public Path matchVelocityWithProgress(DoubleSupplier getProgress, double maxVelocity) {
+//        return this.withLoop(() -> {
+//            double actionCompletePercent = (1 - getProgress.getAsDouble());
+//            double pathCompletedPercent = (1 - getPercentAlongPath());
+//            this.setTargetVelocity(pathCompletedPercent / actionCompletePercent * maxVelocity);
+//        };
+//    }
+//
+////    /**
+////     * Sets the heading interpolation for the whole path chain.
+////     * <p>
+////     * {@inheritDoc}
+////     */
+////    @Override
+////    public Path setHeadingInterpolation(HeadingInterpolator headingInterpolator) {
+////        //
+////        return super.setHeadingInterpolation((point) ->
+////            headingInterpolator.interpolate(new CurvePoint(
+////                point.getTValue() + length / (currentSegmentIndex + 1.0), // globalTValue
+////
+////                // getPercentAlongPath()
+////                point.getTangentVector(),
+////                point.getPoint())
+////            )
+////        );
+////    }
+//
+//    @Override
+//    public HeadingInterpolator getHeadingInterpolator() {
+//        return (point) ->
+//            super.getHeadingInterpolator().interpolate(
+//                new SegmentPoint(
+//                    getPercentAlongPath(),
+//                    point.getTangentVector(),
+//                    point.getPoint()
+//                ));
+//    }
+//
+//    /**
+//     * Exit the path when the robot is past a certain position or meets a positional requirement.
+//     * <pre><code>
+//     * .exitAtPositionBoundary(position -> position.x > 60) // exit when x > 60
+//     * </code></pre>
+//     * Useful Example: when you want to immediately continue to the next path when the robot
+//     * has put a sample in the observation zone.
+//     */
+//    public Path exitAtPositionBoundary(Function<Vector, Boolean> boundaryCondition) {
+//        return this.withCancelCondition(() -> boundaryCondition.apply(motionState.position));
+//    }
+//
+//     // TODO follow wall method
+//
+//    public Pose getEndPose() {
+//        return new Pose(
+//            lastSegment.getEndPoint(),
+//            getHeadingInterpolator().interpolate(lastSegment.getEndCurvePoint())
+//        );
+//    }
+//
+//    private void reset() {
+//        currentSegmentT = 0.01;
+//        isBraking = false;
+//        isFinished = false;
+//    }
+//
+//    /**
+//     * Tell whether the robot is currently braking (decelerating) at the end of the path.
+//     */
+//    public boolean isBraking() {
+//        return isBraking;
+//    }
+//
+//    /**
+//     * Get the current T value (or percentage) along the entire path.
+//     * <p>
+//     * 0.00 at start, 0.50 in the middle, 1.00 at end.
+//     */
+//    public double getPercentAlongPath() {
+//        double totalSegments = segments.length;
+//        double segmentProgress = currentSegmentT / currentSegment.length();
+//        // (1 + (1 / 1) / 5)
+//        // have to use different method for point
+//        double overallProgress = (currentSegmentIndex + segmentProgress) / totalSegments;
+//        return MathFunctions.clamp0To1(overallProgress);
+//    }
+//
+//    void advanceToNextSegment() {
+//        currentSegmentIndex++;
+//        currentSegment = segments[currentSegmentIndex];
+//    }
+//
+//    public PathSegment getCurrentSegment() {
+//        return currentSegment;
+//    }
+//
+//    boolean hasReachedSegmentEnd() {
+//        boolean isStopped = motionState.velocityMagnitude < getStoppedVelocityConstraint();
+//        boolean isAtParametricEnd = currentSegmentT >= 0.995;
+//        return isAtParametricEnd && isStopped;
+//    }
+//
+//    private boolean isOnLastSegment() {
+//        return currentSegmentIndex >= segments.length - 1;
+//    }
+//
+////    /**
+////     * Predict what the robot's position would be if it slammed on it's brakes right now.
+////     */
+////    private Vector predictStoppedPosition() {
+////        Vector robotVelocity = motionState.robotRelativeVelocity;
+////
+////        Vector robotDeltaVelocity = robotVelocity
+////            .subtract(follower.previousRobotRelativeVelocity); // is there a better way?
+////
+////        Vector predictedRobotVelocity =
+////            Kinematics.predictNextLoopVelocity(robotVelocity, robotDeltaVelocity);
+////
+////        Vector stoppingDisplacement = TuningConstants.BRAKING_DISPLACEMENT
+////            .getStoppingDistanceWithVelocity(predictedRobotVelocity);
+////        Vector fieldStoppingDisplacement = stoppingDisplacement.toFieldVector();
+////
+////        return motionState.position
+////            .add(fieldStoppingDisplacement.toFieldVector());
+////    }
+//
+////    private double calculateVelocityAlignmentWithTangent(Vector tangentVector) {
+////        return tangentVector
+////            .dot(motionState.fieldRelativeVelocity.normalized());
+////    }
+////
+////    /**
+////     * Predict the next t value based how much distance the robot vector
+////     * is going along the tangent line of the path.
+////     */
+////    private double getDistanceAlongPath(
+////        Vector tangentVector,
+////        Vector predictedStoppingDisplacement
+////    ) {
+////        double percentAlignedOnPath = calculateVelocityAlignmentWithTangent(tangentVector);
+////        return predictedStoppingDisplacement.calculateMagnitude() * percentAlignedOnPath;
+////    }
+////
+////    /**
+////     * Predict the next t value based how much velocity the robot
+////     * is going along the direction of the tangent line of the path.
+////     */
+////    double predictNextT(Vector tangentVector) {
+////        double percentAlignedOnPath = calculateVelocityAlignmentWithTangent(tangentVector);
+////        double velocityAlongPath = motionState.velocityMagnitude * percentAlignedOnPath;
+////        return currentSegmentT + (velocityAlongPath / length) * motionState.deltaTime;
+////    }
+//
+//
+////    private void advanceToNextSegment() {
+////        if (isOnLastSegment()) {
+////            isFinished = true;
+////        }
+////        else {
+////            currentSegmentIndex++;
+////        }
+////    }
+//
+////
+////    /**
+////     * Calculates the drive powers needed to follow the path.
+////     * Uses the robot's predicted stopping position to find the closest point
+////     * on the current path segment, then determines the appropriate drive action.
+////     */
+////    private DrivePowers computeDrivePowers() {
+////        double robotSpeed = motionState.velocityMagnitude;
+////
+////        if (isBraking) {
+////            return computeBrakingDrivePowersForSegment();
+////        }
+////
+////        // Where the robot would be if it slammed on it's brakes right now
+////        Vector predictedStoppedPosition = predictStoppedPosition();
+////
+////        return computeDrivePowersForSegment(predictedStoppedPosition, robotSpeed);
+////    }
+////
+////    private DrivePowers computeDrivePowersForSegment(
+////        Vector predictedStoppedPosition, double robotSpeed
+////    ) {
+////        closestCurvePointToStoppedPosition = currentSegment.calculateClosestPointTo(
+////            predictedStoppedPosition,
+////            this
+////        );
+////        if (currentSegment.getSegmentType().needsPredictedT) {
+////            this.predictedSegmentT = this.predictNextT(closestCurvePointToStoppedPosition.getTangentVector());
+////        }
+////
+////        boolean isOvershooting = closestCurvePointToStoppedPosition.isAtEnd();
+////        if (isOvershooting) {
+////            if (doesStopAtEnd()) {
+////                isBraking = true;
+////                return calculateBrakingDrivePowers();
+////            }
+////            advanceToNextSegment();
+////            return computeDrivePowersForSegment(predictedStoppedPosition, robotSpeed);
+////        }
+////
+////        return calculateAcceleratingDrivePowers(
+////            closestCurvePointToStoppedPosition.getTValue(), robotSpeed, predictedStoppedPosition
+////        );
+////    }
+////
+////    private DrivePowers computeBrakingDrivePowersForSegment() {
+////        if (hasReachedSegmentEnd()) { // + is within error margin +
+////            // heading is aligned
+////            isBraking = false;
+////            advanceToNextSegment();
+////        }
+////        return calculateBrakingDrivePowers();
+////    }
+////
+////    private DrivePowers calculateAcceleratingDrivePowers(
+////        double closestT,
+////        double robotSpeed,
+////        Vector predictedStoppedPosition
+////    ) {
+////        double lookAheadInches = 1;
+////        Vector closestPoint = currentSegment.calculatePointAt(MathFunctions.clamp0To1(
+////            closestT + lookAheadInches / currentSegment.length())); // don't need tangent vector
+////
+////        double targetPower =
+////            Math.abs((getTargetVelocity() - robotSpeed) * TuningConstants.kP);
+////        // + (targetAcceleration - currentAcceleration) * TuningConstants.kD);
+////
+////        Vector driveVector = closestPoint.subtract(predictedStoppedPosition);
+////
+////        return DrivePowers.fromFieldVector(
+////            driveVector.multiply(TuningConstants.VELOCITY_SCALING_VECTOR)
+////        ).scaleMaxTo(targetPower);
+////    }
+////
+////    private DrivePowers calculateHeadingDrivePowers(CurvePoint closestPoint) {
+////        return DrivePowers.turnCounterclockwise(
+////            getHeadingInterpolator().interpolate(closestPoint)
+////                - motionState.heading
+////                * 0.03
+////        );
+////    }
+////
+////    private DrivePowers calculateBrakingDrivePowers() {
+////        Vector offset = Vector.calculateForwardAndLateralOffset(
+////            motionState.position,
+////            motionState.heading,
+////            currentSegment.getEndPoint()
+////        );
+////
+////        Vector velocityTargetToStopAtEnd = TuningConstants.BRAKING_DISPLACEMENT
+////            .getTargetVelocityToStopAtDistance(offset)
+////            .withMaxMagnitude(getTargetVelocity());
+////
+////        Vector velocityError = velocityTargetToStopAtEnd.subtract(
+////            motionState.robotRelativeVelocity);
+////        Vector targetVelocityDirection = velocityError
+////            .multiply(TuningConstants.VELOCITY_SCALING_VECTOR);
+////
+////        return DrivePowers.fromRobotVector(targetVelocityDirection)
+////            .multiply(TuningConstants.kP);
+////    }
+//}
+//

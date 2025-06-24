@@ -1,11 +1,11 @@
 //
 //package org.firstinspires.ftc.teamcode.autonomous;
 //
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EDGE_OF_TILE;
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EXTRA_TURN_RADIUS;
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF_OF_ROBOT;
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.ROBOT_TURN_RADIUS;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.EDGE_OF_TILE;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.EXTRA_TURN_RADIUS;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.HALF_OF_ROBOT;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.TILE;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.ROBOT_TURN_RADIUS;
 //
 //import org.firstinspires.ftc.teamcode.Robot;
 //

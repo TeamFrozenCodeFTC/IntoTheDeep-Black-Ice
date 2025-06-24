@@ -1,8 +1,8 @@
 //
 //package org.firstinspires.ftc.teamcode.teleOp;
 //
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF_OF_ROBOT;
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.HALF_OF_ROBOT;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.TILE;
 //
 //import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 //import com.qualcomm.robotcore.hardware.DcMotor;

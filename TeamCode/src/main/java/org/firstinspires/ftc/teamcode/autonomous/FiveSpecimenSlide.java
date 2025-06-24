@@ -1,7 +1,7 @@
 //package org.firstinspires.ftc.teamcode.autonomous;
 //
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EDGE_OF_TILE;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.TILE;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.EDGE_OF_TILE;
 //
 //@com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Specimen")
 //public class FiveSpecimenSlide extends Specimen {

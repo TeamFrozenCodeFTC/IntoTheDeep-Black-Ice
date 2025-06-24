@@ -29,7 +29,9 @@ public class VelocityConstraints {
 
     // vf = vi + a * t
     // FAVOURITE RN
+    // there is no targetVelocity in here
     // power = (currentVelocity + maxAcceleration * deltaTime) / maxVelocity + 0.1
+    // 20, 60 = 65 / 60
 
     // targetVelocity = currentVelocity + currentAcceleration * delta
     // targetVelocity = x + currentAcceleration * delta

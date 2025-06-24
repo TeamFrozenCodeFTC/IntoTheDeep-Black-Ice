@@ -1,8 +1,8 @@
 //package org.firstinspires.ftc.teamcode.autonomous;
 //
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.TILE;
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.EDGE_OF_TILE;
-//import static org.firstinspires.ftc.teamcode.blackIce.Constants.Measurement.HALF_OF_ROBOT;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.TILE;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.EDGE_OF_TILE;
+//import static org.firstinspires.ftc.teamcode.blackIce.configConstants.Constants.Measurement.HALF_OF_ROBOT;
 //
 //import org.firstinspires.ftc.teamcode.Robot;
 //import org.firstinspires.ftc.teamcode.blackIce.MovementBuild2;
@@ -49,6 +49,7 @@
 //            .stopAtPosition()
 //            .setHeadingCorrection(movement.headingCorrections.locked)
 //            .setMovementExit(() -> {
+//  2100 - 0) / 2100 =
 //                double progress = (double) (2100 - viperSlideMotor.getCurrentPosition()) / 2100;
 //                toSubmersibleMovement.setMaxPower(progress+0.1);
 //                return viperSlide.isExtended();

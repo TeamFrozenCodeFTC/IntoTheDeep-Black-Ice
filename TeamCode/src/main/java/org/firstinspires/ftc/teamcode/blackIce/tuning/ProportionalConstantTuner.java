@@ -5,14 +5,14 @@
 //import com.qualcomm.robotcore.util.ElapsedTime;
 //
 //import org.firstinspires.ftc.teamcode.blackIce.drive.Drive;
-//import org.firstinspires.ftc.teamcode.blackIce.Follower;
-//import org.firstinspires.ftc.teamcode.blackIce.HeadingCorrection;
+//import org.firstinspires.ftc.teamcode.blackIce.paths.follower.Follower;
+//import org.firstinspires.ftc.teamcode.blackIce.pointToPoint.movement.HeadingCorrection;
 //
 //import org.firstinspires.ftc.teamcode.blackIce.Target;
-//import org.firstinspires.ftc.teamcode.blackIce.Vector;
+//import org.firstinspires.ftc.teamcode.blackIce.geometry.Vector;
 //import org.firstinspires.ftc.teamcode.blackIce.odometry.Odometry;
-//import org.firstinspires.ftc.teamcode.blackIce.paths.BezierCurve;
-//import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
+//import org.firstinspires.ftc.teamcode.blackIce.old.BezierCurve;
+//import org.firstinspires.ftc.teamcode.blackIce.old.Path;
 //import org.firstinspires.ftc.teamcode.util.Util;
 //
 //@com.qualcomm.robotcore.eventloop.opmode.Autonomous(group="Tests")
