@@ -5,14 +5,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
 import org.firstinspires.ftc.teamcode.blackIce.robot.wheelPowers.MecanumPowers;
+import org.firstinspires.ftc.teamcode.blackIce.util.Logger;
 
 public class MecanumDrive extends Drivetrain {
     WheelPowersProvider<MecanumPowers> brakingPowersProvider;
     WheelPowersProvider<MecanumPowers> acceleratingPowersProvider;
     public final double strafingEffortMultiplier;
-    
+
     // remove mecanum config and just have mecanum drive
-    public MecanumDrive(HardwareMap map, MecanumDrivetrainConfig config) {
+    public MecanumDrive(HardwareMap map, MecanumDriveConstants config) {
         super(initMotors(map, config));
         this.acceleratingPowersProvider = config.acceleratingPowersProvider;
         this.brakingPowersProvider = config.brakingPowersProvider;
@@ -42,7 +43,7 @@ public class MecanumDrive extends Drivetrain {
         }
     }
     
-    private static DcMotorEx[] initMotors(HardwareMap map, MecanumDrivetrainConfig config) {
+    private static DcMotorEx[] initMotors(HardwareMap map, MecanumDriveConstants config) {
         // TODO test performance difference between DcMotor and DcMotorEx
         DcMotorEx frontLeft = map.get(DcMotorEx.class, config.frontLeftName);
         DcMotorEx backLeft = map.get(DcMotorEx.class, config.backLeftName);

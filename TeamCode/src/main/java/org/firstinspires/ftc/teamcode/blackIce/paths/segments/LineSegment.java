@@ -39,7 +39,7 @@ public class LineSegment implements PathSegment {
     public SegmentPoint calculateClosestPointTo(Vector point, double startingGuess) {
         Vector startToPoint = point.subtract(startPoint);
  
-        double projection = startToPoint.dot(tangent);
+        double projection = startToPoint.dotProduct(tangent);
         double t = projection / length;
         t = PathSegment.clampT(t);
         

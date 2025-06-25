@@ -1,17 +1,11 @@
 package org.firstinspires.ftc.teamcode.blackIce.examples;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.blackIce.follower.Follower;
-import org.firstinspires.ftc.teamcode.blackIce.follower.FollowerConfig;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Pose;
-import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
-import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
-import org.firstinspires.ftc.teamcode.blackIce.paths.PathSequenceConstructor;
-import org.firstinspires.ftc.teamcode.blackIce.robot.wheelPowers.MecanumPowers;
 
 @TeleOp(group="Black-Ice Examples")
 public class ForwardDriveTest extends LinearOpMode {

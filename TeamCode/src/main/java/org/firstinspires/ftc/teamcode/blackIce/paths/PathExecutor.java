@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.blackIce.paths;
 
-import android.util.Log;
-
 import org.firstinspires.ftc.teamcode.blackIce.follower.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.math.MathFunctions;
-import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
+import org.firstinspires.ftc.teamcode.blackIce.math.kinematics.Kinematics;
 import org.firstinspires.ftc.teamcode.blackIce.motion.MotionState;
-import org.firstinspires.ftc.teamcode.blackIce.paths.calculators.WheelPowersCalculator;
+import org.firstinspires.ftc.teamcode.blackIce.paths.calculators.DrivePowerController;
 import org.firstinspires.ftc.teamcode.blackIce.paths.calculators.PathFollowContext;
 import org.firstinspires.ftc.teamcode.blackIce.paths.segments.SegmentPoint;
 import org.firstinspires.ftc.teamcode.blackIce.paths.segments.PathSegment;
@@ -30,12 +28,12 @@ public class PathExecutor {
     private final Advancer<PathSegment> segmentAdvancer;
     private double currentSegmentT = 0.01;
     
-    private final WheelPowersCalculator drivePowersCalculator;
+    private final DrivePowerController drivePowersCalculator;
     private final Drivetrain drivetrain;
     private final ActionLoop combinedLoop;
     
     public PathExecutor(
-        WheelPowersCalculator drivePowersCalculator,
+        DrivePowerController drivePowersCalculator,
         Path path,
         Drivetrain drivetrain,
         ActionLoop globalActionLoop
@@ -92,6 +90,8 @@ public class PathExecutor {
         // TODO when state is done make drive powers = 0 so robot doesn't drift
         
 //        Follower.getInstance().telemetry.addData("state", getState());
+
+        
         Follower.getInstance().telemetry.update();
         
         while (true) {
@@ -104,30 +104,40 @@ public class PathExecutor {
                 nextState = applyBraking(motionState);
             }
             else if (state == FollowingState.DONE) {
-                return;
+                break;
             }
             else {
                 throw new IllegalStateException("Unknown following state: " + state);
             }
             
             if (nextState == state) {
-                return;
+                break;
             }
             
             state = nextState;
         }
+        Logger.debug("XXX currentPosition", motionState.position);
+        Logger.debug("XXX predictedPosition", motionState.getPredictedStoppedPosition());
+        Logger.debug("XXX closestPointToRobot", closestPointToRobot.getPoint());
+        Logger.debug("XXX closestPointToBraking", closestSegmentPoint.getPoint());
     }
-    
+    SegmentPoint closestPointToRobot;
+    SegmentPoint closestSegmentPoint;
 
     private FollowingState followSegment(MotionState motionState) {
         // Note: this is NOT the closest point to the robot, but the closest point to the robot's
         // braking displacement.
-        SegmentPoint closestSegmentPoint = getCurrentSegment().calculateClosestPointTo(
-            motionState.getPredictedStoppedPosition(),
+        closestSegmentPoint = getCurrentSegment().calculateClosestPointTo(
+            motionState.getPredictedStoppedPosition().subtract(motionState.position)
+                .add(motionState.position),
             currentSegmentT
         );
-        SegmentPoint closestPointToRobot = getCurrentSegment().calculateClosestPointTo(
-            motionState.position,
+        closestPointToRobot = getCurrentSegment().calculateClosestPointTo(
+            motionState.position,//.add(
+//                Kinematics.predictNextLoopVelocity(
+//                    motionState.fieldRelativeVelocity,
+//                    motionState.toFieldRelativeVector(motionState.robotRelativeVelocity
+//                        .subtract(motionState.previousRobotRelativeVelocity))).times(motionState.deltaTime)),
             currentSegmentT
         );
         
@@ -143,24 +153,11 @@ public class PathExecutor {
         
         // tune P for transitional without stopping distance to ensure oscillating isn't from stopping distance
         Logger.debug("distanceToEnd", (1 - getPercentAlongPath()) * path.length);
-        
-//        Vector offsetDir =
-//            context.endPoint.getPoint().subtract(context.motionState.position).normalized();
-//        double projectedSpeed = context.motionState.robotRelativeVelocity.dot(offsetDir);
-        // || projectedSpeed < 0 works pretty well
-        if (closestSegmentPoint.isAtEnd()) {
-            Logger.debug("BRAKING -------------------");
+
+        if (closestSegmentPoint.getTValue() >= 1) { // if power is less than 1 then,
+            Logger.debug("STARTED BRAKING -------------------");
             return handleOvershooting();
         }
-        
-//        double stoppingDistance = Kinematics.getStoppingDistance(
-//            motionState.fieldRelativeVelocity.dot(closestCurvePoint.getTangentVector()),
-//            path.getDeceleration() // * decelerationStartMultiplier
-//        );
-//        double distanceToNextSegment = (1 - currentSegmentT) * getCurrentSegment().length();
-//        if (stoppingDistance > distanceToNextSegment) {
-//            return handleOvershooting();
-//        }
         
         drivePowersCalculator.accelerate(drivetrain, context);
         

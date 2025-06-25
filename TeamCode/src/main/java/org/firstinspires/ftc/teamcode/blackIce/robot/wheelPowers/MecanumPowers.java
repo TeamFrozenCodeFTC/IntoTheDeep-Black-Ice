@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.blackIce.robot.wheelPowers;
 import org.firstinspires.ftc.teamcode.blackIce.follower.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
 
+@Deprecated
 public class MecanumPowers extends WheelPowers<MecanumPowers> {
     public MecanumPowers(double frontLeft, double backLeft, double frontRight, double backRight) {
         super(frontLeft, backLeft, frontRight, backRight);

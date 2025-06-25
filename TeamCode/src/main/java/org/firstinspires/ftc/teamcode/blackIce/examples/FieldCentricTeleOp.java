@@ -15,27 +15,25 @@ public class FieldCentricTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
         Follower follower = new Follower(this, new Pose(0,0,0));
-        //follower.whileFollowing(follower::telemetryDebug);
-        
+
         waitForStart();
         
         gamepad1.rumble(1, 0, 500);
         
         while (!isStopRequested()) {
-            //  MecanumPowers.turnCounterclockwise(gamepad1.right_stick_x);
             follower.update();
             telemetry.addData("heading", follower.getMotionState().heading);
             telemetry.addData("field direction vector", new Vector(-gamepad1.left_stick_y,
                 -gamepad1.left_stick_x));
-            telemetry.addData("robot relative vector", new Vector(-gamepad1.left_stick_y,
-                -gamepad1.left_stick_x).toRobotVector(follower.motionState.heading));
+            telemetry.addData("robot relative vector", follower.motionState.makeRobotRelative(new Vector(-gamepad1.left_stick_y,
+                -gamepad1.left_stick_x)));
             telemetry.update();
 
-//            follower.fieldCentricTeleOpDrive(
-//                -gamepad1.left_stick_y, // FORWARD X
-//                -gamepad1.left_stick_x, // LATERAL Y
-//                -gamepad1.right_stick_x/2
-//            );
+            follower.fieldCentricTeleOpDrive(
+                -gamepad1.left_stick_y,
+                -gamepad1.left_stick_x,
+                -gamepad1.right_stick_x
+            );
         }
         follower.waitUntilOpModeStop();
         

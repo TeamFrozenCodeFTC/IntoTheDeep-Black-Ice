@@ -1,17 +1,14 @@
 package org.firstinspires.ftc.teamcode.blackIce.follower;
 
-import static org.firstinspires.ftc.teamcode.blackIce.paths.Path.NO_TIMEOUT;
-
 import android.util.Log;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.blackIce.action.lambda.Condition;
-import org.firstinspires.ftc.teamcode.blackIce.action.lambda.Action;
+import org.firstinspires.ftc.teamcode.blackIce.action.Condition;
+import org.firstinspires.ftc.teamcode.blackIce.action.Action;
 import org.firstinspires.ftc.teamcode.blackIce.localization.Localizer;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Pose;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
@@ -23,7 +20,7 @@ import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
 import org.firstinspires.ftc.teamcode.blackIce.paths.PathBehavior;
 import org.firstinspires.ftc.teamcode.blackIce.paths.PathExecutor;
 import org.firstinspires.ftc.teamcode.blackIce.paths.PathSequenceConstructor;
-import org.firstinspires.ftc.teamcode.blackIce.paths.calculators.WheelPowersCalculator;
+import org.firstinspires.ftc.teamcode.blackIce.paths.calculators.DrivePowerController;
 import org.firstinspires.ftc.teamcode.blackIce.robot.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.blackIce.util.Logger;
 
@@ -52,11 +49,10 @@ public class Follower { // TODO add wait func
 
     public MotionState motionState;
     private final MotionTracker motionTracker;
-    private final WheelPowersCalculator wheelPowersCalculator;
+    private final DrivePowerController wheelPowersCalculator;
     private final PathSequenceConstructor pathConstructor;
     public final Drivetrain drivetrain;
-    
-    private final FollowerConfig config;
+
     private PathBehavior defaultPathBehavior;
     
     private final ElapsedTime followingPathTimer = new ElapsedTime(0);
@@ -77,23 +73,27 @@ public class Follower { // TODO add wait func
     public Follower(
         LinearOpMode opMode,
         Pose startingPose,
-        FollowerConfig config
+        FollowerConstants constants
     ) {
-        this.defaultPathBehavior = config.defaultPathBehavior;
+        this.defaultPathBehavior = constants.defaultPathBehavior;
         INSTANCE = this;
         this.opMode = opMode;
         
-        this.localizer = config.localizer.create(opMode.hardwareMap, config.distanceUnit);
+        this.localizer = constants.localizer;
         this.motionTracker = new MotionTracker(localizer);
         
         updateMotionState();
         
         this.pathConstructor = new PathSequenceConstructor(startingPose, this.defaultPathBehavior);
         
-        this.drivetrain = config.drivetrainFactory.create(opMode.hardwareMap, config.drivetrainConfig);
-        this.wheelPowersCalculator = config.wheelPowersCalculator;
-        this.config = config;
-        
+        this.drivetrain = constants.drivetrain;
+        this.wheelPowersCalculator = new DrivePowerController(
+            constants.headingPID,
+            constants.positionalPID,
+            constants.translationalPID,
+            constants.driveVelocityPIDF
+        );
+
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(opMode.telemetry, dashboard.getTelemetry());
 //        opMode.telemetry = telemetry;
@@ -118,11 +118,14 @@ public class Follower { // TODO add wait func
     }
     
     public Follower(LinearOpMode opMode, Pose startingPose) {
-        this(opMode, startingPose, new FollowerConfig());
+        this(opMode, startingPose, Constants.createFollowerConstants(opMode).build());
     }
     
+    /**
+     * Initializes the follower at Pose(0,0,0)
+     */
     public Follower(LinearOpMode opMode) {
-        this(opMode, new Pose(0,0,0), new FollowerConfig());
+        this(opMode, new Pose(0,0,0));
     }
     
     public void resume() {
@@ -423,15 +426,25 @@ public class Follower { // TODO add wait func
 
     /**
      * Run a basic field-centric tele-op.
+     * <p>
+     * For driver field-centric
+     * <pre><code>
+     * follower.fieldCentricTeleOpDrive(
+     *     -gamepad1.left_stick_y
+     *     -gamepad1.left_stick_x,
+     *     -gamepad1.right_stick_x
+     * );
+     * </code></pre>
      */
-    public void fieldCentricTeleOpDrive(double x, double y, double turn) {
+    public void fieldCentricTeleOpDrive(double forward, double lateral, double turn) {
         updateMotionState();
         if (opMode.gamepad1.right_stick_button){ // turning
-            drivetrain.applyBrakingPowers(new Vector(x, y).toRobotVector(-motionState.heading),
+            drivetrain.applyBrakingPowers(motionState.makeRobotRelative(new Vector(forward,
+                    lateral)),
                 turn);
         }
         else { // simple add
-            drivetrain.driveTowards(new Vector(x, y).toRobotVector(-motionState.heading),
+            drivetrain.driveTowards(motionState.makeRobotRelative(new Vector(forward, lateral)),
                 turn); // combine into one with condition
         }
     }
@@ -470,11 +483,7 @@ public class Follower { // TODO add wait func
     public Drivetrain getDrivetrain() {
         return drivetrain;
     }
-    
-    public FollowerConfig getConfig() {
-        return config;
-    }
-    
+
     public PathSequenceConstructor pathSequenceConstructor() {
         return pathConstructor;
     }

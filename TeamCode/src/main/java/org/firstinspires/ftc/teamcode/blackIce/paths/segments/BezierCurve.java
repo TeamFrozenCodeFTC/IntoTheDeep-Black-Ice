@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.blackIce.paths.segments;
 
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
-import org.firstinspires.ftc.teamcode.blackIce.util.Logger;
 
 /**
  * This is the BezierCurve class. This class handles the creation of Bezier curves, which are used
@@ -136,8 +135,8 @@ public class BezierCurve implements PathSegment {
 
             Vector secondDerivative = calculateSecondDerivative(t);
             
-            double numerator = errorVector.dot(firstDerivative);
-            double denominator = firstDerivative.lengthSquared() + errorVector.dot(secondDerivative);
+            double numerator = errorVector.dotProduct(firstDerivative);
+            double denominator = firstDerivative.lengthSquared() + errorVector.dotProduct(secondDerivative);
             
             if (Math.abs(denominator) < 1e-6) break; // Prevent divide-by-near-zero
 

@@ -6,8 +6,7 @@ package org.firstinspires.ftc.teamcode.blackIce.action;
 public class Macro {
 }
 
-// just desingate to follow but also allow to call in between
+// just designate to follow but also allow to call in between
 // followPath(...)
 // addAction(() -> ...)
-
 //

@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.blackIce.paths;
 
+import org.firstinspires.ftc.teamcode.blackIce.paths.behavior.HeadingInterpolator;
+import org.firstinspires.ftc.teamcode.blackIce.paths.behavior.MotionProfile;
+
 import java.util.function.Consumer;
 
 /**
@@ -14,17 +17,18 @@ import java.util.function.Consumer;
 public class PathConfig<T extends PathConfig<T>> {
     private boolean stopAtEnd = false;
 
-    private double maxVelocity = 60;
-    private double acceleration = 60;
-    private double deceleration = -120;
+    private Double maxVelocity = null;
+    private Double acceleration = null;
+    private Double deceleration = null;
+    private MotionProfile motionProfile;
     
-   private double stoppedVelocityConstraint = 1.0;
+    private double stoppedVelocityConstraint = 1.0;
     private double stoppedAngularVelocityConstraint = 1.0;
 
     private double stuckVelocityConstraint = 1.0;
     private double stuckTimeoutSeconds = 5.0;
     private boolean cancelPathIfStuck = true;
-    
+
     private Double timeoutSeconds = 8.0;
 
     private HeadingInterpolator headingInterpolator = HeadingInterpolator.tangent;
@@ -50,28 +54,43 @@ public class PathConfig<T extends PathConfig<T>> {
         setter.accept(this);
         return getThis();
     }
-    /** Make the robot stop at the end of the Path. */
+    /** Makes the robot stop at the end of the Path. */
     public T stopAtEnd() {
         return setConstraint((p) -> p.stopAtEnd = true);
     }
-    /** Make the robot continue its momentum to the next Path. */
-    public T continueAtEnd() {
+    /** Makes the robot continue its momentum to the next Path. */
+    public T continueMomentumAtEnd() {
         return setConstraint((p) -> p.stopAtEnd = false);
     }
 
     public T setMaxVelocity(double maxVelocity) {
+        if (maxVelocity <= 0) {
+            throw new IllegalArgumentException("Max velocity must be a positive number.");
+        }
         return setConstraint((p) -> p.maxVelocity = maxVelocity);
     }
     /**
-     * Sets how fast the robot accelerates along the path.
-     * A higher number accelerates faster, a lower number accelerates slower.
-     *
-     * @param acceleration (inches/s^2) How fast the robot accelerates. Sign should be positive.
-     *                     Average value range 60-120 inches/s^2.
+     * Sets the motionProfile function that gives the target velocity the robot should be along the
+     * path.
      */
-    public T setAcceleration(double acceleration) {
-        return setConstraint((p) -> p.acceleration = Math.abs(acceleration));
+    public T setMotionProfile(MotionProfile motionProfile) {
+        return setConstraint((p) -> {
+            this.acceleration = null;
+            this.deceleration = null;
+            this.maxVelocity = null;
+            p.motionProfile = motionProfile;
+        });
     }
+//    /**
+//     * Sets how fast the robot accelerates along the path.
+//     * A higher number accelerates faster, a lower number accelerates slower.
+//     *
+//     * @param acceleration (inches/s^2) How fast the robot accelerates. Sign should be positive.
+//     *                     Average value range 60-120 inches/s^2.
+//     */
+//    public T setAcceleration(double acceleration) {
+//        return setConstraint((p) -> p.motionProfile = MotionProfile);
+//    }
     /** The velocity that the robot considers stopped. Used when the robot is done with the path. */
     public T setStoppedVelocityConstraint(double stoppedVelocityConstraint) {
         return setConstraint(
@@ -149,16 +168,18 @@ public class PathConfig<T extends PathConfig<T>> {
      * Makes the robot constantly face the given heading (degrees) along the path.
      */
     public T setConstantHeading(double heading) {
-        return setConstraint((p) -> p.headingInterpolator
+        return setConstraint(p -> p.headingInterpolator
             = HeadingInterpolator.constant(heading));
     }
     
     public T cancelPathIfStuck(boolean enable) {
-        return setConstraint((p) -> p.cancelPathIfStuck = enable);
+        return setConstraint(p -> p.cancelPathIfStuck = enable);
     }
     /**
      * Makes the robot stop at the end of the path, and sets how fast the robot decelerates at the end of the path.
-     * A higher number slows down faster but may make the robot use more power to brake.
+     * A higher number slows down faster. If you want to maximize speed and still have the robot stop use `.maximizeSpeed`
+     * <p>
+     * This method overrides the motionProfile.
      *
      * @param deceleration (inches/s^2) How fast the robot decelerates at the end of the path.
      *                     Sign should be negative. Average value range 60-120.
@@ -169,17 +190,29 @@ public class PathConfig<T extends PathConfig<T>> {
 //                "Deceleration should probably not be as low as: " + deceleration);
 //        }
         stopAtEnd();
-        return setConstraint((p) -> p.deceleration = -Math.abs(deceleration));
+        return setConstraint(p -> {
+            if (maxVelocity == null) {
+                p.motionProfile = MotionProfile.deceleration(deceleration);
+            }
+            else {
+                p.motionProfile = MotionProfile.deceleration(deceleration, maxVelocity);
+            }
+        });
+    }
+    /**
+     * Makes the robot travel at full power along the path. If the path is set to stop at the end,
+     * the robot will decelerate at the last possible moment to exactly reach the end point.
+     * May shake the robot while braking.
+     */
+    public T maximizeSpeed() {
+       return setConstraint((p) -> p.motionProfile = MotionProfile.maximizeSpeed);
     }
     
     public boolean doesStopAtEnd() {
         return stopAtEnd;
     }
-    public double getMaxVelocity() {
-        return maxVelocity;
-    }
-    public double getAcceleration() {
-        return acceleration;
+    public MotionProfile getMotionProfile() {
+        return motionProfile;
     }
     public double getStoppedVelocityConstraint() {
         return stoppedVelocityConstraint;
@@ -201,9 +234,6 @@ public class PathConfig<T extends PathConfig<T>> {
     }
     public HeadingInterpolator getHeadingInterpolator() {
         return headingInterpolator;
-    }
-    public double getDeceleration() {
-        return deceleration;
     }
     
     @SuppressWarnings("unchecked")

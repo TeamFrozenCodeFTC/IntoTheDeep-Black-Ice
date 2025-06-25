@@ -13,14 +13,9 @@ public class ApplyPowerTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         Follower follower = new Follower(this, new Pose(0,0,0));
-        follower.whileFollowing(follower::telemetryDebug);
-        
         waitForStart();
         
         follower.getDrivetrain().driveTowards(new Vector(0.6, 0.7), 0);
         follower.waitUntilOpModeStop();
-        
-        // TODO path Maker op-mode
-        // TODO motor/servo opmodes (just find online)
     }
 }

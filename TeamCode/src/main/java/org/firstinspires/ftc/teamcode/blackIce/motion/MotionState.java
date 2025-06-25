@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.blackIce.motion;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
 import org.firstinspires.ftc.teamcode.blackIce.math.kinematics.Kinematics;
 import org.firstinspires.ftc.teamcode.blackIce.tuning.TuningConstants;
-import org.firstinspires.ftc.teamcode.blackIce.util.Logger;
 
 /**
  * Represents a snapshot of the robot's motion in terms of its
@@ -70,29 +69,29 @@ public class MotionState {
         
         Vector stoppingDisplacement = TuningConstants.BRAKING_DISPLACEMENT
             .getStoppingDistanceWithVelocity(predictedRobotVelocity);
-        
-        Logger.debug("X localStoppingDisplacement", stoppingDisplacement);
-        Logger.debug("X predictedRelativeVelocity", predictedRobotVelocity);
-        Logger.debug("X robotRelativeVelocity", robotRelativeVelocity);
-        Logger.debug("X fieldRelativeVelocity", fieldRelativeVelocity);
-        Logger.debug("X fieldRelativeStoppingDisplacement",
-            stoppingDisplacement.toFieldVector(heading));
 
-        return position
-            .add(stoppingDisplacement.toFieldVector(heading));
+        return position.add(toFieldRelativeVector(stoppingDisplacement));
     }
     
+    /**
+     * Converts a robot-relative vector into a field-relative vector.
+     * <pre>
+     * fieldRelative=R(+θ)×robotRelative
+     * </pre>
+     * Positive angles are counterclockwise, so this rotates the vector counterclockwise.
+     */
     public Vector toFieldRelativeVector(Vector robotRelativeVector) {
-        return robotRelativeVector.rotatedBy(heading);
+        return robotRelativeVector.rotateCounterclockwiseBy(heading);
     }
     
-    public Vector toRobotRelativeVector(Vector fieldRelativeVector) {
-        return fieldRelativeVector.rotatedBy(-heading);
+    /**
+     * Converts a field-relative vector into a robot-relative vector.
+     * <pre>
+     * robotRelative=R(−θ)×fieldRelative
+     * </pre>
+     * Negative angles are clockwise, so this rotates the vector clockwise.
+     */
+    public Vector makeRobotRelative(Vector fieldRelativeVector) {
+        return fieldRelativeVector.rotateCounterclockwiseBy(-heading);
     }
-    
-//    public double computeCurrentAcceleration() {
-//        return Kinematics.getAcceleration(
-//            velocityMagnitude - previousRobotRelativeVelocity.computeMagnitude(),
-//            deltaTime);
-//    }
 }

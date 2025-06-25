@@ -1,0 +1,71 @@
+---
+title: Following Algorithm Overview
+description: How does Pedro Path work?
+---
+
+import PedroImplementation from "@/app/PedroImplementation";
+
+Pedro path uses the Newton-Raphson method to find the closest point to the robot on the path.
+
+What is a PIDF?
+PIDF stand for Proportional (P), Integral (I), Derivative (D), and Feedforward (F).
+Integral is avoided.
+
+PIDFs aim to to convert a target and a current into motor powers.
+
+There are too types of PIDFs. Positional PIDs and velocity PIDFs.
+
+The Proportional in a velocity PIDF
+
+Proportional is the main term that just multiplies by the difference between the target velocity and the current velocity.
+For example if you want to go 50inches/s but you are only going 40inches/s, then that is a difference of 10 inches/s.
+If you have a proportional constant of 0.05 then the proportional term would be 0.05 * 10 = 0.5 power.
+
+The Feedforward term is constant that is multiplied by the target velocity. This can help the
+ proportional if you already know how much power you need on average to reach a certain velocity.
+ Because power to velocity is mostly linear, the feedforward is usually around 1/maxVelocity.
+  This usually ends up being around 0.015.
+  For example if your robot can go 60inches/s at full power, then if you want the robot to 30 inches/s
+  you can expect to need 0.5 power to reach 30 inches/s.
+  If we use the 1/maxVelocity of 1/60, then the feedforward would be 0.00167. This exactly matches up with: 30inches/s * 0.0167 = 0.5
+
+For positional PIDs, the proportional behaves the same but instead of a target velocity it uses a
+ target position.
+
+For a vector PIDF it simply just applies it to each x and y component of the error.
+
+There is three drive vectors for pedroPathing
+
+- `driveVector`: A velocity PIDF (without Integral term) that is responsible for accelerating and
+decelerating the robot along the path. The target velocity derived from kinematics formulas to
+ decelerate the robot at a specified deceleration (inches/s^2). The direction of the drive vector is
+  always tangent to the path. See __ for more details.
+
+- `headingCorrection`: A simple heading PD controller that aims to maintain the robot's heading at a given target heading.
+- `translational`: A positional PD controller that aims to keep the robot on the path.
+
+## Using the Quickstart
+
+The quickstart is the easiest way to install Pedro Pathing.
+
+1. In Android Studio, go to `Main Menu -> File -> New -> Project from
+Version Control`. For the URL, enter
+`https://github.com/Pedro-Pathing/Quickstart.git`.
+2. **OR** run `git clone https://github.com/Pedro-Pathing/Quickstart.git`.
+Make sure you have [git](https://git-scm.com/) installed first.
+
+## Manually
+
+In your `build.dependencies.gradle`, add the following to the `repositories
+{ }` block:
+
+```groovy
+maven { url = 'https://maven.pedropathing.com' }
+```
+
+Then, add the following to the `dependencies { }` block:
+
+<PedroImplementation/>
+
+Lastly, copy the files from the [`pedroPathing` package in the quickstart](https://github.com/Pedro-Pathing/Quickstart/tree/dev/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedroPathing)
+into your code.

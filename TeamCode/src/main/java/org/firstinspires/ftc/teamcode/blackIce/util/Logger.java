@@ -22,6 +22,10 @@ public class Logger {
         debug("", "", message);
     }
     
+    public static void divide(String message) {
+        debug("", "", message + " ------------------------");
+    }
+    
     public static void error(String message) {
         Log.e("BlackIce", message);
     }

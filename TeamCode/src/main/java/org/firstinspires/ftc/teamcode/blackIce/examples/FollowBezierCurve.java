@@ -3,14 +3,13 @@ package org.firstinspires.ftc.teamcode.blackIce.examples;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.blackIce.action.lambda.Condition;
+import org.firstinspires.ftc.teamcode.blackIce.action.Condition;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Pose;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
 import org.firstinspires.ftc.teamcode.blackIce.follower.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.paths.PathSequenceConstructor;
 import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
 import org.firstinspires.ftc.teamcode.blackIce.paths.segments.BezierCurve;
-import org.firstinspires.ftc.teamcode.blackIce.paths.segments.SegmentPoint;
 import org.firstinspires.ftc.teamcode.blackIce.util.Logger;
 
 @Autonomous(group="Black-Ice Examples")
@@ -39,18 +38,19 @@ public class FollowBezierCurve extends LinearOpMode {
         Logger.debug("closestTTo24,24",
             c.calculateClosestPointTo(new Vector(24,24), 0).getTValue());
         Logger.debug("length",c.length());
-        Path path = constructor.toPoint(new Vector(24, 24))
-            .stopAtEnd()
-            .setDeceleration(-30)
-            .setConstantHeading(10)
-            .holdUntil(Condition.NEVER);
+        
+//        Path path = constructor.toPoint(new Vector(24, 24))
+//            .stopAtEnd()
+//            .maximizeSpeed()
+////            .setConstantHeading(90)
+//            .holdUntil(Condition.NEVER);
 
         
-//        Path path = constructor.curve(new double[][]{{0,0}, {24, 24}, {12, 48}})
-//            .stopAtEnd()
-//            .setDeceleration(-30)
-//            .setConstantHeadingInterpolation(90)
-//            .holdUntil(Condition.NEVER);
+        Path path = constructor.curve(new double[][]{{0,0}, {36, 24}, {12, 48}})
+            .stopAtEnd()
+            .maximizeSpeed()
+            //.setConstantHeadingInterpolation(90)
+            .holdUntil(Condition.NEVER);
         
         waitForStart();
 

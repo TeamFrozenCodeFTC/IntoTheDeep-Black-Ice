@@ -14,23 +14,6 @@ import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
  * having the follower have a generic.
  */
 public abstract class Drivetrain {
-    /**
-     * A type of drivetrain that produces a new instance of Drivetrain given a HardwareMap and
-     * configuration.
-     */
-    @FunctionalInterface
-    public interface Factory {
-        Drivetrain create(HardwareMap hardwareMap, DrivetrainConfig config);
-    }
-    
-    /**
-     * The Mecanum drivetrain type which uses specially angled wheels to enable omnidirectional
-     * movement, allowing a robot to move forward, backward, sideways, and rotate—all independently.
-     * Best for following paths.
-     */
-    public static final Factory MECANUM =
-        (hardwareMap, config) -> new MecanumDrive(hardwareMap, (MecanumDrivetrainConfig) config);
-    
     public abstract void driveTowards(Vector robotVector, double turningPower);
     public abstract void applyBrakingPowers(Vector robotVector, double turningPower);
     

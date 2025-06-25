@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackIce.paths;
 
-import org.firstinspires.ftc.teamcode.blackIce.action.lambda.Condition;
-import org.firstinspires.ftc.teamcode.blackIce.action.lambda.Action;
+import org.firstinspires.ftc.teamcode.blackIce.action.Condition;
+import org.firstinspires.ftc.teamcode.blackIce.action.Action;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Pose;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
 import org.firstinspires.ftc.teamcode.blackIce.paths.segments.PathSegment;

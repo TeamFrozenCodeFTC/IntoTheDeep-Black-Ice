@@ -32,7 +32,7 @@ public class MotionTracker {
             localizer.getFieldVelocityX(), // pinpoint is not robot relative?
             localizer.getFieldVelocityY()
         );
-        Vector robotRelativeVelocity = fieldRelativeVelocity.toRobotVector(localizer.getHeading());
+        Vector robotRelativeVelocity = fieldRelativeVelocity.rotateClockwiseBy(localizer.getHeading());
         motionState = new MotionState(
             position,
             localizer.getHeading(),

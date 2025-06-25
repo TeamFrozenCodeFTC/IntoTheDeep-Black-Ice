@@ -1,15 +1,15 @@
-package org.firstinspires.ftc.teamcode.blackIce.paths.calculators;
-
-import static org.firstinspires.ftc.teamcode.blackIce.tuning.TuningConstants.BRAKING_DISPLACEMENT;
-
-import org.firstinspires.ftc.teamcode.blackIce.follower.Follower;
-import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
-import org.firstinspires.ftc.teamcode.blackIce.math.kinematics.Kinematics;
-
-@FunctionalInterface
-public interface BrakingCalculator extends VectorCalculatorComponent {
-    BrakingCalculator velocityController =
-        (context) -> {
+//package org.firstinspires.ftc.teamcode.blackIce.paths.calculators;
+//
+//import static org.firstinspires.ftc.teamcode.blackIce.tuning.TuningConstants.BRAKING_DISPLACEMENT;
+//
+//import org.firstinspires.ftc.teamcode.blackIce.follower.Follower;
+//import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
+//import org.firstinspires.ftc.teamcode.blackIce.math.kinematics.Kinematics;
+//
+//@FunctionalInterface
+//public interface BrakingCalculator extends VectorCalculatorComponent {
+//    BrakingCalculator velocityController =
+//        (context) -> {
 //            Vector offset = Vector.calculateForwardAndLateralOffset(
 //                context.motionState.position,
 //                context.motionState.heading,
@@ -54,25 +54,25 @@ public interface BrakingCalculator extends VectorCalculatorComponent {
 //            return velocityTargetToStopAtEnd
 //                .subtract(predictedRobotVelocity)
 //                .subtract(finalVelocityAtEnd);
-            return Vector.fromScalar(1);
-    };
-
-    BrakingCalculator positionalController =
-        (context) -> {
-            Vector robotVelocity = context.motionState.robotRelativeVelocity;
-
-            Vector robotDeltaVelocity = robotVelocity
-                .subtract(context.motionState.previousRobotRelativeVelocity);
-
-            Vector predictedRobotVelocity =
-                Kinematics.predictNextLoopVelocity(robotVelocity, robotDeltaVelocity);
-
-            Vector stoppingDisplacement =
-                BRAKING_DISPLACEMENT.getStoppingDistanceWithVelocity(predictedRobotVelocity);
-
-            Vector predictedStoppedPosition = context.motionState.position
-                .add(stoppingDisplacement.toFieldVector(context.motionState.heading));
-
-            return context.closestPoint.getPoint().subtract(predictedStoppedPosition);
-        };
-}
+//            return Vector.fromScalar(1);
+//    };
+//
+//    BrakingCalculator positionalController =
+//        (context) -> {
+//            Vector robotVelocity = context.motionState.robotRelativeVelocity;
+//
+//            Vector robotDeltaVelocity = robotVelocity
+//                .subtract(context.motionState.previousRobotRelativeVelocity);
+//
+//            Vector predictedRobotVelocity =
+//                Kinematics.predictNextLoopVelocity(robotVelocity, robotDeltaVelocity);
+//
+//            Vector stoppingDisplacement =
+//                BRAKING_DISPLACEMENT.getStoppingDistanceWithVelocity(predictedRobotVelocity);
+//
+//            Vector predictedStoppedPosition = context.motionState.position
+//                .add(stoppingDisplacement.toFieldVector(context.motionState.heading));
+//
+//            return context.closestPoint.getPoint().subtract(predictedStoppedPosition);
+//        };
+//}

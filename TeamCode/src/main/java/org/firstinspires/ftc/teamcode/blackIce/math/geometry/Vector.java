@@ -74,19 +74,28 @@ public class Vector extends OperableComponents<Vector> {
     public String toString() {
         return String.format("Vector{x=%.2f, y=%.2f}", getX(), getY());
     }
-
-    public double dot(Vector other) {
+    
+    /**
+     * Gives the magnitude of how much this vector is pointing in the direction of the other vector.
+     */
+    public double dotProduct(Vector other) {
         return this.getX() * other.getX() + this.getY() * other.getY();
     }
 
     /**
-     * Applies the rotation to this vector by the given angle in radians.
-     * Positive angles are counterclockwise, so this rotates the vector counterclockwise.
+     * Rotates the vector counterclockwise by the given radians.
      */
-    public Vector rotatedBy(double angleRadians) {
-        double cos = Math.cos(angleRadians);
-        double sin = Math.sin(angleRadians);
+    public Vector rotateCounterclockwiseBy(double radians) {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
         return new Vector(getX() * cos - getY() * sin, getX() * sin + getY() * cos);
+    }
+    
+    /**
+     * Rotates the vector clockwise by the given radians.
+     */
+    public Vector rotateClockwiseBy(double radians) {
+        return rotateCounterclockwiseBy(-radians);
     }
 
     /**
@@ -104,7 +113,7 @@ public class Vector extends OperableComponents<Vector> {
         Vector targetPoint
     ) {
         Vector toTarget = targetPoint.subtract(robotPosition);
-        return toTarget.rotatedBy(-robotHeading);
+        return toTarget.rotateCounterclockwiseBy(-robotHeading);
     }
 
     public double computeMagnitude() {
@@ -146,18 +155,18 @@ public class Vector extends OperableComponents<Vector> {
         return withMagnitude(1);
     }
 
-    /**
-     * Turn a field-relative vector into a robot-relative vector.
-     */
-    public Vector toRobotVector(double heading) {
-        return this.rotatedBy(-heading);
-    }
-    /**
-     * Turn a robot-relative vector into a field-relative vector.
-     */
-    public Vector toFieldVector(double heading) {
-        return this.rotatedBy(heading);
-    }
+//    /**
+//     * Turn a field-relative vector into a robot-relative vector.
+//     */
+//    public Vector toRobotVector(double heading) {
+//        return this.rotatedBy(-heading);
+//    }
+//    /**
+//     * Turn a robot-relative vector into a field-relative vector.
+//     */
+//    public Vector toFieldVector(double heading) {
+//        return this.rotatedBy(heading);
+//    }
 
     public double getAngleToLookAt(Vector point) {
         Vector direction = this.subtract(point);
