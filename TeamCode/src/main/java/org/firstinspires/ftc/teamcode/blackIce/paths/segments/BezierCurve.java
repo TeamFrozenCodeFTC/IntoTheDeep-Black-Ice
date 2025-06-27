@@ -71,7 +71,7 @@ public class BezierCurve implements PathSegment {
 
         for (int i = 0; i < n; i++) {
             double bernstein = binomial(n - 1, i) * Math.pow(1 - t, n - 1 - i) * Math.pow(t, i);
-            Vector diff = controlPoints[i + 1].subtract(controlPoints[i]);
+            Vector diff = controlPoints[i + 1].minus(controlPoints[i]);
             derivative = derivative.add(diff.times(bernstein));
         }
 
@@ -85,7 +85,7 @@ public class BezierCurve implements PathSegment {
         for (int i = 0; i <= n - 2; i++) {
             double bernstein = binomial(n - 2, i) * Math.pow(1 - t, n - 2 - i) * Math.pow(t, i);
             Vector diff = controlPoints[i + 2]
-                .subtract(controlPoints[i + 1].times(2))
+                .minus(controlPoints[i + 1].times(2))
                 .add(controlPoints[i]);
             secondDerivative = secondDerivative.add(diff.times(bernstein));
         }
@@ -100,7 +100,7 @@ public class BezierCurve implements PathSegment {
         for (int i = 1; i <= numSamples; i++) {
             double t = (double) i / numSamples;
             Vector point = calculatePointAt(t);
-            length += Math.sqrt(point.subtract(prevPoint).lengthSquared());
+            length += Math.sqrt(point.minus(prevPoint).lengthSquared());
             prevPoint = point;
         }
 
@@ -131,7 +131,7 @@ public class BezierCurve implements PathSegment {
             bezierPoint = calculatePointAt(t);
             firstDerivative = calculateFirstDerivative(t);
 
-            Vector errorVector = target.subtract(bezierPoint);
+            Vector errorVector = target.minus(bezierPoint);
 
             Vector secondDerivative = calculateSecondDerivative(t);
             

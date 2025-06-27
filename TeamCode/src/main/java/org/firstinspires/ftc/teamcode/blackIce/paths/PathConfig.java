@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.blackIce.paths;
 
 import org.firstinspires.ftc.teamcode.blackIce.paths.behavior.HeadingInterpolator;
 import org.firstinspires.ftc.teamcode.blackIce.paths.behavior.MotionProfile;
+import org.firstinspires.ftc.teamcode.blackIce.paths.behavior.LinearMotionProfile;
 
 import java.util.function.Consumer;
 
@@ -18,8 +19,10 @@ public class PathConfig<T extends PathConfig<T>> {
     private boolean stopAtEnd = false;
 
     private Double maxVelocity = null;
+    private Double endingVelocity = null;
     private Double acceleration = null;
     private Double deceleration = null;
+    private Double endingVelocityCruiseDistance = null;
     private MotionProfile motionProfile;
     
     private double stoppedVelocityConstraint = 1.0;
@@ -62,35 +65,6 @@ public class PathConfig<T extends PathConfig<T>> {
     public T continueMomentumAtEnd() {
         return setConstraint((p) -> p.stopAtEnd = false);
     }
-
-    public T setMaxVelocity(double maxVelocity) {
-        if (maxVelocity <= 0) {
-            throw new IllegalArgumentException("Max velocity must be a positive number.");
-        }
-        return setConstraint((p) -> p.maxVelocity = maxVelocity);
-    }
-    /**
-     * Sets the motionProfile function that gives the target velocity the robot should be along the
-     * path.
-     */
-    public T setMotionProfile(MotionProfile motionProfile) {
-        return setConstraint((p) -> {
-            this.acceleration = null;
-            this.deceleration = null;
-            this.maxVelocity = null;
-            p.motionProfile = motionProfile;
-        });
-    }
-//    /**
-//     * Sets how fast the robot accelerates along the path.
-//     * A higher number accelerates faster, a lower number accelerates slower.
-//     *
-//     * @param acceleration (inches/s^2) How fast the robot accelerates. Sign should be positive.
-//     *                     Average value range 60-120 inches/s^2.
-//     */
-//    public T setAcceleration(double acceleration) {
-//        return setConstraint((p) -> p.motionProfile = MotionProfile);
-//    }
     /** The velocity that the robot considers stopped. Used when the robot is done with the path. */
     public T setStoppedVelocityConstraint(double stoppedVelocityConstraint) {
         return setConstraint(
@@ -176,36 +150,126 @@ public class PathConfig<T extends PathConfig<T>> {
         return setConstraint(p -> p.cancelPathIfStuck = enable);
     }
     /**
-     * Makes the robot stop at the end of the path, and sets how fast the robot decelerates at the end of the path.
-     * A higher number slows down faster. If you want to maximize speed and still have the robot stop use `.maximizeSpeed`
+     * Makes the robot decelerate at the end of the path.
      * <p>
-     * This method overrides the motionProfile.
+     * A higher number slows down faster. If you want to maximize speed and still have the robot stop use use {@link #maximizeSpeed}
+     * <p>
+     * This method overrides the previously set motionProfile.
      *
      * @param deceleration (inches/s^2) How fast the robot decelerates at the end of the path.
-     *                     Sign should be negative. Average value range 60-120.
+     *                     Sign should be negative. Average value range 30-120ish.
+     * @see #setMaxVelocity
+     * @see #setAcceleration
+     * @see #setEndingVelocity
      */
     public T setDeceleration(double deceleration) {
-//        if (Math.abs(deceleration) > 20) {
-//            Log.w("Low Deceleration",
-//                "Deceleration should probably not be as low as: " + deceleration);
-//        }
         stopAtEnd();
-        return setConstraint(p -> {
-            if (maxVelocity == null) {
-                p.motionProfile = MotionProfile.deceleration(deceleration);
-            }
-            else {
-                p.motionProfile = MotionProfile.deceleration(deceleration, maxVelocity);
-            }
-        });
+        this.deceleration = deceleration;
+        rebuildLinearMotionProfile();
+        return getThis();
     }
+    
+    public T setMaxVelocity(double maxVelocity) {
+        this.maxVelocity = maxVelocity;
+        rebuildLinearMotionProfile();
+        return getThis();
+    }
+    
     /**
-     * Makes the robot travel at full power along the path. If the path is set to stop at the end,
+     * Sets the motionProfile function that gives the target velocity the robot should be along the
+     * path.
+     */
+    public T setMotionProfile(MotionProfile motionProfile) {
+        nullifyLinearMotionProfile();
+        this.motionProfile = motionProfile;
+        return getThis();
+    }
+    
+    /**
+     * Sets how fast the robot accelerates along the path.
+     * A higher number accelerates faster, a lower number accelerates slower.
+     * Default is no acceleration.
+     *
+     * @param acceleration (inches/s^2) How fast the robot accelerates. Sign should be positive.
+     *                     Average value range 60-120 inches/s^2.
+     *
+     * @see #setNoAcceleration
+     * @see #setDeceleration
+     */
+    public T setAcceleration(double acceleration) {
+        this.acceleration = acceleration;
+        rebuildLinearMotionProfile();
+        return getThis();
+    }
+    
+    /**
+     * No acceleration is the default.
+     *
+     * @see #setAcceleration
+     */
+    public T setNoAcceleration() {
+        this.acceleration = null;
+        rebuildLinearMotionProfile();
+        return getThis();
+    }
+    
+    /**
+     * Sets the velocity the robot should be after decelerating. Default is zero.
+     * <p>
+     * If no deceleration is set, default is 60 inches/s^2.
+     *
+     * @see #setDeceleration
+     */
+    public T setEndingVelocity(double endingVelocity) {
+        if (deceleration == null) {
+            // default deceleration if not set later
+            this.deceleration = 60.0;
+        }
+        this.endingVelocity = endingVelocity;
+        rebuildLinearMotionProfile();
+        return getThis();
+    }
+    
+    /**
+     * Sets the distance the robot should cruise at the ending velocity after the robot decelerated.
+     * Default is zero.
+     *
+     * @see #setEndingVelocity
+     * @see #setDeceleration
+     */
+    public T setEndingVelocityCruiseDistance(double endingVelocityCruiseDistance) {
+        this.endingVelocityCruiseDistance = endingVelocityCruiseDistance;
+        rebuildLinearMotionProfile();
+        return getThis();
+    }
+    
+    private void rebuildLinearMotionProfile() {
+        motionProfile = new LinearMotionProfile(
+            acceleration,
+            maxVelocity,
+            deceleration,
+            endingVelocity,
+            endingVelocityCruiseDistance
+        );
+    }
+    
+    private void nullifyLinearMotionProfile() {
+        this.acceleration = null;
+        this.deceleration = null;
+        this.maxVelocity = null;
+        this.endingVelocity = null;
+        this.endingVelocityCruiseDistance = null;
+    }
+    
+    /**
+     * Makes the robot travel at full speed along the path. If the path is set to stop at the end,
      * the robot will decelerate at the last possible moment to exactly reach the end point.
      * May shake the robot while braking.
      */
     public T maximizeSpeed() {
-       return setConstraint((p) -> p.motionProfile = MotionProfile.maximizeSpeed);
+        nullifyLinearMotionProfile();
+        this.motionProfile = MotionProfile.maximizeSpeed;
+        return getThis();
     }
     
     public boolean doesStopAtEnd() {

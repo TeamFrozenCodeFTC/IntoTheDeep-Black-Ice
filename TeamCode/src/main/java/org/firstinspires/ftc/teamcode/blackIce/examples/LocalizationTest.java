@@ -21,7 +21,7 @@ public class LocalizationTest extends LinearOpMode {
         while (opModeIsActive()) {
             follower.update();
             telemetry.addData("heading", follower.motionState.heading);
-            telemetry.addData("brakingDisplacement", follower.motionState.getPredictedStoppedPosition().subtract(follower.motionState.position));
+            telemetry.addData("brakingDisplacement", follower.motionState.getPredictedStoppedPosition().minus(follower.motionState.position));
             telemetry.addData("fieldRelativeVelocity", follower.motionState.fieldRelativeVelocity);
             telemetry.addData("robotRelativeVelocity", follower.motionState.robotRelativeVelocity);
             telemetry.update();

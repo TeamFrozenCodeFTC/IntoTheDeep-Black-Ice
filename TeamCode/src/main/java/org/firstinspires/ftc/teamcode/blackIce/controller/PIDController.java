@@ -52,8 +52,18 @@ public class PIDController {
         return output;
     }
     
+    public double run(double error, double deltaTime) {
+        double output = optimizedPID.applyAsDouble(error, deltaTime);
+        previousError = error;
+        return output;
+    }
+    
     public Vector run(Vector target, Vector current, double deltaTime) {
         return target.map(current, ((tar, cur) -> run(tar, cur, deltaTime)));
+    }
+    
+    public Vector run(Vector error, double deltaTime) {
+        return error.map(err -> run(err, deltaTime));
     }
     
     private double computeProportional(double error) {

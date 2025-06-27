@@ -29,7 +29,7 @@ public class HoldPointTest extends LinearOpMode {
             );
             telemetry.addData("position", follower.motionState.position);
             telemetry.addData("predicted position", follower.motionState.getPredictedStoppedPosition());
-            telemetry.addData("displacement", follower.motionState.getPredictedStoppedPosition().subtract(follower.motionState.position));
+            telemetry.addData("displacement", follower.motionState.getPredictedStoppedPosition().minus(follower.motionState.position));
             telemetry.addData("field velocity", follower.motionState.fieldRelativeVelocity);
             telemetry.addData("robot velocity", follower.motionState.robotRelativeVelocity);
 

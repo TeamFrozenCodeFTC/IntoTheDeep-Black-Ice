@@ -73,25 +73,25 @@ public class Follower { // TODO add wait func
     public Follower(
         LinearOpMode opMode,
         Pose startingPose,
-        FollowerConstants constants
+        FollowerConfig config
     ) {
-        this.defaultPathBehavior = constants.defaultPathBehavior;
+        this.defaultPathBehavior = config.defaultPathBehavior;
         INSTANCE = this;
         this.opMode = opMode;
         
-        this.localizer = constants.localizer;
+        this.localizer = config.localizer;
         this.motionTracker = new MotionTracker(localizer);
         
         updateMotionState();
         
         this.pathConstructor = new PathSequenceConstructor(startingPose, this.defaultPathBehavior);
         
-        this.drivetrain = constants.drivetrain;
+        this.drivetrain = config.drivetrain;
         this.wheelPowersCalculator = new DrivePowerController(
-            constants.headingPID,
-            constants.positionalPID,
-            constants.translationalPID,
-            constants.driveVelocityPIDF
+            config.headingPID,
+            config.positionalPID,
+            config.translationalPID,
+            config.driveVelocityPIDF
         );
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -118,7 +118,7 @@ public class Follower { // TODO add wait func
     }
     
     public Follower(LinearOpMode opMode, Pose startingPose) {
-        this(opMode, startingPose, Constants.createFollowerConstants(opMode).build());
+        this(opMode, startingPose, Constants.defaultFollowerConfig(opMode));
     }
     
     /**

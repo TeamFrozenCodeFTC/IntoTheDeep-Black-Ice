@@ -22,7 +22,7 @@ public class LineSegment implements PathSegment {
         this.startPoint = start;
         this.endPoint = end;
         this.length = startPoint.distanceTo(endPoint);
-        this.tangent = endPoint.subtract(startPoint).normalized();
+        this.tangent = endPoint.minus(startPoint).normalized();
         
         if (this.length < 1e-6) {
             throw new IllegalArgumentException("Line too small with length of " + this.length +
@@ -37,7 +37,7 @@ public class LineSegment implements PathSegment {
     
     @Override
     public SegmentPoint calculateClosestPointTo(Vector point, double startingGuess) {
-        Vector startToPoint = point.subtract(startPoint);
+        Vector startToPoint = point.minus(startPoint);
  
         double projection = startToPoint.dotProduct(tangent);
         double t = projection / length;

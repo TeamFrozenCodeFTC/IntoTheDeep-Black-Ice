@@ -69,7 +69,7 @@ public interface HeadingInterpolator {
      */
     static HeadingInterpolator facingPoint(Vector facingPoint) {
         return curvePoint -> {
-            Vector direction = facingPoint.subtract(curvePoint.getPoint());
+            Vector direction = facingPoint.minus(curvePoint.getPoint());
             return direction.calculateRadians();
         };
     }

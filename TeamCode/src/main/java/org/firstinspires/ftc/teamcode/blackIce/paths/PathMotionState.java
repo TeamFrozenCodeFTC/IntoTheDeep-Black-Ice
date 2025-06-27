@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.blackIce.paths;
 
-//class PathMotionState {
+//class PathState {
 //    Vector remainingTangentVector; // points toward path end, magnitude = remaining distance
 //    double distanceToEnd;
 //    double percentAlongPath;

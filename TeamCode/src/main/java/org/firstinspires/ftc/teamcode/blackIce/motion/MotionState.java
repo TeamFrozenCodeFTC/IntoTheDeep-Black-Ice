@@ -62,7 +62,7 @@ public class MotionState {
         Vector robotVelocity = robotRelativeVelocity;
         
         Vector robotDeltaVelocity = robotVelocity
-            .subtract(previousRobotRelativeVelocity);
+            .minus(previousRobotRelativeVelocity);
         
         Vector predictedRobotVelocity =
             Kinematics.predictNextLoopVelocity(robotVelocity, robotDeltaVelocity);

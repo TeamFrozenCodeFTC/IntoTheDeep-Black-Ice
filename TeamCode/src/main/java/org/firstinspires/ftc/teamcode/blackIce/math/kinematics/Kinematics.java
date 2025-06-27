@@ -30,7 +30,7 @@ public class Kinematics {
      * v<sub>i</sub> = sqrt(-2·a·d)
      * </pre>
      */
-    public static double getCurrentVelocityToStopAtPositionWithDeceleration(
+    public static double computeVelocityToStop(
         double directionalDistance,
         double deceleration
     ) {
@@ -53,9 +53,19 @@ public class Kinematics {
         double deceleration,
         double directionalDistance
     ) {
+        double vfSquared = currentVelocity * currentVelocity + 2 * deceleration * directionalDistance;
+
+        // If vf^2 goes negative, that means we overshot the zero crossing and are reversing direction
+        if (vfSquared < 0) {
+            return Math.sqrt(-vfSquared) * Math.signum(deceleration);
+        }
+
+        // Otherwise preserve direction of motion (positive or negative)
+        double vf = Math.sqrt(vfSquared);
+        return (currentVelocity >= 0) ? vf : -vf;
         
-        return Math.signum(directionalDistance) * Math.sqrt(Math.max(0,
-            currentVelocity * currentVelocity + 2 * deceleration * Math.abs(directionalDistance)));
+//        return Math.signum(directionalDistance) * Math.sqrt(
+//            currentVelocity * currentVelocity + 2 * deceleration * Math.abs(directionalDistance));
     }
     
     public static Vector getFinalVelocityAtDistance(
@@ -72,7 +82,7 @@ public class Kinematics {
     }
     
     
-    public static double getRequiredVelocityToReachVelocityWithAcceleration(
+    public static double computeVelocityToReach(
         double directionalDistance,
         double deceleration,
         double targetVelocity
@@ -95,13 +105,13 @@ public class Kinematics {
      * v<sub>i</sub> = sqrt(-2·a·d)
      * </pre>
      */
-    public static Vector getCurrentVelocityToStopAtPositionWithDeceleration(
+    public static Vector computeVelocityToStop(
         Vector displacementVector,
         double deceleration
     ) {
         return displacementVector.map(
             (displacement) ->
-                getCurrentVelocityToStopAtPositionWithDeceleration(displacement, deceleration)
+                computeVelocityToStop(displacement, deceleration)
         );
     }
     

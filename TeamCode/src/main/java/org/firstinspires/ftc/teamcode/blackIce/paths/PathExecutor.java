@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.blackIce.paths;
 
 import org.firstinspires.ftc.teamcode.blackIce.follower.Follower;
 import org.firstinspires.ftc.teamcode.blackIce.math.MathFunctions;
-import org.firstinspires.ftc.teamcode.blackIce.math.kinematics.Kinematics;
 import org.firstinspires.ftc.teamcode.blackIce.motion.MotionState;
 import org.firstinspires.ftc.teamcode.blackIce.paths.calculators.DrivePowerController;
 import org.firstinspires.ftc.teamcode.blackIce.paths.calculators.PathFollowContext;
@@ -128,8 +127,7 @@ public class PathExecutor {
         // Note: this is NOT the closest point to the robot, but the closest point to the robot's
         // braking displacement.
         closestSegmentPoint = getCurrentSegment().calculateClosestPointTo(
-            motionState.getPredictedStoppedPosition().subtract(motionState.position)
-                .add(motionState.position),
+            motionState.getPredictedStoppedPosition().minus(motionState.position).add(motionState.position),
             currentSegmentT
         );
         closestPointToRobot = getCurrentSegment().calculateClosestPointTo(
@@ -165,17 +163,17 @@ public class PathExecutor {
     }
     
     private FollowingState handleOvershooting() {
+        if (!segmentAdvancer.isDone()) {
+            segmentAdvancer.advance();
+            return FollowingState.FOLLOWING;
+        }
         if (path.doesStopAtEnd()) {
             return FollowingState.BRAKING;
         }
-        if (segmentAdvancer.isDone()) { // does not listen to actionLoop canFinish because the
-            // robot is keeping it's momentum and cannot hold a point
-            combinedLoop.finish();
-            return FollowingState.DONE; // go to next path as fast as possible
-        }
-        // Follow next segment
-        segmentAdvancer.advance();
-        return FollowingState.FOLLOWING;
+        // does not listen to actionLoop canFinish because the
+        // robot is keeping it's momentum and cannot hold a point
+        combinedLoop.finish();
+        return FollowingState.DONE; // go to next path as fast as possible
     }
     
     private FollowingState applyBraking(MotionState motionState) {

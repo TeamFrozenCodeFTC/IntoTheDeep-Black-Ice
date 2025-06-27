@@ -112,7 +112,7 @@ public class Vector extends OperableComponents<Vector> {
         double robotHeading,
         Vector targetPoint
     ) {
-        Vector toTarget = targetPoint.subtract(robotPosition);
+        Vector toTarget = targetPoint.minus(robotPosition);
         return toTarget.rotateCounterclockwiseBy(-robotHeading);
     }
 
@@ -169,7 +169,7 @@ public class Vector extends OperableComponents<Vector> {
 //    }
 
     public double getAngleToLookAt(Vector point) {
-        Vector direction = this.subtract(point);
+        Vector direction = this.minus(point);
         return Math.atan2(direction.getY(), direction.getX());
     }
 

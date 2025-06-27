@@ -46,12 +46,15 @@ public class FollowBezierCurve extends LinearOpMode {
 //            .holdUntil(Condition.NEVER);
 
         
-        Path path = constructor.curve(new double[][]{{0,0}, {36, 24}, {12, 48}})
-            .stopAtEnd()
-            .maximizeSpeed()
-            //.setConstantHeadingInterpolation(90)
+        Path path = constructor.curve(new double[][]{{0,0}, {36, 36}, {12, 48}})
+            .setDeceleration(80) // if going 60inches a second 30 will decelerate in 2 seconds
+            // TODO set deceleration seconds
+//            .setEndingVelocity(22)
+//            .setEndingVelocityCruiseDistance(40)
+            //.maximizeSpeed()
+            //.setConstantHeading(90)
             .holdUntil(Condition.NEVER);
-        
+
         waitForStart();
 
         follower.beginFollowing(path);

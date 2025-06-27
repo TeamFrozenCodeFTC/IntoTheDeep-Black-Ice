@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode.blackIce.util;
 
 import android.util.Log;
 
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-
-import org.firstinspires.ftc.teamcode.blackIce.follower.Follower;
+import java.util.Locale;
 
 public class Logger {
     private static final int LEVEL = Log.DEBUG;
@@ -30,8 +28,21 @@ public class Logger {
         Log.e("BlackIce", message);
     }
     
-    public static void warning(String message) {
+    public static void warn(String message) {
         Log.w("BlackIce", message);
+    }
+    
+    public static void warnWithStack(String message) {
+        Log.w("BlackIce", message + Log.getStackTraceString(new Throwable()));
+    }
+    
+    public static void enforcePositiveValue(double value, String variableName) {
+        if (value <= 0) {
+            Logger.warnWithStack(String.format(Locale.US,
+                variableName + " is negative (%.2f) when it should be positive.",
+                value
+            ));
+        }
     }
     
     public static void info(String key, Object value) {

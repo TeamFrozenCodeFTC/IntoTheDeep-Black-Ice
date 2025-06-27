@@ -18,6 +18,6 @@ public class QuadraticBrakingModel implements BrakingDistanceModel {
     }
 
     public double getTargetVelocityToStopAtDistance(double directionalDistance) {
-        return Kinematics.getCurrentVelocityToStopAtPositionWithDeceleration(directionalDistance, deceleration);
+        return Kinematics.computeVelocityToStop(directionalDistance, deceleration);
     }
 }
