@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.blackIce.localization.localizers.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.blackIce.controller.PIDFController;
+import org.firstinspires.ftc.teamcode.blackIce.math.kinematics.QuadraticBrakingModel;
 import org.firstinspires.ftc.teamcode.blackIce.math.kinematics.QuadraticLinearBrakingModel;
 import org.firstinspires.ftc.teamcode.blackIce.math.kinematics.VelocityToStoppingDistanceVectorModel;
 import org.firstinspires.ftc.teamcode.blackIce.robot.drivetrain.MecanumDrive;
@@ -27,7 +28,7 @@ import org.firstinspires.ftc.teamcode.blackIce.robot.drivetrain.MecanumDriveConf
  *     .backRightDirection(DcMotorSimple.Direction.FORWARD))
  * </code></pre>
  */
-public class Constants {
+public class FollowerConstants {
     public static FollowerConfig defaultFollowerConfig(OpMode opMode) {
         return new FollowerConfig()
             .localizer(new PinpointLocalizer(opMode.hardwareMap, DistanceUnit.INCH))
@@ -39,10 +40,10 @@ public class Constants {
                 .maxForwardSpeed(60)
                 .maxLateralSpeed(45)))
             .headingPIDF(new PIDFController(2, 0, 0.1, 0))
-            .positionalPIDF(new PIDFController(0.5, 0, 0, 0))
+            .positionalPIDF(new PIDFController(0.2, 0, 0, 0))
             .translationalPIDF(new PIDFController(0.5, 0, 0, 0))
-            .driveVelocityPIDF(new PIDFController(0.02, 0, 0, 0.015))
-            .brakingDisplacement(new VelocityToStoppingDistanceVectorModel(
+            .driveVelocityPIDF(new PIDFController(0, 0, 0, 0.015))
+            .brakingDisplacement(new VelocityToStoppingDistanceVectorModel( // maxDeceleration
                 //Drift, braking force
                 new QuadraticLinearBrakingModel(0.00112, 0.07316),
                 new QuadraticLinearBrakingModel(0.00165, 0.05054)

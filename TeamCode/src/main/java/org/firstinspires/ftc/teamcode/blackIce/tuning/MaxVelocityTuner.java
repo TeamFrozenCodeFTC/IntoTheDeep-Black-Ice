@@ -15,15 +15,19 @@ public class MaxVelocityTuner extends LinearOpMode {
         
         waitForStart();
         
-        follower.getDrivetrain().driveTowards(Vector.FORWARD, 0);
+        follower.drivetrain.followVector(Vector.FORWARD.times(0.5), 0);
         
-        sleep(1000);
+        sleep(2000);
+        
+        // velocity at end point with zero deceleration
+        // vs velocity at end point with current velocity
         
         follower.update();
-        follower.getDrivetrain().zeroPower();
-        double maxVelocity = follower.getMotionState().velocityMagnitude;
+        follower.drivetrain.zeroPower();
+        double maxVelocity = follower.getMotionState().speed;
         telemetry.addData("maxVelocity", maxVelocity);
         telemetry.addData("Your feedforward should be about", 1/maxVelocity);
+        // 0.0158 for 63v
         telemetry.update();
         
         follower.waitUntilOpModeStop();

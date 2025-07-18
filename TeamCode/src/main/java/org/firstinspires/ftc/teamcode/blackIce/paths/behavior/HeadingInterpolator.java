@@ -2,7 +2,8 @@ package org.firstinspires.ftc.teamcode.blackIce.paths.behavior;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
-import org.firstinspires.ftc.teamcode.blackIce.paths.segments.SegmentPoint;
+import org.firstinspires.ftc.teamcode.blackIce.paths.geometry.PathPoint;
+import org.firstinspires.ftc.teamcode.blackIce.util.Logger;
 
 /**
  * Heading interpolation for a path.
@@ -12,7 +13,7 @@ public interface HeadingInterpolator {
     /**
      * (bezierPoint) -> heading
      */
-    double interpolate(SegmentPoint curvePoint);
+    double interpolate(PathPoint curvePoint);
 
     /**
      * Offsets the heading interpolator by a given amount.
@@ -32,7 +33,9 @@ public interface HeadingInterpolator {
     /**
      * The robot will always be facing the direction of the path. This is the default behavior.
      */
-    HeadingInterpolator tangent = curvePoint -> curvePoint.getTangentVector().calculateRadians();
+    HeadingInterpolator tangent = curvePoint -> {
+        return curvePoint.getTangentVector().calculateRadians();
+    };
     
     /**
      * A constant heading along a path.
@@ -73,4 +76,31 @@ public interface HeadingInterpolator {
             return direction.calculateRadians();
         };
     }
+    
+    static HeadingInterpolator tangentToHeading(
+        double targetHeadingDegrees,
+        double startPercent,
+        double endPercent
+    ) {
+        double targetHeadingRadians = Math.toRadians(targetHeadingDegrees);
+        
+        return curvePoint -> {
+            double t = curvePoint.getTValue();
+            
+            if (t <= startPercent) {
+                // Fully tangent before startPercent
+                return curvePoint.getTangentVector().calculateRadians();
+            } else if (t >= endPercent) {
+                // Fully transitioned after endPercent
+                return targetHeadingRadians;
+            } else {
+                // Linearly interpolate between tangent and target heading
+                double transitionT = (t - startPercent) / (endPercent - startPercent);
+                double tangentHeading = curvePoint.getTangentVector().calculateRadians();
+                double delta = AngleUnit.RADIANS.normalize(targetHeadingRadians - tangentHeading);
+                return tangentHeading + delta * transitionT;
+            }
+        };
+    }
+    
 }

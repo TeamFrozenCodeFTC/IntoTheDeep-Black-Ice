@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.blackIce.follower;
 
-import android.util.Log;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -16,16 +14,12 @@ import org.firstinspires.ftc.teamcode.blackIce.motion.MotionState;
 import org.firstinspires.ftc.teamcode.blackIce.motion.MotionTracker;
 import org.firstinspires.ftc.teamcode.blackIce.paths.ActionLoop;
 import org.firstinspires.ftc.teamcode.blackIce.paths.FollowingState;
+import org.firstinspires.ftc.teamcode.blackIce.paths.ImmutablePathSequence;
 import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
-import org.firstinspires.ftc.teamcode.blackIce.paths.PathBehavior;
-import org.firstinspires.ftc.teamcode.blackIce.paths.PathExecutor;
-import org.firstinspires.ftc.teamcode.blackIce.paths.PathSequenceConstructor;
-import org.firstinspires.ftc.teamcode.blackIce.paths.calculators.DrivePowerController;
+import org.firstinspires.ftc.teamcode.blackIce.paths.PathBehaviorModifier;
+import org.firstinspires.ftc.teamcode.blackIce.paths.PathSequence;
 import org.firstinspires.ftc.teamcode.blackIce.robot.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.blackIce.util.Logger;
-
-import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 
 /**
  * The main class that initializes autonomous and tele-op modes and follows paths.
@@ -49,22 +43,19 @@ public class Follower { // TODO add wait func
 
     public MotionState motionState;
     private final MotionTracker motionTracker;
-    private final DrivePowerController wheelPowersCalculator;
-    private final PathSequenceConstructor pathConstructor;
     public final Drivetrain drivetrain;
 
-    private PathBehavior defaultPathBehavior;
+    private PathBehaviorModifier defaultPathBehavior;
     
     private final ElapsedTime followingPathTimer = new ElapsedTime(0);
     private final ElapsedTime stuckDetectedTimer = new ElapsedTime(0);
 
-    public void addDefaultPathBehavior(PathBehavior config) {
+    public void addDefaultPathBehavior(PathBehaviorModifier config) {
         defaultPathBehavior = defaultPathBehavior.combine(config);
     }
     
-    private boolean isPaused = false;
-
-    private boolean isDoneFollowingPath = false;
+    private final PathExecutor pathExecutor;
+    private final Pose startingPose;
 
     public MotionState getMotionState() {
         return motionState;
@@ -78,21 +69,27 @@ public class Follower { // TODO add wait func
         this.defaultPathBehavior = config.defaultPathBehavior;
         INSTANCE = this;
         this.opMode = opMode;
+        this.startingPose = startingPose;
         
         this.localizer = config.localizer;
         this.motionTracker = new MotionTracker(localizer);
         
         updateMotionState();
-        
-        this.pathConstructor = new PathSequenceConstructor(startingPose, this.defaultPathBehavior);
-        
+        // Path[] path = new PathBuilder(startingPose) || follower.pathBuilder().,
+        // .lineTo(new Vector(1,1), new PathBehaviorConfig().stopAtEnd())
+        // .lineTo(new Vector(1,1), new PathBehaviorConfig().stopAtEnd())
+        // .build()...
+        // should Follower have default behavior?
+//        this.pathConstructor = new PathSequenceConstructor(startingPose, this.defaultPathBehavior);
+//
         this.drivetrain = config.drivetrain;
-        this.wheelPowersCalculator = new DrivePowerController(
+
+        this.pathExecutor = new PathExecutor(new DrivePowerController(
             config.headingPID,
             config.positionalPID,
             config.translationalPID,
             config.driveVelocityPIDF
-        );
+        ), drivetrain);
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(opMode.telemetry, dashboard.getTelemetry());
@@ -118,7 +115,7 @@ public class Follower { // TODO add wait func
     }
     
     public Follower(LinearOpMode opMode, Pose startingPose) {
-        this(opMode, startingPose, Constants.defaultFollowerConfig(opMode));
+        this(opMode, startingPose, FollowerConstants.defaultFollowerConfig(opMode));
     }
     
     /**
@@ -129,17 +126,18 @@ public class Follower { // TODO add wait func
     }
     
     public void resume() {
-        isPaused = false;
-        followingPathTimer.reset();
-        stuckDetectedTimer.reset();
+        pathExecutor.resume();
     }
     
     public void pause() {
-        isPaused = true;
+        pathExecutor.pause();
     }
     
     public boolean isPaused() {
-        return isPaused;
+        return pathExecutor.state == FollowingState.PAUSED;
+    }
+    public boolean isDoneFollowingPath() {
+        return pathExecutor.state == FollowingState.DONE;
     }
     
     /**
@@ -152,27 +150,27 @@ public class Follower { // TODO add wait func
      *     60 // maxVelocity
      *  )</code></pre>
      */
-    public Path matchPathVelocityWithProgress(Path path, DoubleSupplier getProgress,
-                                              double maxVelocity) {
-        return path.whileFollowing(() -> {
-            double actionCompletePercent = (1 - getProgress.getAsDouble());
-            double pathCompletedPercent = (1 - getCurrentPathExecutor().getPercentAlongPath());
-            path.setMaxVelocity(pathCompletedPercent / actionCompletePercent * maxVelocity);
-        }); // motionProfile with targetVelocity at t?
-    }
-    
-    /**
-     * Exit the path when the robot is past a certain position or meets a positional requirement.
-     * <pre><code>
-     * .exitAtPositionBoundary(position -> position.x > 60) // exit when x > 60
-     * </code></pre>
-     * Useful Example: when you want to immediately continue to the next path when the robot
-     * has put a sample in the observation zone.
-     */
-    public Path exitPathAtPositionBoundary(Path path,
-                                            Function<Vector, Boolean> boundaryCondition) {
-        return path.cancelWhen(() -> boundaryCondition.apply(getMotionState().position));
-    }
+//    public Path matchPathVelocityWithProgress(Path path, DoubleSupplier getProgress,
+//                                              double maxVelocity) {
+//        return path.whileFollowing(() -> {
+//            double actionCompletePercent = (1 - getProgress.getAsDouble());
+//            double pathCompletedPercent = (1 - getCurrentPathExecutor().getPercentAlongPath());
+//            path.setMaxVelocity(pathCompletedPercent / actionCompletePercent * maxVelocity);
+//        }); // motionProfile with targetVelocity at t?
+//    }
+//
+//    /**
+//     * Exit the path when the robot is past a certain position or meets a positional requirement.
+//     * <pre><code>
+//     * .exitAtPositionBoundary(position -> position.x > 60) // exit when x > 60
+//     * </code></pre>
+//     * Useful Example: when you want to immediately continue to the next path when the robot
+//     * has put a sample in the observation zone.
+//     */
+//    public Path exitPathAtPositionBoundary(Path path,
+//                                            Function<Vector, Boolean> boundaryCondition) {
+//        return path.cancelWhen(() -> boundaryCondition.apply(getMotionState().position));
+//    }
     
     
     /**
@@ -182,7 +180,7 @@ public class Follower { // TODO add wait func
      */
     public void setCurrentPose(Pose pose) {
         localizer.setPose(pose);
-        pathConstructor.setCurrentPose(pose);
+        //pathConstructor.setCurrentPose(pose); TODO
     }
     
     // TODO make macro cancel current path following and start macro
@@ -191,32 +189,47 @@ public class Follower { // TODO add wait func
 //        return this.copyConfig();
 //    }
 
-    public Follower beginFollowing(Path path) {
-        return this.beginFollowing(new Path[]{path});
-    }
+//    public Follower beginFollowing(Path... paths) {
+//        pathExecutor.startFollowing(actionFollowingLoop, paths);
+//        return this;
+//    }
     
-    PathSequenceExecutor sequenceExecutor;
-    
-    public Follower beginFollowing(Path... paths) {
-        PathExecutor[] pathExecutors = new PathExecutor[paths.length];
-        for (int i = 0; i < paths.length; i++) {
-            pathExecutors[i] = new PathExecutor(
-                wheelPowersCalculator,
-                paths[i],
-                drivetrain,
-                actionFollowingLoop
-            );
+    public Follower beginFollowing(PathSequence pathSequence) {
+        ImmutablePathSequence loadedPathSequence;
+        if (pathSequence.hasStartingPose()) {
+            loadedPathSequence = pathSequence.build();
         }
-        this.sequenceExecutor = new PathSequenceExecutor(pathExecutors);
+        else {
+            loadedPathSequence = pathSequence.build(startingPose);
+        }
+        pathExecutor.startFollowing(actionFollowingLoop, loadedPathSequence);
         return this;
     }
     
-    public PathExecutor getCurrentPathExecutor() {
-        return sequenceExecutor.current();
-    }
-    
+//
+//    ImmutablePathSequence loadedPathSequence;
+//    private boolean hasPreloaded = false;
+//
+//    public Follower preload(PathSequence... pathSequences) {
+//        if (hasPreloaded) {
+//            throw new IllegalStateException("Cannot preload more than once.");
+//        }
+//        hasPreloaded = true;
+//        Pose previousTargetPose = startingPose;
+//        for (PathSequence pathSequence : pathSequences) {
+//            if (pathSequence.hasStartingPose()) {
+//                loadedPathSequence = pathSequence.build();
+//            }
+//            else {
+//                loadedPathSequence = pathSequence.build(previousTargetPose);
+//            }
+//            previousTargetPose = loadedPathSequence.endPose;
+//        }
+//        return this;
+//    }
+
     public Path getCurrentPath() {
-        return getCurrentPathExecutor().getPath();
+        return pathExecutor.getCurrentPath();
     }
     
     public void updateMotionState() {
@@ -225,29 +238,24 @@ public class Follower { // TODO add wait func
     }
     
     public void update() {
-        //getCurrentPath().update(); // because path inherits follower, driveToFollowPath() gets
-        // called and so does everything else in .withLoop()
-        //driveToFollowPath();
-
         updateMotionState();
         
-        Logger.debug("Updated ---------");
+        Logger.debug("Updated ---------" + pathExecutor.getState());
         Logger.debug("currentHeadingInit", Math.toDegrees(motionState.heading));
+        Logger.debug("hasCanceled", actionFollowingLoop.hasCanceled());
         
-        if (isPaused() || actionFollowingLoop.hasCanceled() || sequenceExecutor == null) {
+        if (isPaused() || actionFollowingLoop.hasCanceled()) {
             return;
         }
-
-        if (!sequenceExecutor.update(motionState)) {
-            isDoneFollowingPath = true;
-        }
+        
+        pathExecutor.updateDrivePowersToFollowPath(motionState);
     }
     
     /**
      * Wait for the robot to reach the end of the path.
      */
     public void waitForPath() {
-        while (isFollowingPath()) {
+        while (!isDoneFollowingPath()) {
             update();
         }
     }
@@ -300,7 +308,7 @@ public class Follower { // TODO add wait func
      */
     public Follower cancelAllWhen(Condition condition, Action action) {
         drivetrain.zeroPowerBrakeMode();
-        drivetrain.zeroPower();
+        drivetrain.zeroPower(); // this needs to be in the actual action
         actionFollowingLoop.cancelWhen(condition, action);
         return this;
     }
@@ -365,18 +373,6 @@ public class Follower { // TODO add wait func
     public Follower onPathExit(Action action) {
         actionFollowingLoop.onExit(action);
         return this;
-    }
-
-    public boolean isFollowingPath() {
-        return !isDoneFollowingPath;
-    }
-
-    public void stopFollowingCurrentPath() {
-        getCurrentPathExecutor().cancel();
-    }
-    
-    public void stopFollowingPaths() {
-        isDoneFollowingPath = true;
     }
 
     public void waitUntilOpModeStop() {
@@ -444,48 +440,14 @@ public class Follower { // TODO add wait func
                 turn);
         }
         else { // simple add
-            drivetrain.driveTowards(motionState.makeRobotRelative(new Vector(forward, lateral)),
+            drivetrain.followVector(motionState.makeRobotRelative(new Vector(forward, lateral)),
                 turn); // combine into one with condition
         }
     }
 
     public void robotCentricDrive(double y, double x, double turn) {
         updateMotionState();
-        drivetrain.driveTowards(new Vector(x, y), turn);
-    }
-
-    /**
-     * Log debug data to telemetry.
-     */
-    public void telemetryDebug() {
-        //telemetry.addData(System.currentTimeMillis() + "odometryX", localizer.getX());
-//        telemetry.addData(System.currentTimeMillis() + "odometryX", localizer.getX());
-//        telemetry.addData(System.currentTimeMillis() + "odometryY", localizer.getY());
-//        telemetry.addData(System.currentTimeMillis() + "heading", localizer.getHeading());
-//        telemetry.addData(System.currentTimeMillis() + "velocity", motionState.velocityMagnitude);
-//        telemetry.addData(System.currentTimeMillis() + "state", getCurrentPathExecutor().getState());
-//        telemetry.update();
-    }
-
-    public void debugLog() {
-        Log.d("Follower_logger::", "isBraking:" + isBraking()
-            + " | Position: " + motionState.position
-            + " | t-value: " + String.format("%3.5f",getCurrentPathExecutor().getPercentAlongPath())
-            + " | velocity: " + String.format("%3.2f", getMotionState().velocityMagnitude)
-            + " | heading (degree): " + String.format("%3.2f",Math.toDegrees(getMotionState().heading))
-        );
-    }
-    
-    public boolean isBraking() {
-        return getCurrentPathExecutor().getState() == FollowingState.BRAKING;
-    }
-    
-    public Drivetrain getDrivetrain() {
-        return drivetrain;
-    }
-
-    public PathSequenceConstructor pathSequenceConstructor() {
-        return pathConstructor;
+        drivetrain.followVector(new Vector(x, y), turn);
     }
 }
 

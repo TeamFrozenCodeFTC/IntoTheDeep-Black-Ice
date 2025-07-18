@@ -6,9 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Pose;
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
 import org.firstinspires.ftc.teamcode.blackIce.follower.Follower;
-import org.firstinspires.ftc.teamcode.blackIce.paths.PathSequenceConstructor;
-import org.firstinspires.ftc.teamcode.blackIce.paths.Path;
-import org.firstinspires.ftc.teamcode.blackIce.paths.segments.LineSegment;
+import org.firstinspires.ftc.teamcode.blackIce.paths.geometry.Line;
 
 @Autonomous(group="Black-Ice Examples")
 public class SegmentTest extends LinearOpMode {
@@ -16,15 +14,15 @@ public class SegmentTest extends LinearOpMode {
     public void runOpMode() {
         Follower follower = new Follower(this, new Pose(0,0,0));
         
-        LineSegment line = new LineSegment(new Vector(0,0), new Vector(12, 12));
+        Line line = new Line(new Vector(0,0), new Vector(12, 12));
         telemetry.addData("closestPoint",
-            line.calculateClosestPointTo(new Vector(24,24), 0).getPoint().toString());
+            line.computeClosestPathPointTo(new Vector(24,24), 0).getPoint().toString());
         telemetry.addData("closestT",
-            line.calculateClosestPointTo(new Vector(24,24), 0).getTValue());
+            line.computeClosestPathPointTo(new Vector(24,24), 0).getTValue());
         telemetry.addData("tangent",
-            line.calculateClosestPointTo(new Vector(24,24), 0).getTangentVector().toString());
+            line.computeClosestPathPointTo(new Vector(24,24), 0).getTangentVector().toString());
         telemetry.addData("half way point",
-            line.calculatePointAt(0.5));
+            line.computePointAt(0.5));
         telemetry.update();
         
         waitForStart();

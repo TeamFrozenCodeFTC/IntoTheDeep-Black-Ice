@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.blackIce.robot.drivetrain;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
 
@@ -14,14 +13,14 @@ import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
  * having the follower have a generic.
  */
 public abstract class Drivetrain {
-    public abstract void driveTowards(Vector robotVector, double turningPower);
+    public abstract void followVector(Vector robotVector, double turningPower);
     public abstract void applyBrakingPowers(Vector robotVector, double turningPower);
     
     public Vector adjustDirectionalEffort(Vector inputEffort) {
         return inputEffort;
     }
 
-    protected final DcMotorEx[] motors;
+    public final DcMotorEx[] motors;
     
     protected Drivetrain(DcMotorEx[] motors) {
         this.motors = motors;
@@ -32,6 +31,7 @@ public abstract class Drivetrain {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
     }
+
     public void zeroPower() {
         for (DcMotorEx motor : motors) {
             motor.setPower(0);

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.blackIce.paths.segments;
+package org.firstinspires.ftc.teamcode.blackIce.paths.geometry;
 
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
 
@@ -9,45 +9,43 @@ import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
  * on the curve. You can read more on Bezier curves here:
  * <a href="https://en.wikipedia.org/wiki/B">Bézier Curve</a>
  */
-public class BezierCurve implements PathSegment {
+public class BezierCurve implements PathGeometry {
     private final Vector[] controlPoints;
     private final double length;
-    private final Vector endPoint;
-    private final Vector endTangent;
+    private final PathPoint endPathPoint;
 
-    public BezierCurve(double[][] controlPoints) {
-        this.controlPoints = new Vector[controlPoints.length];
-        for (int i = 0; i < controlPoints.length; i++) {
-            this.controlPoints[i] = new Vector(controlPoints[i][0], controlPoints[i][1]);
-        }
+//    public BezierCurve(double[][] controlPoints) {
+//        Vector[] vectorControlPoints = new Vector[controlPoints.length];
+//        for (int i = 0; i < controlPoints.length; i++) {
+//            vectorControlPoints[i] = new Vector(controlPoints[i][0], controlPoints[i][1]);
+//        }
+//        this(vectorControlPoints);
+//    }
+    
+    public BezierCurve(Vector... controlPoints) {
+        this.controlPoints = controlPoints;
         this.length = calculateCurveLength(1000);
-        this.endPoint = this.controlPoints[this.controlPoints.length - 1];
-        this.endTangent = calculateFirstDerivative(1);
+        this.endPathPoint = new PathPoint(1, calculateFirstDerivative(1),
+            this.controlPoints[this.controlPoints.length - 1]);
     }
 
     @Override
     public double length() {
         return length;
     }
-
+    
     @Override
-    public Vector getEndPoint() {
-        return endPoint;
+    public PathPoint getEndPathPoint() {
+        return endPathPoint;
     }
 
-    @Override
-    public Vector getEndTangent() {
-        return endTangent;
-    }
-
-    @Override
-    public Vector calculatePointAt(double t) {
+    public Vector computePointAt(double t) {
         int n = controlPoints.length - 1;
         Vector point = new Vector(0, 0);
 
         for (int i = 0; i <= n; i++) {
             double bernstein = binomial(n, i) * Math.pow(1 - t, n - i) * Math.pow(t, i);
-            point = point.add(controlPoints[i].times(bernstein));
+            point = point.plus(controlPoints[i].times(bernstein));
         }
 
         return point;
@@ -72,7 +70,7 @@ public class BezierCurve implements PathSegment {
         for (int i = 0; i < n; i++) {
             double bernstein = binomial(n - 1, i) * Math.pow(1 - t, n - 1 - i) * Math.pow(t, i);
             Vector diff = controlPoints[i + 1].minus(controlPoints[i]);
-            derivative = derivative.add(diff.times(bernstein));
+            derivative = derivative.plus(diff.times(bernstein));
         }
 
         return derivative.times(n);
@@ -86,8 +84,8 @@ public class BezierCurve implements PathSegment {
             double bernstein = binomial(n - 2, i) * Math.pow(1 - t, n - 2 - i) * Math.pow(t, i);
             Vector diff = controlPoints[i + 2]
                 .minus(controlPoints[i + 1].times(2))
-                .add(controlPoints[i]);
-            secondDerivative = secondDerivative.add(diff.times(bernstein));
+                .plus(controlPoints[i]);
+            secondDerivative = secondDerivative.plus(diff.times(bernstein));
         }
         
         return secondDerivative.times(n * (n - 1));
@@ -95,11 +93,11 @@ public class BezierCurve implements PathSegment {
     
     public double calculateCurveLength(int numSamples) {
         double length = 0;
-        Vector prevPoint = calculatePointAt(0);
+        Vector prevPoint = computePointAt(0);
 
         for (int i = 1; i <= numSamples; i++) {
             double t = (double) i / numSamples;
-            Vector point = calculatePointAt(t);
+            Vector point = computePointAt(t);
             length += Math.sqrt(point.minus(prevPoint).lengthSquared());
             prevPoint = point;
         }
@@ -108,7 +106,7 @@ public class BezierCurve implements PathSegment {
     }
     
     @Override
-    public SegmentPoint calculateClosestPointTo(Vector target, double startingGuess) {
+    public PathPoint computeClosestPathPointTo(Vector target, double startingGuess) {
 //        /**
 //         * Predict the next t value based how much velocity the robot
 //         * is going along the direction of the tangent line of the path.
@@ -128,7 +126,7 @@ public class BezierCurve implements PathSegment {
         Vector bezierPoint;
 
         do {
-            bezierPoint = calculatePointAt(t);
+            bezierPoint = computePointAt(t);
             firstDerivative = calculateFirstDerivative(t);
 
             Vector errorVector = target.minus(bezierPoint);
@@ -142,7 +140,7 @@ public class BezierCurve implements PathSegment {
 
             double deltaT = numerator / denominator;
 
-            t = PathSegment.clampT(t + deltaT);
+            t = PathGeometry.clampT(t + deltaT);
             if (Math.abs(deltaT) < 1e-6) {
                 break;
             }
@@ -151,11 +149,6 @@ public class BezierCurve implements PathSegment {
         } while (iteration <= maxIterations);
 
         Vector tangentVector = firstDerivative.normalized();
-        return new SegmentPoint(t, tangentVector, bezierPoint);
-    }
-    
-    @Override
-    public Type getSegmentType() {
-        return PathSegment.Type.CURVE;
+        return new PathPoint(t, tangentVector, bezierPoint);
     }
 }

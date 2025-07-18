@@ -32,7 +32,7 @@ public class MecanumDrive extends Drivetrain {
         applyPowers(brakingPowersProvider.getPowers(robotVector, turningPower));
     }
     @Override
-    public void driveTowards(Vector robotVector, double turningPower) {
+    public void followVector(Vector robotVector, double turningPower) {
         applyPowers(acceleratingPowersProvider.getPowers(robotVector, turningPower));
     }
     

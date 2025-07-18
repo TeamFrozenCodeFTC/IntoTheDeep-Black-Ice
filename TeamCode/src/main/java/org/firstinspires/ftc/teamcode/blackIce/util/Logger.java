@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.blackIce.util;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
+import java.lang.reflect.Field;
 import java.util.Locale;
 
 public class Logger {
@@ -9,7 +12,10 @@ public class Logger {
     
     public static void debug(String tag, String key, Object value) {
         if (LEVEL > Log.DEBUG) return;
-        Log.d("BlackIce" + tag, key + ": " + value.toString());
+//        if (value instanceof Number) {
+//            value =
+//        }
+        Log.d("BlackIce" + tag, key + ": " + value);
     }
     
     public static void debug(String key, Object value) {
@@ -52,5 +58,23 @@ public class Logger {
     public static void info(String message) {
         if (LEVEL > Log.INFO) return;
         Log.i("BlackIce", message);
+    }
+    
+    public static void logFields(String tag, Object obj) {
+        if (obj == null) {
+            debug(tag, "null object");
+            return;
+        }
+        
+        Class<?> clazz = obj.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                Object value = field.get(obj);
+                debug(tag, field.getName() + " = " + value);
+            } catch (IllegalAccessException e) {
+                debug(tag, "Cannot access field: " + field.getName());
+            }
+        }
     }
 }

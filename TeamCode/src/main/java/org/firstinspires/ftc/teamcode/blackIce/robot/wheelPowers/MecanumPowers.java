@@ -43,7 +43,7 @@ public class MecanumPowers extends WheelPowers<MecanumPowers> {
         MecanumPowers transitionalPowers = fromRobotVector(robotVector);
         
         return transitionalPowers
-            .add(MecanumPowers.turnCounterclockwise(turnPower))
+            .plus(MecanumPowers.turnCounterclockwise(turnPower))
             .downscaleMaxTo(1);
     }
     
@@ -67,7 +67,7 @@ public class MecanumPowers extends WheelPowers<MecanumPowers> {
     }
 
     private static MecanumPowers fromRobotVector(Vector robotVector) {
-        Vector adjustedVector = Follower.getInstance().getDrivetrain().adjustDirectionalEffort(robotVector);
+        Vector adjustedVector = Follower.getInstance().drivetrain.adjustDirectionalEffort(robotVector);
         
         double upRightDirection = -adjustedVector.getY() + adjustedVector.getX();
         double downLeftDirection = -adjustedVector.getY() - adjustedVector.getX();

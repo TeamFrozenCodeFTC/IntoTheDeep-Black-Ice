@@ -48,7 +48,7 @@ public abstract class OperableComponents<Subclass extends OperableComponents<Sub
             operator.applyToComponents(this.components[i], other.components[i]));
     }
     
-    public Subclass add(double scalar) {
+    public Subclass plus(double scalar) {
         return this.map(component -> component + scalar);
     }
     public Subclass minus(double scalar) {
@@ -61,7 +61,7 @@ public abstract class OperableComponents<Subclass extends OperableComponents<Sub
         return this.map(component -> component / scalar);
     }
     
-    public Subclass add(Subclass other) {
+    public Subclass plus(Subclass other) {
         return this.map(other, Double::sum);
     }
     public Subclass minus(Subclass other) {

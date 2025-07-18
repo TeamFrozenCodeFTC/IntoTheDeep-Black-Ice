@@ -83,6 +83,27 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        
+        // java tips and tricks
+        // dont use threads
+        // DcMotor vs DcMotorEx
+        // OpMode vs LinearOpMode
+        // getting voltage of robot
+        // debug using logcat
+        // connecting wireless-ly to robot (though unstable)
+        // using encoder on robot for simple autonomous, or get odometry wheels and use
+        // roadrunner or pedro path.
+        // why time isn't always good -> isn't always consistent,
+        // Log.d
+        // how to use imu
+        // how to rumble the gamepads
+        // good resource is the samples
+        // PID and PIDF controller
+        
+        // PID for position, Intrgal term is usually avoided because it causes oscillates and
+        // requires you to reset the total.
+        // PIDF for velocity usually
+        //
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!

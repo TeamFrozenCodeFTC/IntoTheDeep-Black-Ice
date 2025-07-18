@@ -25,6 +25,8 @@ public class Vector extends OperableComponents<Vector> {
     /** The unit vector that strafes the robot to the right when at 0 heading. */
     public static Vector RIGHT = new Vector(0,-1);
     
+    public static Vector ZERO = new Vector(0,0);
+    
     
     public Vector(double x, double y) {
         super(new double[]{x, y});
@@ -38,6 +40,10 @@ public class Vector extends OperableComponents<Vector> {
      */
     public static Vector fromScalar(double xAndYComponent) {
         return new Vector(xAndYComponent, xAndYComponent);
+    }
+    
+    public Pose withHeading(double heading) {
+        return new Pose(this, heading);
     }
     
     public double getX() {
@@ -62,10 +68,10 @@ public class Vector extends OperableComponents<Vector> {
         return this.getX() == obj.getX() && this.getY() == obj.getY();
     }
 
-    public static Vector fromMagnitude(double magnitude, double angleRadians) {
+    public static Vector fromPolar(double magnitude, double theta) {
         return new Vector(
-            magnitude * Math.cos(angleRadians),
-            magnitude * Math.sin(angleRadians)
+            magnitude * Math.cos(theta),
+            magnitude * Math.sin(theta)
         );
     }
     
@@ -177,7 +183,7 @@ public class Vector extends OperableComponents<Vector> {
      * Returns the angle of this vector in degrees, counterclockwise from the positive X-axis.
      */
     public double calculateAngle() {
-        return Math.toDegrees(Math.atan2(getY(), getX()));
+        return Math.toDegrees(calculateRadians());
     }
 
     public double calculateRadians() {

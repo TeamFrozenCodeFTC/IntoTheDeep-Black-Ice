@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
  * Implementation of kinematic equations for decelerating the robot at desired decelerations.
  * <pre>
  * v<sub>f</sub><sup>2</sup> = v<sub>i</sub><sup>2</sup> + 2·a·d
- * v<sub>f</sub> = v<sub>i</sub> + a·△t
+ * v<sub>f</sub> = v<sub>i</sub> + a·t
  * </pre>
  * Where:<br>
  * <ul>
@@ -36,6 +36,65 @@ public class Kinematics {
     ) {
         return Math.signum(directionalDistance)
             * Math.sqrt(-2 * deceleration * Math.abs(directionalDistance));
+    }
+    
+    /**
+     * Calculates the constant acceleration required to reach a target velocity over a given distance.
+     * <p>
+     * Based on the kinematic equation:
+     * <pre>
+     *     v<sub>f</sub><sup>2</sup> = v<sub>i</sub><sup>2</sup> + 2ad
+     *     ⇒ a = (v<sub>f</sub><sup>2</sup> - v<sub>i</sub><sup>2</sup>) / (2d)
+     * </pre>
+     */
+    public static double computeAccelerationForDistance(
+        double initialVelocity,
+        double distance,
+        double finalVelocity
+    ) {
+        return (finalVelocity * finalVelocity - initialVelocity * initialVelocity) / (2 * distance);
+    }
+    
+    public static double computeVelocityToReachWithTime(
+        double distance,
+        double seconds,
+        double finalVelocity
+    ) {
+        return (2 * distance / seconds) - finalVelocity;
+    }
+    
+    /**
+     * Calculates the constant acceleration required to reach a target velocity over a given time.
+     * <p>
+     * Based on the kinematic equation:
+     * <pre>
+     *     v<sub>f</sub> = v<sub>i</sub> + a·t
+     *     ⇒ a = (v<sub>f</sub> - v<sub>i</sub>) / t
+     * </pre>
+     */
+    public static double computeAccelerationForTime(
+        double initialVelocity,
+        double timeSeconds,
+        double finalVelocity
+    ) {
+        return (finalVelocity - initialVelocity) / timeSeconds;
+    }
+    
+    
+    /**
+     * Gets the acceleration to reach the final velocity at a given distance.
+     *
+     * <pre>
+     * v<sub>f</sub><sup>2</sup> = v<sub>i</sub><sup>2</sup> + 2·a·d
+     * Solve for a
+     * (v<sub>f</sub><sup>2</sup> - v<sub>i</sub><sup>2</sup>) / 2d = a
+     * </pre>
+     */
+    public static double computeAccelerationToStop(
+        double initialVelocity,
+        double distance
+    ) {
+        return (0 - initialVelocity - initialVelocity) / (2 * distance);
     }
     
     /**
@@ -82,7 +141,7 @@ public class Kinematics {
     }
     
     
-    public static double computeVelocityToReach(
+    public static double computeInitialVelocityToReach(
         double directionalDistance,
         double deceleration,
         double targetVelocity
@@ -90,7 +149,7 @@ public class Kinematics {
         return Math.signum(directionalDistance)
             * Math.sqrt(targetVelocity * targetVelocity - 2 * deceleration * Math.abs(directionalDistance));
     }
-    
+
     // for accelerating, getTargetVelocityToGo 60 inches/second
     
     /**
@@ -183,7 +242,7 @@ public class Kinematics {
     }
 
     public static Vector predictNextLoopVelocity(Vector velocityVector, Vector deltaVelocityVector) {
-        return velocityVector.add(deltaVelocityVector);
+        return velocityVector.plus(deltaVelocityVector);
     }
 
     /**

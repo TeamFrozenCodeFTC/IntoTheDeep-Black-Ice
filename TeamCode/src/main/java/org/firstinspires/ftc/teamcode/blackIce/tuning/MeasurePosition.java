@@ -19,7 +19,7 @@ public class MeasurePosition extends LinearOpMode {
 
         waitForStart();
 
-        follower.getDrivetrain().zeroPowerFloatMode();
+        follower.drivetrain.zeroPowerFloatMode();
 
         while (opModeIsActive()) {
             follower.updateMotionState();
@@ -27,8 +27,8 @@ public class MeasurePosition extends LinearOpMode {
             telemetry.addData("y  ^ ", follower.getMotionState().position.getY());
             telemetry.addData("robotVelocityX", follower.getMotionState().robotRelativeVelocity.getX());
             telemetry.addData("robotVelocityY", follower.getMotionState().robotRelativeVelocity.getY());
-            telemetry.addData("fieldVelocityX", follower.getMotionState().fieldRelativeVelocity.getX());
-            telemetry.addData("fieldVelocityY", follower.getMotionState().fieldRelativeVelocity.getY());
+            telemetry.addData("fieldVelocityX", follower.getMotionState().velocity.getX());
+            telemetry.addData("fieldVelocityY", follower.getMotionState().velocity.getY());
             telemetry.addData("heading", follower.getMotionState().heading);
 
             telemetry.update();

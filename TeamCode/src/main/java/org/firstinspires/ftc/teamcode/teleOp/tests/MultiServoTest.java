@@ -30,12 +30,14 @@ public class MultiServoTest extends GeneralTest {
     }
 
     String[] components = {
-            "sweeperRotator",
-            "dumperServo",
-            "clawLeft",
-            "clawRight",
-            "leftLift",
-        "rightLift"
+//            "sweeperRotator",
+//            "dumperServo",
+//            "clawLeft",
+//            "clawRight",
+//            "leftLift",
+//        "rightLift",
+        "claw"
+        
     };
     ComponentTester tester = new ServoTester();
 

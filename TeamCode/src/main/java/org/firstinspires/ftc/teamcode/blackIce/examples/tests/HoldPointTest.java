@@ -16,11 +16,11 @@ public class HoldPointTest extends LinearOpMode {
 
         waitForStart();
 
-        while (follower.isFollowingPath() && opModeIsActive()) {
+        while (!follower.isDoneFollowingPath() && opModeIsActive()) {
             follower.update();
 
-            follower.drivetrain.driveTowards(
-                follower.motionState.makeRobotRelative(new PIDController(0.5, 0, 0).run(
+            follower.drivetrain.followVector(
+                follower.motionState.makeRobotRelative(new PIDController(0.5, 0, 0).runPID(
                     new Vector(0,0),
                     follower.motionState.getPredictedStoppedPosition(),
                     follower.motionState.deltaTime
@@ -30,7 +30,7 @@ public class HoldPointTest extends LinearOpMode {
             telemetry.addData("position", follower.motionState.position);
             telemetry.addData("predicted position", follower.motionState.getPredictedStoppedPosition());
             telemetry.addData("displacement", follower.motionState.getPredictedStoppedPosition().minus(follower.motionState.position));
-            telemetry.addData("field velocity", follower.motionState.fieldRelativeVelocity);
+            telemetry.addData("field velocity", follower.motionState.velocity);
             telemetry.addData("robot velocity", follower.motionState.robotRelativeVelocity);
 
             telemetry.update();

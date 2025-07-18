@@ -5,33 +5,28 @@ import java.util.List;
 
 class QuadraticRegression {
     public static double[] quadraticFit(List<double[]> points) {
-        int n = points.size();
-        double sumX = 0, sumX2 = 0, sumX3 = 0, sumX4 = 0;
-        double sumY = 0, sumXY = 0, sumX2Y = 0;
-
+        double sumX2 = 0, sumX3 = 0, sumX4 = 0;
+        double sumXY = 0, sumX2Y = 0;
+        
         for (double[] point : points) {
             double x = point[0];
             double y = point[1];
-
-            sumX += x;
+            
             sumX2 += x * x;
             sumX3 += x * x * x;
             sumX4 += x * x * x * x;
-            sumY += y;
             sumXY += x * y;
             sumX2Y += x * x * y;
         }
-
-        // Solve for a, b, c using Cramer's Rule
+        
         double[][] matrix = {
-            {n, sumX, sumX2},
-            {sumX, sumX2, sumX3},
-            {sumX2, sumX3, sumX4}
+            {sumX2, sumX3},
+            {sumX3, sumX4}
         };
-
-        double[] constants = {sumY, sumXY, sumX2Y};
-
-        return solveLinearSystem(matrix, constants);
+        
+        double[] constants = {sumXY, sumX2Y};
+        
+        return solveLinearSystem(matrix, constants); // returns {b, a}
     }
 
     private static double[] solveLinearSystem(double[][] A, double[] B) {
@@ -52,9 +47,7 @@ class QuadraticRegression {
     }
 
     private static double determinant(double[][] matrix) {
-        return matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1])
-            - matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0])
-            + matrix[0][2] * (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]);
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
     }
 
     private static double[][] replaceColumn(double[][] matrix, double[] column, int colIndex) {

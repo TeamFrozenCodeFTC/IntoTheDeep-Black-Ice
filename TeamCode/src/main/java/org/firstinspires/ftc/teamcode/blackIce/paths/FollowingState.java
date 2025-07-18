@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.blackIce.paths;
 
-public enum FollowingState {
+public enum FollowingState { // TODO nest inside follower/pathExecutor
     FOLLOWING,
     HOLDING,
     BRAKING,
     DONE,
-    PAUSED
+    PAUSED,
+    NOT_FOLLOWING
 }

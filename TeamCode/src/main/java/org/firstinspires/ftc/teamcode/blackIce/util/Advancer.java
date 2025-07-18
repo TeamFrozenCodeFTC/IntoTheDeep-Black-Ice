@@ -10,24 +10,22 @@ package org.firstinspires.ftc.teamcode.blackIce.util;
 public class Advancer<T> {
     private final T[] steps;
     private int index = 0;
-    private T current;
-
-    public Advancer(T[] steps) {
+    public final int amountOfSteps;
+    
+    @SafeVarargs
+    public Advancer(T... steps) {
         this.steps = steps;
-        this.current = steps[index];
+        this.amountOfSteps = steps.length;
     }
     
     public T current() {
-        return current;
+        return steps[index];
     }
     
     public boolean advance() {
-        if (!isDone()) {
-            index++;
-            current = steps[index];
-            return true;
-        }
-        return false;
+        if (isDone()) return false;
+        index++;
+        return true;
     }
     
     public boolean isDone() {
@@ -37,9 +35,4 @@ public class Advancer<T> {
     public int getIndex() {
         return index;
     }
-    
-    public int size() {
-        return steps.length;
-    }
 }
-

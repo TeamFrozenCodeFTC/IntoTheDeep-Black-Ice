@@ -15,7 +15,7 @@ public class ApplyPowerTest extends LinearOpMode {
         Follower follower = new Follower(this, new Pose(0,0,0));
         waitForStart();
         
-        follower.getDrivetrain().driveTowards(new Vector(0.6, 0.7), 0);
+        follower.drivetrain.followVector(new Vector(0.6, 0.7), 0);
         follower.waitUntilOpModeStop();
     }
 }

@@ -16,10 +16,13 @@ public class MotionState {
 
     public final double heading; // always in radians
     public final double angularVelocity;
-
-    public final Vector fieldRelativeVelocity;
+    
+    /** Field relative velocity */
+    public final Vector velocity;
     public final Vector robotRelativeVelocity;
-    public final double velocityMagnitude;
+    
+    /** Magnitude of current velocity. */
+    public final double speed;
 
     public final Vector previousRobotRelativeVelocity;
     
@@ -42,8 +45,8 @@ public class MotionState {
         this.heading = headingRadians;
         this.angularVelocity = angularVelocity;
         this.deltaTime = deltaTime;
-        this.fieldRelativeVelocity = fieldRelativeVelocity;
-        this.velocityMagnitude = velocityMagnitude;
+        this.velocity = fieldRelativeVelocity;
+        this.speed = velocityMagnitude;
         this.robotRelativeVelocity = robotRelativeVelocity;
         this.previousRobotRelativeVelocity = previousRobotRelativeVelocity;
     }
@@ -70,7 +73,7 @@ public class MotionState {
         Vector stoppingDisplacement = TuningConstants.BRAKING_DISPLACEMENT
             .getStoppingDistanceWithVelocity(predictedRobotVelocity);
 
-        return position.add(toFieldRelativeVector(stoppingDisplacement));
+        return position.plus(toFieldRelativeVector(stoppingDisplacement));
     }
     
     /**

@@ -23,8 +23,7 @@ public class PIDFController extends PIDController {
         this.F = F;
     }
     
-    @Override
-    public double run(double target, double current, double deltaTime) {
-        return super.run(target, current, deltaTime) + F.compute(target);
+    public double runPIDF(double target, double current, double deltaTime) {
+        return super.runPID(target, current, deltaTime) + F.compute(target);
     }
 }

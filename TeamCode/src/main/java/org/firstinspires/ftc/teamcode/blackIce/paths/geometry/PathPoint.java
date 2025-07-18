@@ -1,17 +1,17 @@
-package org.firstinspires.ftc.teamcode.blackIce.paths.segments;
+package org.firstinspires.ftc.teamcode.blackIce.paths.geometry;
 
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
 
 /**
  * A point on a segment with a tValue (percent along segment) and tangent.
  */
-public class SegmentPoint {
+public class PathPoint {
     private final double tValue;
     private final Vector tangentVector;
     private final Vector point;
     private final boolean isAtEnd;
 
-    public SegmentPoint(
+    public PathPoint(
         double t,
         Vector tangent,
         Vector point

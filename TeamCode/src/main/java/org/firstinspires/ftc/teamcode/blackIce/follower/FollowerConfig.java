@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.blackIce.follower;
 import org.firstinspires.ftc.teamcode.blackIce.controller.PIDController;
 import org.firstinspires.ftc.teamcode.blackIce.localization.Localizer;
 import org.firstinspires.ftc.teamcode.blackIce.math.kinematics.VelocityToStoppingDistanceVectorModel;
-import org.firstinspires.ftc.teamcode.blackIce.paths.PathBehavior;
+import org.firstinspires.ftc.teamcode.blackIce.paths.PathBehaviorModifier;
 
 import org.firstinspires.ftc.teamcode.blackIce.controller.PIDFController;
 import org.firstinspires.ftc.teamcode.blackIce.robot.drivetrain.Drivetrain;
@@ -21,13 +21,13 @@ public class FollowerConfig {
     public PIDController positionalPID;
     public PIDController translationalPID;
     public PIDFController driveVelocityPIDF;
-    public PathBehavior defaultPathBehavior = path -> {};
+    public PathBehaviorModifier defaultPathBehavior = path -> {};
     public VelocityToStoppingDistanceVectorModel brakingDisplacement;
     
     /**
      * Adds default behavior to the each path. Each path can override specific behaviors.
      */
-    public FollowerConfig addDefaultPathBehavior(PathBehavior defaultPathBehavior) {
+    public FollowerConfig addDefaultPathBehavior(PathBehaviorModifier defaultPathBehavior) {
         this.defaultPathBehavior.combine(defaultPathBehavior);
         return this;
     }
@@ -37,7 +37,7 @@ public class FollowerConfig {
      * <p>
      * To extend the default path behavior use, {@link #addDefaultPathBehavior}.
      */
-    public FollowerConfig defaultPathBehavior(PathBehavior defaultPathBehavior) {
+    public FollowerConfig defaultPathBehavior(PathBehaviorModifier defaultPathBehavior) {
         this.defaultPathBehavior = defaultPathBehavior;
         return this;
     }

@@ -1,28 +1,29 @@
-package org.firstinspires.ftc.teamcode.blackIce.paths.segments;
+package org.firstinspires.ftc.teamcode.blackIce.paths.geometry;
 
 import org.firstinspires.ftc.teamcode.blackIce.math.geometry.Vector;
+import org.firstinspires.ftc.teamcode.blackIce.util.Logger;
 
 /**
  * Represents a linear Bezier curve (a straight line) between two points.
  * This is a special case of a Bezier curve with two control points which
  * has enhanced performance for straight lines. Lines can get exact points unlike curves.
  */
-public class LineSegment implements PathSegment {
+public class Line implements PathGeometry {
     private final double length;
     private final Vector startPoint;
-    private final Vector endPoint;
     private final Vector tangent;
+    private final PathPoint endPathPoint;
 
     /**
      * Constructs a line between two points.
      * <p>
      * Points must be at least 1e-6 away from each other.
      */
-    public LineSegment(Vector start, Vector end) {
+    public Line(Vector start, Vector end) {
         this.startPoint = start;
-        this.endPoint = end;
-        this.length = startPoint.distanceTo(endPoint);
-        this.tangent = endPoint.minus(startPoint).normalized();
+        this.length = startPoint.distanceTo(end);
+        this.tangent = end.minus(startPoint).normalized();
+        this.endPathPoint = new PathPoint(1, tangent, end);
         
         if (this.length < 1e-6) {
             throw new IllegalArgumentException("Line too small with length of " + this.length +
@@ -30,41 +31,31 @@ public class LineSegment implements PathSegment {
         }
     }
 
-    @Override
-    public Vector calculatePointAt(double t) {
-        return startPoint.add(tangent.times(t * length));
+    public Vector computePointAt(double t) {
+        return startPoint.plus(tangent.times(t * length));
     }
     
     @Override
-    public SegmentPoint calculateClosestPointTo(Vector point, double startingGuess) {
+    public PathPoint computeClosestPathPointTo(Vector point, double startingGuess) {
         Vector startToPoint = point.minus(startPoint);
  
         double projection = startToPoint.dotProduct(tangent);
         double t = projection / length;
-        t = PathSegment.clampT(t);
+        t = PathGeometry.clampT(t);
         
-        Vector closestPoint = calculatePointAt(t);
-        return new SegmentPoint(t, tangent, closestPoint);
+        Vector closestPoint = computePointAt(t);
+        Logger.debug("internal tangent calculateClosestPointTo", tangent);
+        return new PathPoint(t, tangent, closestPoint);
     }
 
     @Override
     public double length() {
         return length;
     }
-
-    @Override
-    public Vector getEndPoint() {
-        return endPoint;
-    }
-
-    @Override
-    public Vector getEndTangent() {
-        return tangent;
-    }
     
     @Override
-    public Type getSegmentType() {
-        return PathSegment.Type.LINE;
+    public PathPoint getEndPathPoint() {
+        return endPathPoint;
     }
 }
 
